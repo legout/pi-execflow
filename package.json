@@ -39,6 +39,8 @@
     "scripts",
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
     "package.json"
   ],
   "peerDependencies": {
