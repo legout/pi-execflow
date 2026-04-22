@@ -1,8 +1,8 @@
 ---
 description: Normalize a work item and optional ExecPlan into an implementation-ready spec
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5-turbo
-thinking: medium
+model: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
+thinking: high
 fresh: true
 skill: specification
 restore: true

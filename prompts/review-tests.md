@@ -1,7 +1,7 @@
 ---
 description: Review implementation strictly for test adequacy and validation quality
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5.1
+model: openai-codex/gpt-5.4-mini
 thinking: high
 subagent: reviewer
 inheritContext: false

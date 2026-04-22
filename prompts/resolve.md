@@ -2,7 +2,7 @@
 description: Resolve a work item from .tickets/ or .beads/ and find the best matching ExecPlan
 argument-hint: "<work-item-ref> [context...]"
 model: minimax/MiniMax-M2.7
-thinking: medium
+thinking: low
 fresh: true
 skill: resolve
 restore: true

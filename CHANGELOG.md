@@ -4,6 +4,12 @@
 
 - No unreleased changes yet.
 
+## 0.2.3
+
+- Added per-prompt model and thinking configuration in `execflow/settings.yml` using YAML anchors for reusable presets.
+- Updated `scripts/sync-models.mjs` to sync prompt frontmatter from `prompts:` entries directly and to skip wrapper prompts that do not declare model frontmatter.
+- Reassigned planning, spec, review, validation, and summary prompts to the configured models and refreshed prompt frontmatter and initialization docs accordingly.
+
 ## 0.2.2
 
 - Fixed work-skill frontmatter so Pi can load `skills/work/*/SKILL.md` without skill-name or YAML parsing conflicts.

@@ -1,6 +1,6 @@
 {
   "name": "@legout/pi-execflow",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Pi package for brainstorming, ExecPlan authoring, tracker-aware work-item creation, and manual ticket/issue execution.",
   "keywords": [
     "pi-package",

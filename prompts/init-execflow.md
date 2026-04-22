@@ -26,12 +26,12 @@ Tracker selection rules:
 Goals:
 1. Create or update `.execflow/AGENTS.md` with planning, tracker, and ExecPlan usage instructions.
 2. Create `.execflow/PLANS.md` with the project ExecPlan spec.
-3. Create `.execflow/settings.yml` with the project's model-role configuration if it is missing.
+3. Create `.execflow/settings.yml` with the project's model and thinking configuration if it is missing.
 4. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
 5. Initialize the selected tracker tool safely:
    - `tk` mode → ensure `.tickets/` exists
    - `br` mode → ensure `.beads/` exists via `br init`
-6. If `prompts/` exists, apply `.execflow/settings.yml` to those prompt frontmatter `model:` and optional `thinking:` fields using the repository's deterministic model-sync command.
+6. If `prompts/` exists, apply `.execflow/settings.yml` to those prompt frontmatter `model:` and `thinking:` fields using the repository's deterministic model-sync command.
 
 Rules:
 - Do not overwrite user-authored files blindly.
@@ -51,7 +51,7 @@ Rules:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
   - In `br` mode, verify `br` is installed. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
   - Never delete or reset an existing tracker workspace as part of init.
-- If `prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so prompt frontmatter reflects the configured model roles.
+- If `prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so prompt frontmatter reflects the configured per-prompt model and thinking entries.
 - Write `.execflow/PLANS.md` using the exact spec below, with only the Codex-specific wording generalized to refer to a coding agent.
 
 Write `.execflow/settings.yml` with content equivalent to:
@@ -63,24 +63,108 @@ tracker:
   primary: <tk-or-br>
 
 models:
-  orchestration: zai/glm-5-turbo
-  implementation: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
-  validation_fix: zai/glm-5.1
-  fast: minimax/MiniMax-M2.7
-  review1: openai-codex/gpt-5.4
-  review2: openai-codex/gpt-5.4-mini
-  review3: minimax/MiniMax-M2.7
-  review4: minimax/MiniMax-M2.7
+  plan: &plan_model openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
+  orchestration: &orchestration_model zai/glm-5-turbo
+  implementation: &implementation_model kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
+  validation_fix: &validation_fix_model zai/glm-5.1
+  fast: &fast_model minimax/MiniMax-M2.7
+  review1: &review1_model openai-codex/gpt-5.4
+  review2: &review2_model zai/glm-5.1
+  review3: &review3_model openai-codex/gpt-5.4-mini
+  review4: &review4_model minimax/MiniMax-M2.7
 
 thinking:
-  orchestration: high
-  implementation: high
-  validation_fix: high
-  fast: medium
-  review1: high
-  review2: high
-  review3: high
-  review4: medium
+  plan: &plan_thinking high, high, high
+  orchestration: &orchestration_thinking medium
+  implementation: &implementation_thinking medium, medium, medium
+  validation_fix: &validation_fix_thinking medium
+  fast: &fast_thinking low
+  review1: &review1_thinking high
+  review2: &review2_thinking high
+  review3: &review3_thinking high
+  review4: &review4_thinking medium
+
+prompts:
+  # Plan prompts
+  architect:
+    model: *plan_model
+    thinking: *plan_thinking
+  brainstorm:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-issues:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-tickets:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-work-items:
+    model: *plan_model
+    thinking: *plan_thinking
+  impl-plan:
+    model: *implementation_model
+    thinking: *review1_thinking
+  plan-create:
+    model: *plan_model
+    thinking: *plan_thinking
+  plan-improve:
+    model: *plan_model
+    thinking: *plan_thinking
+  spec:
+    model: *implementation_model
+    thinking: *review1_thinking
+
+  # Orchestration prompts
+  finalize:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  init-execflow:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  update-architecture:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+
+  # Implementation prompts
+  implement:
+    model: *implementation_model
+    thinking: *implementation_thinking
+
+  # Validation prompts
+  derive-tests:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
+  fix:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
+  validate:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
+
+  # Fast prompts
+  merge-summary:
+    model: *fast_model
+    thinking: *fast_thinking
+  resolve:
+    model: *fast_model
+    thinking: *fast_thinking
+
+  # Review prompts
+  review-consolidate:
+    model: *review1_model
+    thinking: *review1_thinking
+  review-spec:
+    model: *review1_model
+    thinking: *review1_thinking
+  review-regression:
+    model: *review2_model
+    thinking: *review2_thinking
+  review-tests:
+    model: *review3_model
+    thinking: *review3_thinking
+  review-maintainability:
+    model: *review4_model
+    thinking: *review4_thinking
 ```
 
 Write `.execflow/AGENTS.md` with content equivalent to:

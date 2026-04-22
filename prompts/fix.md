@@ -2,7 +2,7 @@
 description: Fix review findings with minimal scope-preserving changes
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.1
-thinking: high
+thinking: medium
 loop: 2
 fresh: true
 skill: execution

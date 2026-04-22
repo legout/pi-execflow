@@ -1,42 +1,12 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 const repoRoot = process.cwd();
 const targetSettingsPath = join(repoRoot, ".execflow", "settings.yml");
 const packageSettingsPath = join(repoRoot, "execflow", "settings.yml");
 const settingsPath = existsSync(targetSettingsPath) ? targetSettingsPath : packageSettingsPath;
 const promptDir = join(repoRoot, "prompts");
-
-const PROMPT_SLOT_MAP = new Map([
-  ["architect.md", "orchestration"],
-  ["brainstorm.md", "orchestration"],
-  ["create-issues.md", "orchestration"],
-  ["create-tickets.md", "orchestration"],
-  ["create-work-items.md", "orchestration"],
-  ["derive-tests.md", "orchestration"],
-  ["finalize.md", "orchestration"],
-  ["init-execflow.md", "orchestration"],
-  ["plan-create.md", "orchestration"],
-  ["plan-improve.md", "orchestration"],
-  ["spec.md", "orchestration"],
-  ["update-architecture.md", "orchestration"],
-
-  ["implement.md", "implementation"],
-
-  ["fix.md", "validation_fix"],
-  ["validate.md", "validation_fix"],
-
-  ["resolve.md", "fast"],
-  ["merge-summary.md", "fast"],
-  ["impl-plan.md", "fast"],
-
-  ["review-consolidate.md", "review1"],
-  ["review-spec.md", "review1"],
-  ["review-regression.md", "review2"],
-  ["review-tests.md", "review3"],
-  ["review-maintainability.md", "review4"],
-]);
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -49,44 +19,85 @@ function stripInlineComment(line) {
   return line.slice(0, hashIndex);
 }
 
-function parseScalar(raw) {
+function parseSimpleScalar(raw, anchors) {
   const value = raw.trim();
   if (!value) return "";
+
+  if (value.startsWith("*")) {
+    const aliasName = value.slice(1).trim();
+    if (!anchors.has(aliasName)) {
+      fail(`Unknown YAML alias *${aliasName}`);
+    }
+    return anchors.get(aliasName);
+  }
+
   if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
     return value.slice(1, -1);
+  }
+
+  return value;
+}
+
+function parseScalarWithAnchor(raw, anchors, lineForErrors) {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+
+  const anchorMatch = trimmed.match(/^&([A-Za-z0-9_-]+)\s+(.*)$/);
+  let anchorName = null;
+  let valueText = trimmed;
+
+  if (anchorMatch) {
+    anchorName = anchorMatch[1];
+    valueText = anchorMatch[2].trim();
+    if (!valueText) {
+      fail(`Empty anchored value in settings.yml: ${lineForErrors}`);
+    }
+  }
+
+  const value = parseSimpleScalar(valueText, anchors);
+  if (anchorName) {
+    anchors.set(anchorName, value);
   }
   return value;
 }
 
 function parseSimpleYaml(text) {
   const root = {};
-  let currentSection = null;
+  const anchors = new Map();
+  const stack = [{ indent: -1, obj: root }];
+
   for (const originalLine of text.replace(/\r/g, "").split("\n")) {
     const line = stripInlineComment(originalLine).replace(/\s+$/, "");
     if (!line.trim()) continue;
 
-    const topMatch = line.match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/);
-    if (topMatch && !line.startsWith("  ")) {
-      const [, key, rawValue = ""] = topMatch;
-      if (rawValue.trim() === "") {
-        root[key] = {};
-        currentSection = key;
-      } else {
-        root[key] = parseScalar(rawValue);
-        currentSection = null;
-      }
+    const indentMatch = line.match(/^\s*/);
+    const indent = indentMatch ? indentMatch[0].length : 0;
+    if (indent % 2 !== 0) {
+      fail(`Unsupported indentation in settings.yml: ${originalLine}`);
+    }
+
+    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
+      stack.pop();
+    }
+
+    const parent = stack[stack.length - 1].obj;
+    const content = line.slice(indent);
+    const match = content.match(/^([A-Za-z0-9_.-]+):(?:\s*(.*))?$/);
+    if (!match) {
+      fail(`Unsupported settings.yml line: ${originalLine}`);
+    }
+
+    const [, key, rawValue = ""] = match;
+    if (rawValue.trim() === "") {
+      const child = {};
+      parent[key] = child;
+      stack.push({ indent, obj: child });
       continue;
     }
 
-    const nestedMatch = line.match(/^  ([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (nestedMatch && currentSection) {
-      const [, key, rawValue = ""] = nestedMatch;
-      root[currentSection][key] = parseScalar(rawValue);
-      continue;
-    }
-
-    fail(`Unsupported settings.yml line: ${originalLine}`);
+    parent[key] = parseScalarWithAnchor(rawValue, anchors, originalLine);
   }
+
   return root;
 }
 
@@ -103,9 +114,13 @@ function extractFrontmatter(text, filePath) {
   };
 }
 
+function frontmatterHasField(lines, key) {
+  return lines.some((line) => new RegExp(`^${key}:\\s*`).test(line));
+}
+
 function upsertFrontmatterField(lines, key, value) {
   const rendered = `${key}: ${value}`;
-  const index = lines.findIndex((line) => line.match(new RegExp(`^${key}:\s*`)));
+  const index = lines.findIndex((line) => line.match(new RegExp(`^${key}:\\s*`)));
   if (index !== -1) {
     lines[index] = rendered;
     return;
@@ -135,33 +150,55 @@ function upsertFrontmatterField(lines, key, value) {
   lines.push(rendered);
 }
 
-function syncPromptFile(filePath, slot, settings) {
+function resolvePromptConfig(promptKey, settings) {
+  const prompts = settings.prompts ?? {};
+  return prompts[promptKey] ?? prompts[`${promptKey}.md`] ?? null;
+}
+
+function syncPromptFile(filePath, settings) {
+  const promptKey = basename(filePath, ".md");
   const text = readFileSync(filePath, "utf8");
   const { prefix, frontmatter, separator, body } = extractFrontmatter(text, filePath);
   const lines = frontmatter.split("\n");
-  const modelValue = settings.models?.[slot];
-  if (!modelValue) {
-    fail(`Missing models.${slot} in ${settingsPath}`);
+  const promptConfig = resolvePromptConfig(promptKey, settings);
+
+  if (!promptConfig) {
+    if (frontmatterHasField(lines, "model") || frontmatterHasField(lines, "thinking")) {
+      fail(`Missing prompts.${promptKey} in ${settingsPath}`);
+    }
+    return {
+      file: filePath,
+      source: "skipped",
+      model: null,
+      thinking: null,
+      changed: false,
+      skipped: true,
+    };
   }
 
-  upsertFrontmatterField(lines, "model", modelValue);
-
-  const thinkingValue = settings.thinking?.[slot];
-  if (thinkingValue) {
-    upsertFrontmatterField(lines, "thinking", thinkingValue);
+  if (promptConfig.model === undefined || promptConfig.model === "") {
+    fail(`Missing prompts.${promptKey}.model in ${settingsPath}`);
   }
+  if (promptConfig.thinking === undefined || promptConfig.thinking === "") {
+    fail(`Missing prompts.${promptKey}.thinking in ${settingsPath}`);
+  }
+
+  upsertFrontmatterField(lines, "model", promptConfig.model);
+  upsertFrontmatterField(lines, "thinking", promptConfig.thinking);
 
   const updated = `${prefix}${lines.join("\n")}${separator}${body}`;
   const changed = updated !== text;
   if (changed) {
     writeFileSync(filePath, updated);
   }
+
   return {
     file: filePath,
-    slot,
-    model: modelValue,
-    thinking: thinkingValue ?? null,
+    source: `prompts.${promptKey}`,
+    model: promptConfig.model,
+    thinking: promptConfig.thinking,
     changed,
+    skipped: false,
   };
 }
 
@@ -174,21 +211,20 @@ if (!existsSync(promptDir)) {
 
 const settings = parseSimpleYaml(readFileSync(settingsPath, "utf8"));
 const promptFiles = readdirSync(promptDir).filter((name) => name.endsWith(".md")).sort();
-const results = [];
-
-for (const promptFile of promptFiles) {
-  const slot = PROMPT_SLOT_MAP.get(promptFile);
-  if (!slot) continue;
-  results.push(syncPromptFile(join(promptDir, promptFile), slot, settings));
-}
+const results = promptFiles.map((promptFile) => syncPromptFile(join(promptDir, promptFile), settings));
 
 const changed = results.filter((result) => result.changed);
+const skipped = results.filter((result) => result.skipped);
 const relativeSettingsPath = settingsPath.replace(`${repoRoot}/`, "");
 process.stdout.write(`Applied model settings from ${relativeSettingsPath}\n`);
-process.stdout.write(`Updated ${changed.length} of ${results.length} mapped prompt files.\n`);
+process.stdout.write(`Updated ${changed.length} of ${results.length - skipped.length} configured prompt files.\n`);
 for (const result of results) {
   const relativePath = result.file.replace(`${repoRoot}/`, "");
+  if (result.skipped) {
+    process.stdout.write(`- ${relativePath}: skipped | no prompt config and no model frontmatter\n`);
+    continue;
+  }
   const state = result.changed ? "updated" : "unchanged";
   const thinkingSuffix = result.thinking ? ` | thinking=${result.thinking}` : "";
-  process.stdout.write(`- ${relativePath}: ${state} | slot=${result.slot} | model=${result.model}${thinkingSuffix}\n`);
+  process.stdout.write(`- ${relativePath}: ${state} | source=${result.source} | model=${result.model}${thinkingSuffix}\n`);
 }

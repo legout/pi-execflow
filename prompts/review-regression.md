@@ -1,7 +1,7 @@
 ---
 description: Review implementation for regression risk, compatibility, and interface hazards
 argument-hint: "<work-item-ref> [context...]"
-model: openai-codex/gpt-5.4-mini
+model: zai/glm-5.1
 thinking: high
 subagent: reviewer
 inheritContext: false

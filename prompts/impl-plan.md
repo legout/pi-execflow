@@ -1,8 +1,8 @@
 ---
 description: Produce a minimal implementation plan for a work item
 argument-hint: "<work-item-ref> [context...]"
-model: minimax/MiniMax-M2.7
-thinking: medium
+model: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
+thinking: high
 fresh: true
 skill: planning
 restore: true

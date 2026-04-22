@@ -1,7 +1,7 @@
 ---
 description: Derive a concrete test plan from a work item in .tickets/ or .beads/
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5-turbo
+model: zai/glm-5.1
 thinking: medium
 fresh: true
 skill: testing

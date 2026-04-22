@@ -2,7 +2,7 @@
 description: Validate a work-item implementation against requirements
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.1
-thinking: high
+thinking: medium
 fresh: true
 skill: validation
 restore: true

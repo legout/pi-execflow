@@ -9,7 +9,7 @@ It bundles a practical workflow for:
 - ExecPlan creation and improvement
 - tracker-aware work-item generation for both `tk` and `br`
 - manual single-ticket / single-issue execution
-- model-role configuration via `.execflow/settings.yml`
+- model and thinking configuration via `.execflow/settings.yml`
 
 ## What it is
 
@@ -142,47 +142,67 @@ In initialized target repositories, the source of truth is `.execflow/settings.y
 
 ### Settings schema
 
-Use this shape in target repositories at `.execflow/settings.yml`. The checked-in template in this repo currently lives at `execflow/settings.yml` and contains:
+Use this shape in target repositories at `.execflow/settings.yml`. The checked-in template in this repo lives at `execflow/settings.yml`. The top-level `models` and `thinking` keys are reusable YAML anchor buckets, and the `prompts:` section is the per-prompt source of truth.
 
 ```yml
 version: 1
 
 tracker:
-  primary: br
+  primary: <tk-or-br>
 
 models:
-  orchestration: zai/glm-5-turbo
-  implementation: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
-  validation_fix: zai/glm-5.1
-  fast: minimax/MiniMax-M2.7
-  review1: openai-codex/gpt-5.4
-  review2: openai-codex/gpt-5.4-mini
-  review3: zai/glm-5.1
-  review4: minimax/MiniMax-M2.7
+  plan: &plan_model <plan model string>
+  orchestration: &orchestration_model <orchestration model string>
+  implementation: &implementation_model <implementation model string>
+  validation_fix: &validation_fix_model <validation model string>
+  fast: &fast_model <fast model string>
+  review1: &review1_model <review1 model string>
+  review2: &review2_model <review2 model string>
+  review3: &review3_model <review3 model string>
+  review4: &review4_model <review4 model string>
 
 thinking:
-  orchestration: medium
-  implementation: medium
-  validation_fix: high
-  fast: medium
-  review1: high
-  review2: high
-  review3: high
-  review4: medium
+  plan: &plan_thinking <plan thinking>
+  orchestration: &orchestration_thinking <orchestration thinking>
+  implementation: &implementation_thinking <implementation thinking>
+  validation_fix: &validation_fix_thinking <validation thinking>
+  fast: &fast_thinking <fast thinking>
+  review1: &review1_thinking <review1 thinking>
+  review2: &review2_thinking <review2 thinking>
+  review3: &review3_thinking <review3 thinking>
+  review4: &review4_thinking <review4 thinking>
+
+prompts:
+  architect:
+    model: *plan_model
+    thinking: *plan_thinking
+  brainstorm:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-issues:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-tickets:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-work-items:
+    model: *plan_model
+    thinking: *plan_thinking
+  impl-plan:
+    model: *implementation_model
+    thinking: *implementation_thinking
+  plan-create:
+    model: *plan_model
+    thinking: *plan_thinking
+  plan-improve:
+    model: *plan_model
+    thinking: *plan_thinking
+  spec:
+    model: *implementation_model
+    thinking: *review1_thinking
 ```
 
-### Prompt-to-role mapping
-
-| Role | Prompts |
-|------|---------|
-| `orchestration` | `architect`, `brainstorm`, `create-work-items`, `create-tickets`, `create-issues`, `plan-create`, `plan-improve`, `finalize`, `init-execflow`, `spec`, `derive-tests`, `update-architecture` |
-| `implementation` | `implement` |
-| `validation_fix` | `validate`, `fix` |
-| `fast` | `resolve`, `impl-plan`, `merge-summary` |
-| `review1` | `review-spec`, `review-consolidate` |
-| `review2` | `review-regression` |
-| `review3` | `review-tests` |
-| `review4` | `review-maintainability` |
+Keep `prompts:` entries aligned with the prompt files in `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
 
 ### Sync workflow
 
@@ -198,12 +218,12 @@ or from the shell:
 npm run setup-models
 ```
 
-This deterministically rewrites `model:` and optional `thinking:` frontmatter in mapped `prompts/*.md` files.
+This deterministically rewrites `model:` and `thinking:` frontmatter in `prompts/*.md` files using the per-prompt entries in `prompts:`. Prompt files without a matching `prompts:` entry are left alone only if they do not already declare `model:` or `thinking:`.
 
 Properties of the sync step:
 
 - deterministic and idempotent
-- file-name-to-role based
+- prompt-name based
 - does not rely on placeholder text remaining in frontmatter
 
 ### Important frontmatter notes

@@ -2,7 +2,7 @@
 description: Concise merge summary for a completed work item
 argument-hint: "<work-item-ref> [context...]"
 model: minimax/MiniMax-M2.7
-thinking: medium
+thinking: low
 fresh: true
 skill: finalize
 restore: true
