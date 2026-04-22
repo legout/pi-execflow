@@ -9,11 +9,11 @@ It bundles a practical workflow for:
 - ExecPlan creation and improvement
 - tracker-aware work-item generation for both `tk` and `br`
 - manual single-ticket / single-issue execution
-- model-role configuration via `.ticket-flow/settings.yml`
+- model-role configuration via `.execflow/settings.yml`
 
 ## What it is
 
-`pi-execflow` packages the workflow resources that were previously kept project-local under `.pi/`, together with the `.ticket-flow` artifact templates and the supporting planning skills required by the prompts.
+`pi-execflow` packages the workflow resources that were previously kept project-local under `.pi/`, together with the checked-in `execflow/` template files that `/init` materializes into `.execflow/` inside target repositories, plus the supporting planning skills required by the prompts.
 
 The result is a Pi-installable extension package you can use in other repositories.
 
@@ -42,20 +42,20 @@ pi -e /absolute/path/to/pi-execflow
 ### 1. Initialize a target project
 
 ```bash
-/ticket-flow-init --tk
+/init --tk
 ```
 
 or:
 
 ```bash
-/ticket-flow-init --br
+/init --br
 ```
 
 This scaffolds:
 
-- `.ticket-flow/AGENTS.md`
-- `.ticket-flow/PLANS.md`
-- `.ticket-flow/settings.yml`
+- `.execflow/AGENTS.md`
+- `.execflow/PLANS.md`
+- `.execflow/settings.yml`
 - tracker setup for `tk` or `br`
 
 ### 2. Create the plan
@@ -91,13 +91,13 @@ Tracker-specific alternatives:
 ### 4. Execute one work item manually
 
 ```bash
-/ticket-execute-standard <ticket-or-issue-ref>
+/exec-standard <ticket-or-issue-ref>
 ```
 
 or for stricter execution:
 
 ```bash
-/ticket-execute-strict <ticket-or-issue-ref>
+/exec-strict <ticket-or-issue-ref>
 ```
 
 ## Included resources
@@ -106,12 +106,12 @@ or for stricter execution:
 
 Loaded from:
 
-- `.pi/prompts/`
+- `prompts/`
 
 Main commands include:
 
-- `/ticket-flow-init [--tk|--br]`
-- `/ticket-flow-setup-models`
+- `/init [--tk|--br]`
+- `/sync-models`
 - `/brainstorm <topic>`
 - `/plan <topic>`
 - `/plan-chain <topic>`
@@ -120,33 +120,76 @@ Main commands include:
 - `/create-work-items <topic>`
 - `/create-tickets <topic>`
 - `/create-issues <topic>`
-- `/ticket-execute-standard <ticket-or-issue-ref>`
-- `/ticket-execute-strict <ticket-or-issue-ref>`
+- `/exec-standard <ticket-or-issue-ref>`
+- `/exec-strict <ticket-or-issue-ref>`
 - `/update-architecture [topic]`
 
 ### Skills
 
 Loaded from:
 
-- `.pi/skills/`
 - `skills/`
 
 This package includes:
 
-- planning skills: `brainstorm`, `architect`, `execplan-create`, `execplan-improve`, `ticketize`, `update-architecture`
-- local execution skills: the `ticket-*` skill suite
-- local tracker skills: `issueize`, `work-itemize`
+- planning skills: `brainstorm`, `architect`, `execplan-create`, `execplan-improve`, `update-architecture`
+- execution skills: `resolve`, `specification`, `planning`, `implementation`, `testing`, `validation`, `execution`, `orchestration`, `scope-control`, `repo-conventions`, `finalization`, `review-discipline`, `review-maintenance`, `review-suite`
+- tracker skills: `issueize`, `work-itemize`, `ticketize`
 
 ## Model configuration
 
-The source of truth is:
+In initialized target repositories, the source of truth is `.execflow/settings.yml`. In this package repo, the checked-in template lives at `execflow/settings.yml`.
 
-- `.ticket-flow/settings.yml`
+### Settings schema
 
-After editing it, run:
+Use this shape in target repositories at `.execflow/settings.yml`. The checked-in template in this repo currently lives at `execflow/settings.yml` and contains:
+
+```yml
+version: 1
+
+tracker:
+  primary: br
+
+models:
+  orchestration: zai/glm-5-turbo
+  implementation: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
+  validation_fix: zai/glm-5.1
+  fast: minimax/MiniMax-M2.7
+  review1: openai-codex/gpt-5.4
+  review2: openai-codex/gpt-5.4-mini
+  review3: zai/glm-5.1
+  review4: minimax/MiniMax-M2.7
+
+thinking:
+  orchestration: medium
+  implementation: medium
+  validation_fix: high
+  fast: medium
+  review1: high
+  review2: high
+  review3: high
+  review4: medium
+```
+
+### Prompt-to-role mapping
+
+| Role | Prompts |
+|------|---------|
+| `orchestration` | `architect`, `brainstorm`, `create-work-items`, `create-tickets`, `create-issues`, `plan-create`, `plan-improve`, `finalize`, `init`, `spec`, `derive-tests`, `update-architecture` |
+| `implementation` | `implement` |
+| `validation_fix` | `validate`, `fix` |
+| `fast` | `resolve`, `impl-plan`, `merge-summary` |
+| `review1` | `review-spec`, `review-consolidate` |
+| `review2` | `review-regression` |
+| `review3` | `review-tests` |
+| `review4` | `review-maintainability` |
+
+### Sync workflow
+
+After editing `.execflow/settings.yml`, run:
 
 ```bash
-/ticket-flow-setup-models
+/sync-models
 ```
 
 or from the shell:
@@ -155,23 +198,35 @@ or from the shell:
 npm run setup-models
 ```
 
-This rewrites mapped `.pi/prompts/*.md` frontmatter deterministically.
+This deterministically rewrites `model:` and optional `thinking:` frontmatter in mapped `prompts/*.md` files.
+
+Properties of the sync step:
+
+- deterministic and idempotent
+- file-name-to-role based
+- does not rely on placeholder text remaining in frontmatter
+
+### Important frontmatter notes
+
+- **`model` is a string.** For fallback chains, use a single comma-separated string such as `kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini`. Do not convert model values to YAML arrays unless the runtime is updated to support them.
+- **`thinking` is optional and also string-based.** Typical values are `low`, `medium`, and `high`.
+- **Chain prompts do not use wrapper `model` / `skill`.** When a prompt uses `chain:`, the wrapper prompt acts as orchestration only. Put model / thinking choices on the leaf prompts instead.
 
 ## Included artifact templates
 
-The package ships these `.ticket-flow` templates:
+The package ships these checked-in templates under `execflow/`:
 
-- `AGENTS.md`
-- `PLANS.md`
-- `settings.yml`
+- `execflow/AGENTS.md`
+- `execflow/PLANS.md`
+- `execflow/settings.yml`
 
-`/ticket-flow-init` uses those conventions when bootstrapping a target project.
+`/init` materializes their target-project counterparts under `.execflow/`.
 
 ## Scope notes
 
-- delegated `/ticket-flow` / `/ticket-queue` execution remains documented as a `tk`-oriented path
+- delegated `/execflow` / `/execflow-queue` execution remains documented as a `tk`-oriented path
 - `br` support is primarily through `create-issues` and the manual local execution prompts
-- `.pi/todos/` is intentionally not included in this package
+- `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
 
 ## Development
 
@@ -180,10 +235,3 @@ Sync models into prompt frontmatter:
 ```bash
 npm run setup-models
 ```
-
-## More detail
-
-For package-internal reference material, see:
-
-- `.pi/README.md`
-- `.pi/MODELS.md`

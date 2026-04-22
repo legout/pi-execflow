@@ -4,10 +4,9 @@ Thanks for contributing.
 
 `pi-execflow` is a Pi package that bundles:
 
-- prompt templates under `.pi/prompts/`
-- local execution and tracker skills under `.pi/skills/`
-- planning skills under `skills/`
-- bootstrap artifacts under `.ticket-flow/`
+- prompt templates under `prompts/`
+- execution, tracker, and planning skills under `skills/`
+- bootstrap artifacts under `execflow/`
 - a deterministic model sync script under `scripts/`
 
 ## Development workflow
@@ -16,10 +15,9 @@ Thanks for contributing.
 
 Most day-to-day changes will be in:
 
-- `.pi/prompts/`
-- `.pi/skills/`
+- `prompts/`
 - `skills/`
-- `.ticket-flow/`
+- `execflow/`
 - `README.md`
 - `package.json`
 
@@ -27,7 +25,7 @@ Most day-to-day changes will be in:
 
 Model assignments are sourced from:
 
-- `.ticket-flow/settings.yml`
+- `execflow/settings.yml`
 
 After editing that file, sync prompt frontmatter with:
 
@@ -35,7 +33,7 @@ After editing that file, sync prompt frontmatter with:
 npm run setup-models
 ```
 
-This rewrites mapped `.pi/prompts/*.md` files deterministically.
+This rewrites mapped `prompts/*.md` files deterministically.
 
 ### 3. Verify prompt/skill consistency
 
@@ -43,17 +41,16 @@ Before opening a PR, check:
 
 - prompts referenced in docs actually exist
 - skills referenced by prompts are packaged
-- `.ticket-flow/settings.yml` matches the intended model-role split
-- `.pi/MODELS.md` still reflects the shipped settings schema and mapping
+- `execflow/settings.yml` matches the intended model-role split
 
 ## Design boundaries
 
 Please preserve these package boundaries unless the change intentionally expands scope:
 
-- delegated `/ticket-flow` / `/ticket-queue` is documented as a `tk`-oriented path
+- delegated `/execflow` / `/execflow-queue` is documented as a `tk`-oriented path
 - `br` support is primarily through `create-issues` and the manual local execution prompts
-- `.ticket-flow/settings.yml` is the source of truth for prompt-model assignments
-- `/ticket-flow-setup-models` is the supported way to rewrite prompt frontmatter
+- `execflow/settings.yml` is the source of truth for prompt-model assignments in this package repo
+- `/sync-models` is the supported way to rewrite prompt frontmatter
 
 ## Release expectations
 
