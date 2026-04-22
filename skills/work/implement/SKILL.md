@@ -1,5 +1,5 @@
 ---
-name: implementation
+name: implement
 description: Make minimal, correct, reviewable code changes for one work item without widening scope. Use for local prompts that implement or fix a resolved work item.
 ---
 

@@ -1,6 +1,10 @@
 ---
 name: review-suite
-description: Consolidate work-item review from multiple lenses: correctness, regression risk, test evidence, maintainability, scope discipline, and merge readiness. Use for prompts that synthesize specialized review passes into one actionable verdict.
+description: >
+  Consolidate work-item review from multiple lenses: correctness, regression
+  risk, test evidence, maintainability, scope discipline, and merge readiness.
+  Use for prompts that synthesize specialized review passes into one actionable
+  verdict.
 ---
 
 # Review Suite

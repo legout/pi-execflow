@@ -1,5 +1,5 @@
 ---
-name: resolution
+name: resolve
 description: Resolve work items reliably from .tickets/ or .beads/ and connect them to ExecPlans when available. Use before manual implementation, planning, validation, or review.
 ---
 

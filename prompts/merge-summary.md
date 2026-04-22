@@ -4,7 +4,7 @@ argument-hint: "<work-item-ref> [context...]"
 model: minimax/MiniMax-M2.7
 thinking: medium
 fresh: true
-skill: finalization
+skill: finalize
 restore: true
 ---
 

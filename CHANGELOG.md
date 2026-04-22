@@ -4,6 +4,10 @@
 
 - No unreleased changes yet.
 
+## 0.2.2
+
+- Fixed work-skill frontmatter so Pi can load `skills/work/*/SKILL.md` without skill-name or YAML parsing conflicts.
+
 ## 0.2.1
 
 - Renamed the initialization command from `/init` to `/init-execflow` and updated the packaging metadata and docs accordingly.

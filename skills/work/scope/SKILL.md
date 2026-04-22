@@ -1,5 +1,5 @@
 ---
-name: scope-control
+name: scope
 description: Keep changes tightly within work-item scope and prevent opportunistic expansion. Use for any manual prompt that risks widening the diff.
 ---
 

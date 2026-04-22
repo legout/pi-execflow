@@ -1,5 +1,5 @@
 ---
-name: finalization
+name: finalize
 description: Update a work item with a concise execution note and close it only when validation passed and review found no material issues. Use for prompts that finalize work-item status after manual execution chains.
 ---
 

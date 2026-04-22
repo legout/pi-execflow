@@ -4,7 +4,7 @@ argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5-turbo
 thinking: medium
 fresh: true
-skill: finalization
+skill: finalize
 restore: true
 ---
 

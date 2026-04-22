@@ -133,7 +133,7 @@ Loaded from:
 This package includes:
 
 - planning skills: `brainstorm`, `architect`, `execplan-create`, `execplan-improve`, `update-architecture`
-- execution skills: `resolve`, `specification`, `planning`, `implementation`, `testing`, `validation`, `execution`, `orchestration`, `scope-control`, `repo-conventions`, `finalization`, `review-discipline`, `review-maintenance`, `review-suite`
+- execution skills: `resolve`, `specification`, `planning`, `implement`, `testing`, `validation`, `execution`, `orchestration`, `scope`, `repo-conventions`, `finalize`, `review-discipline`, `review-maintenance`, `review-suite`
 - tracker skills: `issueize`, `work-itemize`, `ticketize`
 
 ## Model configuration
