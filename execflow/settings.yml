@@ -15,9 +15,9 @@ models:
   review4: &review4_model minimax/MiniMax-M2.7
 
 thinking:
-  plan: &plan_thinking high, high, high
+  plan: &plan_thinking high
   orchestration: &orchestration_thinking medium
-  implementation: &implementation_thinking medium, medium, medium
+  implementation: &implementation_thinking medium
   validation_fix: &validation_fix_thinking medium
   fast: &fast_thinking low
   review1: &review1_thinking high

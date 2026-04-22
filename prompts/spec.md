@@ -10,6 +10,12 @@ restore: true
 
 You are preparing an implementation-ready specification for exactly one work item.
 
+<if-model is="kimi-coding/*">
+Prefer a terse, implementation-oriented spec that names exact files, constraints, and go/no-go conditions.
+<else>
+Be extra explicit about which requirements are confirmed, which assumptions are inferred, and what evidence will prove completion.
+</if-model>
+
 ## Inputs
 
 - Target work-item reference or path: `$1`

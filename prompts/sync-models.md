@@ -1,6 +1,6 @@
 ---
 description: Sync project prompt frontmatter models from .execflow/settings.yml
-run: node scripts/sync-models.mjs
+run: node ~/.pi/agent/git/github.com/legout/pi-execflow/scripts/sync-models.mjs
 handoff: never
 restore: true
 ---

@@ -3,6 +3,40 @@ description: Initialize planning + tracker scaffolding (.execflow/, AGENTS.md, a
 argument-hint: "[--tk|--br]"
 model: zai/glm-5-turbo
 thinking: medium
+run: |
+  node <<'NODE'
+  const fs = require('fs');
+  const path = require('path');
+  const os = require('os');
+
+  const srcDir = path.join(os.homedir(), '.pi', 'agent', 'git', 'github.com', 'legout', 'pi-execflow', 'prompts');
+  const dstDir = path.join(process.cwd(), '.pi', 'prompts');
+
+  function copyMissing(srcBase, dstBase) {
+    for (const entry of fs.readdirSync(srcBase, { withFileTypes: true })) {
+      const srcPath = path.join(srcBase, entry.name);
+      const dstPath = path.join(dstBase, entry.name);
+      if (entry.isDirectory()) {
+        fs.mkdirSync(dstPath, { recursive: true });
+        copyMissing(srcPath, dstPath);
+        continue;
+      }
+      if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+      if (fs.existsSync(dstPath)) continue;
+      fs.copyFileSync(srcPath, dstPath);
+    }
+  }
+
+  if (!fs.existsSync(srcDir)) {
+    console.error(`Canonical prompt source not found: ${srcDir}`);
+    process.exit(1);
+  }
+
+  fs.mkdirSync(dstDir, { recursive: true });
+  copyMissing(srcDir, dstDir);
+  console.log(`Scaffolded missing prompt overlays from ${srcDir} into ${dstDir}`);
+  NODE
+handoff: always
 restore: true
 ---
 
@@ -186,6 +220,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
+- Use `/refresh-prompts` to recopy canonical prompts from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/` and then resync models.
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
 - Use `/plan-chain <topic>` only when brainstorming is already complete and the remaining planning steps are non-interactive.

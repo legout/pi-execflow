@@ -5,12 +5,19 @@ model: openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
 thinking: high, high, high
 skill: execplan-improve
 loop: 3
+rotate: true
 fresh: true
 converge: true
 restore: true
 ---
 
 Improve the ExecPlan for: $@
+
+<if-model is="openai-codex/*">
+Focus on the highest-leverage blockers first and keep the rewrite tight, but still reflect every material change across the living sections.
+<else>
+Be extra explicit about missing dependencies, hidden execution blockers, validation proof, and cross-section consistency when rewriting the plan.
+</if-model>
 
 Use `$@` as the primary topic selector. If `$@` is empty, auto-detect from existing ExecPlans.
 

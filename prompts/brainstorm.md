@@ -11,6 +11,12 @@ If `$@` is empty, ask the user for a topic before proceeding.
 
 Run an interactive brainstorming session for this topic: $@
 
+<if-model is="openai-codex/*">
+Drive toward 2-3 sharp approaches and a clear recommendation once the user has enough context, while keeping the session interactive.
+<else>
+Keep the exploration very explicit: restate trade-offs plainly, ask one focused question at a time, and avoid assuming the preferred direction is already obvious.
+</if-model>
+
 Procedure:
 
 1. Derive the topic slug from `$@` (kebab-case, lowercase, max 40 chars).

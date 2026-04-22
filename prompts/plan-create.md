@@ -9,6 +9,12 @@ restore: true
 
 Create a self-contained ExecPlan for: $@
 
+<if-model is="openai-codex/*">
+Optimize for the clearest boundary simplification and the strongest milestone narrative, without repeating obvious scaffolding.
+<else>
+Be extra explicit about user-visible outcomes, repo-relative file paths, milestone prerequisites, and why the chosen sequencing is simpler than the alternatives.
+</if-model>
+
 Procedure:
 
 1. Determine the topic using `$@` first, then topic resolution from the execplan-create skill.

@@ -9,6 +9,12 @@ restore: true
 
 You are implementing exactly one work item.
 
+<if-model is="kimi-coding/*">
+Prefer the smallest direct diff consistent with the work item. Reuse local abstractions before inventing new ones.
+<else>
+Be extra explicit about why each edit is necessary, which acceptance criteria it satisfies, and where residual risk remains.
+</if-model>
+
 ## Inputs
 
 - Target work-item reference or path: `$1`

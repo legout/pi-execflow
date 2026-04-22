@@ -10,6 +10,12 @@ restore: true
 
 You are creating a minimal implementation plan for one work item.
 
+<if-model is="kimi-coding/*">
+Bias toward the smallest practical edit sequence and concrete file guesses. Avoid abstract cleanup plans or optional redesign work.
+<else>
+Be extra explicit about validation, risk boundaries, and why the proposed edit sequence is the smallest safe path.
+</if-model>
+
 ## Inputs
 
 - Target work-item reference or path: `$1`

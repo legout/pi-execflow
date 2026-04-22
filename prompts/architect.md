@@ -9,6 +9,12 @@ restore: true
 
 Create or update the project's ARCHITECTURE.md.
 
+<if-model is="openai-codex/*">
+Favor the deepest simplification first. Keep the prose crisp, but still name exact repo-relative paths, boundaries, and leaked responsibilities.
+<else>
+Be extra explicit about repository boundaries, data flow handoffs, and why each module is deep or shallow. Do not assume the architectural context is obvious from filenames alone.
+</if-model>
+
 Topic context: $@
 
 Procedure:
