@@ -43,7 +43,7 @@ Rules:
   - Do not modify any content outside the `<!-- execflow -->` markers.
 - For `.execflow/AGENTS.md`:
   - If the file does not exist, create it using the generated block shown below.
-  - If the file exists and already contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, replace only that generated block so rerunning `/init --tk` or `/init --br` can refresh tracker-specific guidance safely.
+  - If the file exists and already contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, replace only that generated block so rerunning `/init-execflow --tk` or `/init-execflow --br` can refresh tracker-specific guidance safely.
   - If the file exists but does **not** contain those markers, leave it untouched and report that manual review may be needed because the file appears user-customized.
 - For `.execflow/PLANS.md`: create it if missing; if it already exists, leave it untouched (the user may have customized it).
 - For `.execflow/settings.yml`: create it if missing; if it already exists, leave it untouched unless the user explicitly asks to regenerate it.
@@ -91,7 +91,7 @@ Write `.execflow/AGENTS.md` with content equivalent to:
 
 Use this repository's execflow workflow for planning and ticket execution.
 
-Primary tracker selected during init: `<tk-or-br>`
+Primary tracker selected during init-execflow: `<tk-or-br>`
 
 ## ExecPlans
 
@@ -99,7 +99,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 ## Planning workflow
 
-- Use `/init [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
+- Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/sync-models` after editing `.execflow/settings.yml` to sync `prompts/` frontmatter.
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
@@ -161,7 +161,7 @@ Read that file before using `pi-execflow`, `tk`, `br`, or ExecPlans in this repo
 <!-- /execflow -->
 ```
 
-The marker-based blocks enable safe, idempotent re-runs of `/init`: only the content between the markers is touched.
+The marker-based blocks enable safe, idempotent re-runs of `/init-execflow`: only the content between the markers is touched.
 
 Write `.execflow/PLANS.md` with exactly this generalized ExecPlan spec:
 

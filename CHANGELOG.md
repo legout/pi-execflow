@@ -4,6 +4,10 @@
 
 - No unreleased changes yet.
 
+## 0.2.1
+
+- Renamed the initialization command from `/init` to `/init-execflow` and updated the packaging metadata and docs accordingly.
+
 ## 0.2.0
 
 - Renamed the packaged bootstrap artifacts from `.ticket-flow/` to `execflow/` and updated initialization to scaffold `.execflow/` in target projects.

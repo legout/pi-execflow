@@ -49,15 +49,15 @@ When no explicit tracker flag is provided, determine the tracker conservatively:
 2. If `.beads/` exists and `.tickets/` does not exist, select `br`.
 3. If both exist, inspect `.execflow/AGENTS.md` for a line like:
 
-       Primary tracker selected during init: `tk`
+       Primary tracker selected during init-execflow: `tk`
 
    or:
 
-       Primary tracker selected during init: `br`
+       Primary tracker selected during init-execflow: `br`
 
    Use that value if present.
 4. If both tracker workspaces exist and no primary tracker can be determined from `.execflow/AGENTS.md`, stop and ask the user to rerun with `--tk` or `--br`.
-5. If neither tracker workspace exists, tell the user to run `/init --tk` or `/init --br` first and stop.
+5. If neither tracker workspace exists, tell the user to run `/init-execflow --tk` or `/init-execflow --br` first and stop.
 
 ## Shared shaping rules
 

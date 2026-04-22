@@ -13,7 +13,7 @@ It bundles a practical workflow for:
 
 ## What it is
 
-`pi-execflow` packages the workflow resources that were previously kept project-local under `.pi/`, together with the checked-in `execflow/` template files that `/init` materializes into `.execflow/` inside target repositories, plus the supporting planning skills required by the prompts.
+`pi-execflow` packages the workflow resources that were previously kept project-local under `.pi/`, together with the checked-in `execflow/` template files that `/init-execflow` materializes into `.execflow/` inside target repositories, plus the supporting planning skills required by the prompts.
 
 The result is a Pi-installable extension package you can use in other repositories.
 
@@ -42,13 +42,13 @@ pi -e /absolute/path/to/pi-execflow
 ### 1. Initialize a target project
 
 ```bash
-/init --tk
+/init-execflow --tk
 ```
 
 or:
 
 ```bash
-/init --br
+/init-execflow --br
 ```
 
 This scaffolds:
@@ -110,7 +110,7 @@ Loaded from:
 
 Main commands include:
 
-- `/init [--tk|--br]`
+- `/init-execflow [--tk|--br]`
 - `/sync-models`
 - `/brainstorm <topic>`
 - `/plan <topic>`
@@ -175,7 +175,7 @@ thinking:
 
 | Role | Prompts |
 |------|---------|
-| `orchestration` | `architect`, `brainstorm`, `create-work-items`, `create-tickets`, `create-issues`, `plan-create`, `plan-improve`, `finalize`, `init`, `spec`, `derive-tests`, `update-architecture` |
+| `orchestration` | `architect`, `brainstorm`, `create-work-items`, `create-tickets`, `create-issues`, `plan-create`, `plan-improve`, `finalize`, `init-execflow`, `spec`, `derive-tests`, `update-architecture` |
 | `implementation` | `implement` |
 | `validation_fix` | `validate`, `fix` |
 | `fast` | `resolve`, `impl-plan`, `merge-summary` |
@@ -220,7 +220,7 @@ The package ships these checked-in templates under `execflow/`:
 - `execflow/PLANS.md`
 - `execflow/settings.yml`
 
-`/init` materializes their target-project counterparts under `.execflow/`.
+`/init-execflow` materializes their target-project counterparts under `.execflow/`.
 
 ## Scope notes
 

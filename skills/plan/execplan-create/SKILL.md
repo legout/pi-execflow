@@ -17,7 +17,7 @@ Write plans the way a strong software designer would: not as a task list for rea
 - The user must provide a topic, or a brainstorm must exist at `.execflow/plans/<topic-slug>/brainstorm.md`.
 - `.execflow/PLANS.md` must exist and be read in full before drafting.
 - If no topic and no brainstorm exists, ask the user for a topic before proceeding.
-- If `.execflow/PLANS.md` is missing, tell the user to run `/init` first and stop.
+- If `.execflow/PLANS.md` is missing, tell the user to run `/init-execflow` first and stop.
 
 ## Source of truth
 

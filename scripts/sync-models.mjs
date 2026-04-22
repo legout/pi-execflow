@@ -16,7 +16,7 @@ const PROMPT_SLOT_MAP = new Map([
   ["create-work-items.md", "orchestration"],
   ["derive-tests.md", "orchestration"],
   ["finalize.md", "orchestration"],
-  ["init.md", "orchestration"],
+  ["init-execflow.md", "orchestration"],
   ["plan-create.md", "orchestration"],
   ["plan-improve.md", "orchestration"],
   ["spec.md", "orchestration"],
@@ -166,7 +166,7 @@ function syncPromptFile(filePath, slot, settings) {
 }
 
 if (!existsSync(settingsPath)) {
-  fail(`Missing ${settingsPath}. Run /init first or create the settings file.`);
+  fail(`Missing ${settingsPath}. Run /init-execflow first or create the settings file.`);
 }
 if (!existsSync(promptDir)) {
   fail(`Missing ${promptDir}. Nothing to sync.`);

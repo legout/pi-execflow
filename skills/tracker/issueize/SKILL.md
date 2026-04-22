@@ -18,7 +18,7 @@ The goal is not mechanical milestone-to-issue conversion. The goal is a set of i
 - An ExecPlan must exist at `.execflow/plans/<topic-slug>/execplan.md`.
 - A `br` workspace must exist at `.beads/`.
 - If no ExecPlan exists, tell the user to run `/plan-create` first and stop.
-- If `.beads/` does not exist, tell the user to run `/init --br` first and stop.
+- If `.beads/` does not exist, tell the user to run `/init-execflow --br` first and stop.
 - If multiple ExecPlans exist in `.execflow/plans/`, list them and ask which to issueize.
 
 ## Primary references

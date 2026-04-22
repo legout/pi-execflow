@@ -24,7 +24,7 @@ Procedure:
    - Prefer vertical end-to-end slices when splitting a large milestone
    - Merge tiny adjacent enabler or cleanup steps when that yields a better review unit
    - Build a dependency DAG from real prerequisites; only fall back to milestone order when needed
-6. Ensure `br` is available and the repo has a `.beads/` workspace. If not, stop and suggest `/init --br`.
+6. Ensure `br` is available and the repo has a `.beads/` workspace. If not, stop and suggest `/init-execflow --br`.
 7. For each issue, create it using `br create` with:
    - Title from the milestone name
    - Description with milestone prose, concrete steps, acceptance criteria

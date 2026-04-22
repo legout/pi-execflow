@@ -3,7 +3,7 @@
 
 Use this repository's execflow workflow for planning and ticket execution.
 
-Primary tracker selected during init: `tk`
+Primary tracker selected during init-execflow: `tk`
 
 ## ExecPlans
 
@@ -11,7 +11,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 ## Planning workflow
 
-- Use `/init [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
+- Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/sync-models` after editing `.execflow/settings.yml` to sync `prompts/` frontmatter.
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
