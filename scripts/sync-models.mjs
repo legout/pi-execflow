@@ -6,7 +6,8 @@ const repoRoot = process.cwd();
 const targetSettingsPath = join(repoRoot, ".execflow", "settings.yml");
 const packageSettingsPath = join(repoRoot, "execflow", "settings.yml");
 const settingsPath = existsSync(targetSettingsPath) ? targetSettingsPath : packageSettingsPath;
-const promptDir = join(repoRoot, "prompts");
+const projectPromptDir = join(repoRoot, ".pi", "prompts");
+const packagePromptDir = join(repoRoot, "prompts");
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -205,7 +206,15 @@ function syncPromptFile(filePath, settings) {
 if (!existsSync(settingsPath)) {
   fail(`Missing ${settingsPath}. Run /init-execflow first or create the settings file.`);
 }
+
+const promptDir = existsSync(targetSettingsPath)
+  ? projectPromptDir
+  : packagePromptDir;
+
 if (!existsSync(promptDir)) {
+  if (existsSync(targetSettingsPath)) {
+    fail(`Missing ${promptDir}. Run /init-execflow first to scaffold .pi/prompts/.`);
+  }
   fail(`Missing ${promptDir}. Nothing to sync.`);
 }
 

@@ -33,7 +33,7 @@ After editing that file, sync prompt frontmatter with:
 npm run setup-models
 ```
 
-This rewrites mapped `prompts/*.md` files deterministically.
+In the package repo, this rewrites checked-in `prompts/*.md` files deterministically. In initialized target projects, `/sync-models` rewrites `.pi/prompts/*.md`.
 
 ### 3. Verify prompt/skill consistency
 
@@ -41,7 +41,7 @@ Before opening a PR, check:
 
 - prompts referenced in docs actually exist
 - skills referenced by prompts are packaged
-- `execflow/settings.yml` matches the intended model-role split
+- `execflow/settings.yml` matches the intended per-prompt model/thinking setup
 
 ## Design boundaries
 
@@ -49,7 +49,7 @@ Please preserve these package boundaries unless the change intentionally expands
 
 - delegated `/execflow` / `/execflow-queue` is documented as a `tk`-oriented path
 - `br` support is primarily through `create-issues` and the manual local execution prompts
-- `execflow/settings.yml` is the source of truth for prompt-model assignments in this package repo
+- `execflow/settings.yml` is the source of truth for per-prompt model/thinking assignments in this package repo
 - `/sync-models` is the supported way to rewrite prompt frontmatter
 
 ## Release expectations

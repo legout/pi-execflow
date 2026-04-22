@@ -4,6 +4,11 @@
 
 - No unreleased changes yet.
 
+## 0.2.4
+
+- Switched `/init-execflow` guidance to scaffold project-local prompt overlays in `.pi/prompts/` from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/`.
+- Updated `/sync-models` and related docs to target `.pi/prompts/*.md` in initialized projects while keeping `prompts/*.md` as the package-development fallback.
+
 ## 0.2.3
 
 - Added per-prompt model and thinking configuration in `execflow/settings.yml` using YAML anchors for reusable presets.

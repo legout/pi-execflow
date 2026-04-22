@@ -31,7 +31,7 @@ Goals:
 5. Initialize the selected tracker tool safely:
    - `tk` mode → ensure `.tickets/` exists
    - `br` mode → ensure `.beads/` exists via `br init`
-6. If `prompts/` exists, apply `.execflow/settings.yml` to those prompt frontmatter `model:` and `thinking:` fields using the repository's deterministic model-sync command.
+6. Copy this package's canonical prompts from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/` if they are missing, then apply `.execflow/settings.yml` to those project-local prompt frontmatter `model:` and `thinking:` fields using the repository's deterministic model-sync command.
 
 Rules:
 - Do not overwrite user-authored files blindly.
@@ -47,11 +47,12 @@ Rules:
   - If the file exists but does **not** contain those markers, leave it untouched and report that manual review may be needed because the file appears user-customized.
 - For `.execflow/PLANS.md`: create it if missing; if it already exists, leave it untouched (the user may have customized it).
 - For `.execflow/settings.yml`: create it if missing; if it already exists, leave it untouched unless the user explicitly asks to regenerate it.
+- For `.pi/prompts/`: create the directory if missing and copy prompt templates from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/`. If a target prompt file already exists, leave it untouched unless the user explicitly asks to regenerate prompt overlays.
 - For tracker setup:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
   - In `br` mode, verify `br` is installed. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
   - Never delete or reset an existing tracker workspace as part of init.
-- If `prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so prompt frontmatter reflects the configured per-prompt model and thinking entries.
+- If `.pi/prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so project-local prompt frontmatter reflects the configured per-prompt model and thinking entries.
 - Write `.execflow/PLANS.md` using the exact spec below, with only the Codex-specific wording generalized to refer to a coding agent.
 
 Write `.execflow/settings.yml` with content equivalent to:
@@ -184,7 +185,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 ## Planning workflow
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
-- Use `/sync-models` after editing `.execflow/settings.yml` to sync `prompts/` frontmatter.
+- Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
 - Use `/plan-chain <topic>` only when brainstorming is already complete and the remaining planning steps are non-interactive.
@@ -218,6 +219,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - `.execflow/plans/<topic-slug>/brainstorm.md`
 - `.execflow/plans/<topic-slug>/execplan.md`
 - `.execflow/settings.yml`
+- `.pi/prompts/*.md`
 - `ARCHITECTURE.md`
 
 ### Delegated runtime artifacts (`tk` delegated flow only)

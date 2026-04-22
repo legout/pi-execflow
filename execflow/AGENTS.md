@@ -12,7 +12,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 ## Planning workflow
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
-- Use `/sync-models` after editing `.execflow/settings.yml` to sync `prompts/` frontmatter.
+- Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
 - Use `/plan-chain <topic>` only when brainstorming is already complete and the remaining planning steps are non-interactive.
@@ -46,6 +46,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - `.execflow/plans/<topic-slug>/brainstorm.md`
 - `.execflow/plans/<topic-slug>/execplan.md`
 - `.execflow/settings.yml`
+- `.pi/prompts/*.md`
 - `ARCHITECTURE.md`
 
 ### Delegated runtime artifacts (`tk` delegated flow only)

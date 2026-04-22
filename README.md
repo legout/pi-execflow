@@ -56,6 +56,7 @@ This scaffolds:
 - `.execflow/AGENTS.md`
 - `.execflow/PLANS.md`
 - `.execflow/settings.yml`
+- `.pi/prompts/*.md` copied from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/`
 - tracker setup for `tk` or `br`
 
 ### 2. Create the plan
@@ -202,7 +203,7 @@ prompts:
     thinking: *review1_thinking
 ```
 
-Keep `prompts:` entries aligned with the prompt files in `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
+Keep `prompts:` entries aligned with the project prompt files in `.pi/prompts/`. When developing this package itself, the same names also correspond to the checked-in source prompts under `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
 
 ### Sync workflow
 
@@ -218,7 +219,7 @@ or from the shell:
 npm run setup-models
 ```
 
-This deterministically rewrites `model:` and `thinking:` frontmatter in `prompts/*.md` files using the per-prompt entries in `prompts:`. Prompt files without a matching `prompts:` entry are left alone only if they do not already declare `model:` or `thinking:`.
+This deterministically rewrites `model:` and `thinking:` frontmatter in `.pi/prompts/*.md` for initialized projects using the per-prompt entries in `prompts:`. When run inside the package repo, it falls back to rewriting the checked-in source prompts under `prompts/`.
 
 Properties of the sync step:
 
@@ -240,7 +241,7 @@ The package ships these checked-in templates under `execflow/`:
 - `execflow/PLANS.md`
 - `execflow/settings.yml`
 
-`/init-execflow` materializes their target-project counterparts under `.execflow/`.
+`/init-execflow` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/`.
 
 ## Scope notes
 
@@ -250,7 +251,7 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Development
 
-Sync models into prompt frontmatter:
+Sync models into package prompt frontmatter during package development:
 
 ```bash
 npm run setup-models

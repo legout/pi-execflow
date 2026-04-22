@@ -13,7 +13,7 @@ Run work-item execution through a disciplined sequence of phases so the outcome 
 
 ## Repository fit
 
-This skill is for the local `prompts/` overlay.
+This skill is for the local `.pi/prompts/` overlay.
 It is not a replacement for the package's delegated `/execflow` state machine.
 Unless the user asks for that official workflow, avoid mutating `tk` state or repo-root `execflow/` runtime artifacts as side effects.
 
