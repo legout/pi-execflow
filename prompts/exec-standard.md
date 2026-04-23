@@ -19,3 +19,5 @@ Flow:
 - run four specialized reviewer subagents in parallel
 - consolidate the review verdict
 - add a final work-item note and close on a true pass
+
+This is the fast path. It does not include an automatic fix-and-rerun cycle. If the consolidated review says the work still needs changes, use `/fix` followed by `/validate` and `/review`, or run `/exec-strict` instead.

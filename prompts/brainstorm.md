@@ -22,12 +22,13 @@ Procedure:
 1. Derive the topic slug from `$@` (kebab-case, lowercase, max 40 chars).
 2. Check if `.execflow/plans/<topic-slug>/brainstorm.md` already exists.
 3. If it exists and status is `complete`, report that a brainstorm already exists and suggest running `/plan-chain $@` or `/plan-create $@` next. Stop.
-4. If it exists and status is `in-progress`, offer to resume or restart.
+4. If it exists and status is `in-progress`, offer to resume or restart. If the user resumes, read the existing file, summarize the captured exploration, and continue from the unresolved questions. If the user restarts, replace the prior brainstorm with a fresh session.
 5. If it does not exist, start the interactive brainstorming session following the brainstorm skill.
-6. **Optional external research:** if the topic appears to depend on external technology choices, APIs, frameworks, libraries, or current best practices, first check whether a `researcher` subagent is available via `subagents_list`. If it is available, spawn it to gather the latest docs, trade-offs, and best practices relevant to the topic, then use its findings as brainstorming context. If no `researcher` agent is available, continue without it.
+6. **Optional external research:** if the topic appears to depend on external technology choices, APIs, frameworks, libraries, or current best practices, first check whether a `researcher` subagent is available via `subagent` discovery (`action: "list"`). If it is available, spawn it to gather the latest docs, trade-offs, and best practices relevant to the topic, then use its findings as brainstorming context. If no `researcher` agent is available, continue without it.
 
 Follow the brainstorm skill exactly for the exploration and convergence phases.
 
-When the session concludes, write `.execflow/plans/<topic-slug>/brainstorm.md` using the skill's output format.
+When the session pauses before convergence, write or update `.execflow/plans/<topic-slug>/brainstorm.md` with `status: in-progress` using the skill's output format.
+When the session concludes with a chosen direction, write or update the same file with `status: complete`.
 
 Report the file path and suggest running `/plan-chain $@` or `/plan-create $@` next.

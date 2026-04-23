@@ -22,21 +22,30 @@ Execution plans may live in:
 
 - `.execflow/plans/`
 
-In this repository, `.tickets/` is the primary source of truth.
-Support `.beads/` as a portability path, but remember that a `br` workspace is **not** a directory of per-issue markdown files.
+Do not assume `.tickets/` is primary when both trackers exist.
+Prefer repository evidence in this order:
+
+1. a direct file path supplied by the user
+2. the only tracker workspace that exists
+3. the primary tracker declared in `.execflow/AGENTS.md`
+4. the `tracker.primary` value in `.execflow/settings.yml`
+
+Remember that a `br` workspace is **not** a directory of per-issue markdown files.
 
 ## Resolution order
 
 1. If the input is a valid file path, use it directly and treat it as a file-backed work item.
-2. Otherwise search `.tickets/` for:
-   - exact ID
-   - exact filename
-   - slug/title similarity
-3. If still unresolved and a `.beads/` workspace is present, switch to `br`-style resolution:
-   - try `RUST_LOG=error br show <input> --json` for an exact ID match
-   - if that fails, use `RUST_LOG=error br search "<input>" --json` or `RUST_LOG=error br list --json` to identify title / similarity matches
-   - stop if multiple plausible candidates remain
-4. Search `.execflow/plans/` for the best associated plan using:
+2. Determine tracker preference from repo state:
+   - only `.beads/` exists → prefer `br`
+   - only `.tickets/` exists → prefer `tk`
+   - both exist → prefer the tracker declared in `.execflow/AGENTS.md`, then `.execflow/settings.yml`
+   - if neither preference source exists, treat resolution as ambiguous unless one tracker yields a clear exact match and the other does not
+3. Resolve against the preferred tracker first:
+   - `tk` preference → search `.tickets/` for exact ID, exact filename, then slug/title similarity
+   - `br` preference → use `RUST_LOG=error br show <input> --json` for exact ID, then `RUST_LOG=error br search "<input>" --json` or `RUST_LOG=error br list --json`
+4. If the preferred tracker does not resolve the item and the other tracker exists, try the other tracker as a fallback.
+5. Stop if multiple plausible candidates remain across either tracker.
+6. Search `.execflow/plans/` for the best associated plan using:
    - ID match
    - slug/title match
    - references in content

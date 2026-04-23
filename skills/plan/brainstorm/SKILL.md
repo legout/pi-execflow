@@ -20,6 +20,15 @@ Explore a topic or feature idea from multiple angles: assumptions, constraints, 
 
 This is an **interactive** skill. The agent and the user engage in multi-turn conversation. The agent must not treat this as a one-shot prompt — it should explore deeply, ask probing questions, and let the user steer.
 
+## Supported document states
+
+The brainstorm file may be saved in one of two states:
+
+- `status: in-progress` — exploration has been captured, but the user has not yet chosen a direction or the session was intentionally paused for later resumption.
+- `status: complete` — exploration is finished and a direction has been chosen.
+
+When resuming an `in-progress` brainstorm, read the existing file first, summarize the captured context back to the user, and continue from the unresolved questions instead of restarting by default.
+
 ## Topic resolution
 
 1. If the user provides a topic argument, use it.
@@ -49,9 +58,10 @@ This is an **interactive** skill. The agent and the user engage in multi-turn co
 
 ### Phase 3: Write
 
-7. Write the brainstorm document to `.execflow/plans/<topic-slug>/brainstorm.md`.
-8. Create the directory if it does not exist.
-9. Report the file path and a brief summary.
+7. If the conversation pauses before convergence, write the brainstorm document to `.execflow/plans/<topic-slug>/brainstorm.md` with `status: in-progress`.
+8. If the conversation converges on a direction, write or update the same file with `status: complete`.
+9. Create the directory if it does not exist.
+10. Report the file path and a brief summary.
 
 ## Output format
 
@@ -61,7 +71,7 @@ Write the brainstorm document using this exact structure:
 # Brainstorm: <topic>
 
 date: <ISO-8601>
-status: complete
+status: in-progress | complete
 
 ## Problem Statement
 
@@ -113,7 +123,7 @@ status: complete
 
 ## Chosen Direction
 
-<What the user decided, in their own words when possible.>
+<What the user decided, in their own words when possible. If the brainstorm is still in progress, write `Not chosen yet.`>
 
 ## Decisions Made
 
@@ -127,6 +137,10 @@ status: complete
 ## Success Criteria
 
 - <observable outcome that means "done">
+
+## Next Resume Point
+
+- <what remains unresolved before the brainstorm can be completed>
 ```
 
 ## Hard rules
@@ -137,7 +151,7 @@ status: complete
 4. **Record user decisions explicitly.** When the user makes a choice, capture it.
 5. **Stop and ask when direction is ambiguous.** Do not assume the user's intent.
 6. **Be interactive, not dump-and-run.** Present ideas in digestible chunks. Pause for user input. Let the user steer.
-7. **Write the file at the end, not incrementally.** The brainstorm.md is the final output, not a running log.
+7. **Do not turn the brainstorm into a running transcript.** Update the file only at meaningful checkpoints: when the user explicitly pauses/saves for later or when the brainstorm is completed.
 
 ## Ending the session
 
@@ -146,4 +160,4 @@ The brainstorm ends when:
 - The agent and user have converged on a direction.
 - The user explicitly asks to write the brainstorm.
 
-At that point, write the brainstorm.md and report the file path.
+At that point, write `status: complete`, update the resume point to indicate no further brainstorm work is required, and report the file path.

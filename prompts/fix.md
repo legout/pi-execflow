@@ -3,7 +3,6 @@ description: Fix review findings with minimal scope-preserving changes
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.1
 thinking: medium
-loop: 2
 fresh: true
 skill: execution
 restore: true
@@ -36,6 +35,7 @@ You are applying fixes to a work-item implementation after review.
 - If a requested fix requires scope change, flag it explicitly.
 - Treat the most recent consolidated review as authoritative unless it clearly contains a false positive.
 - If a finding is a false positive, do not change code for it; explain why it was skipped.
+- This is a single-pass fix prompt. Any additional repair cycle must follow a fresh validation and review pass.
 - Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless the user explicitly asks for that workflow.
 
 ## Output format

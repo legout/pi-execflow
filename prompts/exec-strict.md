@@ -8,6 +8,8 @@ restore: true
 
 This command runs a stricter manual work-item workflow.
 
+It includes exactly one explicit repair cycle after the first consolidated review. The `/fix` step is single-pass; any further iteration should happen only after a fresh review run.
+
 Flow:
 
 - resolve the work item and plan context
