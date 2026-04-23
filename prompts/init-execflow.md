@@ -1,5 +1,5 @@
 ---
-description: Initialize planning + tracker scaffolding (.execflow/, AGENTS.md, and optional tk/br tracker setup)
+description: Initialize planning + tracker scaffolding (.execflow/, .pi/prompts/, AGENTS.md, and optional tk/br tracker setup)
 argument-hint: "[--tk|--br]"
 model: zai/glm-5-turbo
 thinking: medium
@@ -9,32 +9,106 @@ run: |
   const path = require('path');
   const os = require('os');
 
-  const srcDir = path.join(os.homedir(), '.pi', 'agent', 'git', 'github.com', 'legout', 'pi-execflow', 'prompts');
-  const dstDir = path.join(process.cwd(), '.pi', 'prompts');
+  function readJson(filePath) {
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch {
+      return null;
+    }
+  }
 
-  function copyMissing(srcBase, dstBase) {
+  function isPackageRoot(dir) {
+    const pkg = readJson(path.join(dir, 'package.json'));
+    return Boolean(
+      pkg &&
+      pkg.name === '@legout/pi-execflow' &&
+      fs.existsSync(path.join(dir, 'prompts')) &&
+      fs.existsSync(path.join(dir, 'execflow')) &&
+      fs.existsSync(path.join(dir, 'scripts', 'sync-models.mjs'))
+    );
+  }
+
+  function searchForPackage(root) {
+    if (!fs.existsSync(root)) return null;
+    const stack = [root];
+    while (stack.length) {
+      const current = stack.pop();
+      if (isPackageRoot(current)) return current;
+      for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        if (entry.name === '.git' || entry.name === 'node_modules') continue;
+        stack.push(path.join(current, entry.name));
+      }
+    }
+    return null;
+  }
+
+  function findPackageRoot() {
+    let dir = process.cwd();
+    while (true) {
+      if (isPackageRoot(dir)) return dir;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+
+    const searchRoots = [
+      path.join(os.homedir(), '.pi', 'agent'),
+      path.join(os.homedir(), 'Library', 'Application Support', 'Zed', 'external_agents', 'registry'),
+    ];
+
+    for (const root of searchRoots) {
+      const match = searchForPackage(root);
+      if (match) return match;
+    }
+
+    return null;
+  }
+
+  const packageRoot = findPackageRoot();
+  if (!packageRoot) {
+    console.error('Unable to locate the installed @legout/pi-execflow package root. Reinstall the package or run from the package checkout.');
+    process.exit(1);
+  }
+
+  const promptSrcDir = path.join(packageRoot, 'prompts');
+  const promptDstDir = path.join(process.cwd(), '.pi', 'prompts');
+  const execflowSrcDir = path.join(packageRoot, 'execflow');
+  const execflowDstDir = path.join(process.cwd(), '.execflow');
+
+  function copyMissingTree(srcBase, dstBase, predicate) {
     for (const entry of fs.readdirSync(srcBase, { withFileTypes: true })) {
       const srcPath = path.join(srcBase, entry.name);
       const dstPath = path.join(dstBase, entry.name);
       if (entry.isDirectory()) {
         fs.mkdirSync(dstPath, { recursive: true });
-        copyMissing(srcPath, dstPath);
+        copyMissingTree(srcPath, dstPath, predicate);
         continue;
       }
-      if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+      if (!entry.isFile()) continue;
+      if (predicate && !predicate(entry.name, srcPath)) continue;
       if (fs.existsSync(dstPath)) continue;
       fs.copyFileSync(srcPath, dstPath);
+      console.log(`created ${path.relative(process.cwd(), dstPath)}`);
     }
   }
 
-  if (!fs.existsSync(srcDir)) {
-    console.error(`Canonical prompt source not found: ${srcDir}`);
+  if (!fs.existsSync(promptSrcDir)) {
+    console.error(`Canonical prompt source not found: ${promptSrcDir}`);
+    process.exit(1);
+  }
+  if (!fs.existsSync(execflowSrcDir)) {
+    console.error(`Canonical execflow source not found: ${execflowSrcDir}`);
     process.exit(1);
   }
 
-  fs.mkdirSync(dstDir, { recursive: true });
-  copyMissing(srcDir, dstDir);
-  console.log(`Scaffolded missing prompt overlays from ${srcDir} into ${dstDir}`);
+  fs.mkdirSync(promptDstDir, { recursive: true });
+  fs.mkdirSync(execflowDstDir, { recursive: true });
+
+  copyMissingTree(promptSrcDir, promptDstDir, (name) => name.endsWith('.md'));
+  copyMissingTree(execflowSrcDir, execflowDstDir);
+
+  console.log(`scaffold-source ${packageRoot}`);
   NODE
 handoff: always
 restore: true
@@ -47,6 +121,11 @@ Accepted tracker flags:
 - `--tk` — initialize for `tk` ticket tracking
 - `--br` — initialize for `br` issue tracking
 
+Canonical scaffold sources:
+
+- prompts: `<resolved @legout/pi-execflow package root>/prompts/`
+- execflow templates: `<resolved @legout/pi-execflow package root>/execflow/`
+
 Tracker selection rules:
 
 1. If both `--tk` and `--br` are present, stop and ask the user to choose one.
@@ -55,20 +134,20 @@ Tracker selection rules:
    - `.tickets/` → `tk`
    - `.beads/` → `br`
 4. If no flag is present and both workspaces exist, ask which tracker should be treated as primary.
-5. If no flag is present and neither workspace exists, ask whether to initialize `tk` or `br`.
+5. If no flag is present and neither workspace exists, default to `br`.
 
 Goals:
-1. Create or update `.execflow/AGENTS.md` with planning, tracker, and ExecPlan usage instructions.
-2. Create `.execflow/PLANS.md` with the project ExecPlan spec.
-3. Create `.execflow/settings.yml` with the project's model and thinking configuration if it is missing.
-4. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
-5. Initialize the selected tracker tool safely:
+1. Scaffold `.pi/prompts/` by copying missing prompt overlays from the canonical prompt source.
+2. Scaffold `.execflow/AGENTS.md`, `.execflow/PLANS.md`, and `.execflow/settings.yml` by copying missing files from the canonical `execflow/` source.
+3. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
+4. Initialize the selected tracker tool safely:
    - `tk` mode → ensure `.tickets/` exists
    - `br` mode → ensure `.beads/` exists via `br init`
-6. Copy this package's canonical prompts from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/` if they are missing, then apply `.execflow/settings.yml` to those project-local prompt frontmatter `model:` and `thinking:` fields using the repository's deterministic model-sync command.
+5. Run the repository's deterministic model sync so `.pi/prompts/*.md` reflects `.execflow/settings.yml`.
 
 Rules:
 - Do not overwrite user-authored files blindly.
+- The deterministic pre-step already copied **missing** files from the canonical package checkout. Use that as the starting point instead of inlining the full file contents in your response.
 - Determine the selected tracker mode before writing tracker-specific instructions.
 - For the root `AGENTS.md`:
   - If the file does not exist, create it with the block shown below.
@@ -76,202 +155,39 @@ Rules:
   - If the file already contains `<!-- execflow -->`, replace everything between `<!-- execflow -->` and `<!-- /execflow -->` (inclusive) with the updated block.
   - Do not modify any content outside the `<!-- execflow -->` markers.
 - For `.execflow/AGENTS.md`:
-  - If the file does not exist, create it using the generated block shown below.
-  - If the file exists and already contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, replace only that generated block so rerunning `/init-execflow --tk` or `/init-execflow --br` can refresh tracker-specific guidance safely.
+  - If the file was created by the deterministic copy step, keep the copied content as the base.
+  - If the file already exists and contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, refresh only that generated block using the canonical source file from the resolved installed package root as the base.
   - If the file exists but does **not** contain those markers, leave it untouched and report that manual review may be needed because the file appears user-customized.
-- For `.execflow/PLANS.md`: create it if missing; if it already exists, leave it untouched (the user may have customized it).
-- For `.execflow/settings.yml`: create it if missing; if it already exists, leave it untouched unless the user explicitly asks to regenerate it.
-- For `.pi/prompts/`: create the directory if missing and copy prompt templates from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/`. If a target prompt file already exists, leave it untouched unless the user explicitly asks to regenerate prompt overlays.
+  - In the generated block, ensure `Primary tracker selected during init-execflow:` matches the selected tracker mode.
+  - Also ensure the Planning workflow mentions `/refresh-prompts` as the command that recopies canonical prompts into `.pi/prompts/` and reruns sync.
+- For `.execflow/PLANS.md`:
+  - If the file was copied by the deterministic step, keep that copied content.
+  - If it already existed before this run, leave it untouched.
+- For `.execflow/settings.yml`:
+  - If the file was copied by the deterministic step, keep the copied content as the base.
+  - If it already existed before this run, leave it untouched unless the user explicitly asks to regenerate it.
+  - When the file is managed by this init run, ensure `tracker.primary` matches the selected tracker mode.
+- For `.pi/prompts/`:
+  - Missing prompt files have already been copied from the canonical prompt source.
+  - Leave existing prompt files untouched unless the user explicitly asks to regenerate prompt overlays.
 - For tracker setup:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
   - In `br` mode, verify `br` is installed. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
   - Never delete or reset an existing tracker workspace as part of init.
-- If `.pi/prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so project-local prompt frontmatter reflects the configured per-prompt model and thinking entries.
-- Write `.execflow/PLANS.md` using the exact spec below, with only the Codex-specific wording generalized to refer to a coding agent.
+- After scaffolding, if `.pi/prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so project-local prompt frontmatter reflects the configured per-prompt model and thinking entries.
+- Do not restate the full copied contents of `.execflow/AGENTS.md`, `.execflow/PLANS.md`, or `.execflow/settings.yml` in the answer unless necessary to explain a targeted edit.
 
-Write `.execflow/settings.yml` with content equivalent to:
+Write `.execflow/AGENTS.md` by copying from:
 
-```yml
-version: 1
+- `<resolved @legout/pi-execflow package root>/execflow/AGENTS.md`
 
-tracker:
-  primary: <tk-or-br>
+Write `.execflow/PLANS.md` by copying from:
 
-models:
-  plan: &plan_model openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
-  orchestration: &orchestration_model zai/glm-5-turbo
-  implementation: &implementation_model kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
-  validation_fix: &validation_fix_model zai/glm-5.1
-  fast: &fast_model minimax/MiniMax-M2.7
-  review1: &review1_model openai-codex/gpt-5.4
-  review2: &review2_model zai/glm-5.1
-  review3: &review3_model openai-codex/gpt-5.4-mini
-  review4: &review4_model minimax/MiniMax-M2.7
+- `<resolved @legout/pi-execflow package root>/execflow/PLANS.md`
 
-thinking:
-  plan: &plan_thinking high, high, high
-  orchestration: &orchestration_thinking medium
-  implementation: &implementation_thinking medium, medium, medium
-  validation_fix: &validation_fix_thinking medium
-  fast: &fast_thinking low
-  review1: &review1_thinking high
-  review2: &review2_thinking high
-  review3: &review3_thinking high
-  review4: &review4_thinking medium
+Write `.execflow/settings.yml` by copying from:
 
-prompts:
-  # Plan prompts
-  architect:
-    model: *plan_model
-    thinking: *plan_thinking
-  brainstorm:
-    model: *plan_model
-    thinking: *plan_thinking
-  create-issues:
-    model: *plan_model
-    thinking: *plan_thinking
-  create-tickets:
-    model: *plan_model
-    thinking: *plan_thinking
-  create-work-items:
-    model: *plan_model
-    thinking: *plan_thinking
-  impl-plan:
-    model: *implementation_model
-    thinking: *review1_thinking
-  plan-create:
-    model: *plan_model
-    thinking: *plan_thinking
-  plan-improve:
-    model: *plan_model
-    thinking: *plan_thinking
-  spec:
-    model: *implementation_model
-    thinking: *review1_thinking
-
-  # Orchestration prompts
-  finalize:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  init-execflow:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  update-architecture:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-
-  # Implementation prompts
-  implement:
-    model: *implementation_model
-    thinking: *implementation_thinking
-
-  # Validation prompts
-  derive-tests:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-  fix:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-  validate:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-
-  # Fast prompts
-  merge-summary:
-    model: *fast_model
-    thinking: *fast_thinking
-  resolve:
-    model: *fast_model
-    thinking: *fast_thinking
-
-  # Review prompts
-  review-consolidate:
-    model: *review1_model
-    thinking: *review1_thinking
-  review-spec:
-    model: *review1_model
-    thinking: *review1_thinking
-  review-regression:
-    model: *review2_model
-    thinking: *review2_thinking
-  review-tests:
-    model: *review3_model
-    thinking: *review3_thinking
-  review-maintainability:
-    model: *review4_model
-    thinking: *review4_thinking
-```
-
-Write `.execflow/AGENTS.md` with content equivalent to:
-
-```md
-<!-- execflow-generated -->
-# pi-execflow Workflow
-
-Use this repository's execflow workflow for planning and ticket execution.
-
-Primary tracker selected during init-execflow: `<tk-or-br>`
-
-## ExecPlans
-
-When writing complex features or significant refactors, use an ExecPlan (as described in `.execflow/PLANS.md`) from design to implementation.
-
-## Planning workflow
-
-- Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
-- Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
-- Use `/refresh-prompts` to recopy canonical prompts from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/` and then resync models.
-- Use `/brainstorm <topic>` to explore the problem before locking a design.
-- Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
-- Use `/plan-chain <topic>` only when brainstorming is already complete and the remaining planning steps are non-interactive.
-- Use `/architect [topic]` when you need to create or refresh `ARCHITECTURE.md` before or after planning.
-- ExecPlans live at `.execflow/plans/<topic-slug>/execplan.md`.
-- Brainstorms live at `.execflow/plans/<topic-slug>/brainstorm.md`.
-
-## Tracker workflow
-
-### tk mode
-
-- Use `tk` for ticket tracking.
-- Use `/create-work-items <topic>` to auto-select the primary tracker.
-- Use `/create-tickets <topic>` to convert an ExecPlan into dependency-aware `tk` tickets.
-- Use `/execflow` for one-ticket delegated execution.
-- Use `/execflow-queue` for sequential batch execution.
-- Use `/execflow-reset` to clear stale orchestrator state.
-
-### br mode
-
-- Use `br` for issue tracking.
-- Use `/create-work-items <topic>` to auto-select the primary tracker.
-- Use `/create-issues <topic>` to convert an ExecPlan into dependency-aware `br` issues.
-- Use `/exec-standard <issue-ref>` or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validate`, `/review`, `/finalize`) for manual implementation, validation, review, and finalization.
-- The packaged delegated `/execflow` and `/execflow-queue` workflow is `tk`-oriented and should not be treated as the primary `br` execution path.
-
-## Artifact locations
-
-### Planning artifacts
-
-- `.execflow/plans/<topic-slug>/brainstorm.md`
-- `.execflow/plans/<topic-slug>/execplan.md`
-- `.execflow/settings.yml`
-- `.pi/prompts/*.md`
-- `ARCHITECTURE.md`
-
-### Delegated runtime artifacts (`tk` delegated flow only)
-
-- `execflow/state.json`
-- `execflow/<ticket-id>/implementation-<run-token>.md`
-- `execflow/<ticket-id>/validation-<run-token>.md`
-- `execflow/<ticket-id>/review-<run-token>.md`
-- `execflow/progress.md`
-- `execflow/lessons-learned.md`
-
-## Work-item guidance
-
-- If a ticket or issue contains an `ExecPlan Reference` block, read the referenced ExecPlan before implementing or reviewing.
-- Keep ExecPlans and architecture documentation aligned with reality as work progresses.
-<!-- /execflow-generated -->
-```
+- `<resolved @legout/pi-execflow package root>/execflow/settings.yml`
 
 Insert the following block into the project root `AGENTS.md`:
 
@@ -284,160 +200,8 @@ Read that file before using `pi-execflow`, `tk`, `br`, or ExecPlans in this repo
 
 The marker-based blocks enable safe, idempotent re-runs of `/init-execflow`: only the content between the markers is touched.
 
-Write `.execflow/PLANS.md` with exactly this generalized ExecPlan spec:
-
-```md
-# Execution Plans (ExecPlans):
-
-This document describes the requirements for an execution plan ("ExecPlan"), a design document that a coding agent can follow to deliver a working feature or system change. Treat the reader as a complete beginner to this repository: they have only the current working tree and the single ExecPlan file you provide. There is no memory of prior plans and no external context.
-
-## How to use ExecPlans and PLANS.md
-
-When authoring an executable specification (ExecPlan), follow PLANS.md _to the letter_. If it is not in your context, refresh your memory by reading the entire PLANS.md file. Be thorough in reading (and re-reading) source material to produce an accurate specification. When creating a spec, start from the skeleton and flesh it out as you do your research.
-
-When implementing an executable specification (ExecPlan), do not prompt the user for "next steps"; simply proceed to the next milestone. Keep all sections up to date, add or split entries in the list at every stopping point to affirmatively state the progress made and next steps. Resolve ambiguities autonomously, and commit frequently.
-
-When discussing an executable specification (ExecPlan), record decisions in a log in the spec for posterity; it should be unambiguously clear why any change to the specification was made. ExecPlans are living documents, and it should always be possible to restart from _only_ the ExecPlan and no other work.
-
-When researching a design with challenging requirements or significant unknowns, use milestones to implement proof of concepts, "toy implementations", etc., that allow validating whether the user's proposal is feasible. Read the source code of libraries by finding or acquiring them, research deeply, and include prototypes to guide a fuller implementation.
-
-## Requirements
-
-NON-NEGOTIABLE REQUIREMENTS:
-
-* Every ExecPlan must be fully self-contained. Self-contained means that in its current form it contains all knowledge and instructions needed for a novice to succeed.
-* Every ExecPlan is a living document. Contributors are required to revise it as progress is made, as discoveries occur, and as design decisions are finalized. Each revision must remain fully self-contained.
-* Every ExecPlan must enable a complete novice to implement the feature end-to-end without prior knowledge of this repo.
-* Every ExecPlan must produce a demonstrably working behavior, not merely code changes to "meet a definition".
-* Every ExecPlan must define every term of art in plain language or do not use it.
-
-Purpose and intent come first. Begin by explaining, in a few sentences, why the work matters from a user's perspective: what someone can do after this change that they could not do before, and how to see it working. Then guide the reader through the exact steps to achieve that outcome, including what to edit, what to run, and what they should observe.
-
-The agent executing your plan can list files, read files, search, run the project, and run tests. It does not know any prior context and cannot infer what you meant from earlier milestones. Repeat any assumption you rely on. Do not point to external blogs or docs; if knowledge is required, embed it in the plan itself in your own words. If an ExecPlan builds upon a prior ExecPlan and that file is checked in, incorporate it by reference. If it is not, you must include all relevant context from that plan.
-
-## Formatting
-
-Format and envelope are simple and strict. Each ExecPlan must be one single fenced code block labeled as `md` that begins and ends with triple backticks. Do not nest additional triple-backtick code fences inside; when you need to show commands, transcripts, diffs, or code, present them as indented blocks within that single fence. Use indentation for clarity rather than code fences inside an ExecPlan to avoid prematurely closing the ExecPlan's code fence. Use two newlines after every heading, use # and ## and so on, and correct syntax for ordered and unordered lists.
-
-When writing an ExecPlan to a Markdown (.md) file where the content of the file *is only* the single ExecPlan, you should omit the triple backticks.
-
-Write in plain prose. Prefer sentences over lists. Avoid checklists, tables, and long enumerations unless brevity would obscure meaning. Checklists are permitted only in the `Progress` section, where they are mandatory. Narrative sections must remain prose-first.
-
-## Guidelines
-
-Self-containment and plain language are paramount. If you introduce a phrase that is not ordinary English ("daemon", "middleware", "RPC gateway", "filter graph"), define it immediately and remind the reader how it manifests in this repository (for example, by naming the files or commands where it appears). Do not say "as defined previously" or "according to the architecture doc." Include the needed explanation here, even if you repeat yourself.
-
-Avoid common failure modes. Do not rely on undefined jargon. Do not describe "the letter of a feature" so narrowly that the resulting code compiles but does nothing meaningful. Do not outsource key decisions to the reader. When ambiguity exists, resolve it in the plan itself and explain why you chose that path. Err on the side of over-explaining user-visible effects and under-specifying incidental implementation details.
-
-Anchor the plan with observable outcomes. State what the user can do after implementation, the commands to run, and the outputs they should see. Acceptance should be phrased as behavior a human can verify ("after starting the server, navigating to http://localhost:8080/health returns HTTP 200 with body OK") rather than internal attributes ("added a HealthCheck struct"). If a change is internal, explain how its impact can still be demonstrated (for example, by running tests that fail before and pass after, and by showing a scenario that uses the new behavior).
-
-Specify repository context explicitly. Name files with full repository-relative paths, name functions and modules precisely, and describe where new files should be created. If touching multiple areas, include a short orientation paragraph that explains how those parts fit together so a novice can navigate confidently. When running commands, show the working directory and exact command line. When outcomes depend on environment, state the assumptions and provide alternatives when reasonable.
-
-Be idempotent and safe. Write the steps so they can be run multiple times without causing damage or drift. If a step can fail halfway, include how to retry or adapt. If a migration or destructive operation is necessary, spell out backups or safe fallbacks. Prefer additive, testable changes that can be validated as you go.
-
-Validation is not optional. Include instructions to run tests, to start the system if applicable, and to observe it doing something useful. Describe comprehensive testing for any new features or capabilities. Include expected outputs and error messages so a novice can tell success from failure. Where possible, show how to prove that the change is effective beyond compilation (for example, through a small end-to-end scenario, a CLI invocation, or an HTTP request/response transcript). State the exact test commands appropriate to the project's toolchain and how to interpret their results.
-
-Capture evidence. When your steps produce terminal output, short diffs, or logs, include them inside the single fenced block as indented examples. Keep them concise and focused on what proves success. If you need to include a patch, prefer file-scoped diffs or small excerpts that a reader can recreate by following your instructions rather than pasting large blobs.
-
-## Milestones
-
-Milestones are narrative, not bureaucracy. If you break the work into milestones, introduce each with a brief paragraph that describes the scope, what will exist at the end of the milestone that did not exist before, the commands to run, and the acceptance you expect to observe. Keep it readable as a story: goal, work, result, proof. Progress and milestones are distinct: milestones tell the story, progress tracks granular work. Both must exist. Never abbreviate a milestone merely for the sake of brevity, do not leave out details that could be crucial to a future implementation.
-
-Each milestone must be independently verifiable and incrementally implement the overall goal of the execution plan.
-
-Prefer milestones that deliver an observable, end-to-end slice of behavior rather than only moving one horizontal layer. When a purely enabling, migration, cleanup, or prototyping milestone is necessary, label it plainly and explain why it must happen before or after later slices. Make dependency relationships explicit in the milestone prose: name true prerequisites, identify related-but-non-blocking milestones, identify milestones that can proceed in parallel, and call out any shared boundary or serialization/conflict point (for example schema migrations, shared public interfaces, central registries, package manifests, or global configuration) that should not be changed concurrently.
-
-## Living plans and design decisions
-
-* ExecPlans are living documents. As you make key design decisions, update the plan to record both the decision and the thinking behind it. Record all decisions in the `Decision Log` section.
-* ExecPlans must contain and maintain a `Progress` section, a `Surprises & Discoveries` section, a `Decision Log`, and an `Outcomes & Retrospective` section. These are not optional.
-* When you discover optimizer behavior, performance tradeoffs, unexpected bugs, or inverse/unapply semantics that shaped your approach, capture those observations in the `Surprises & Discoveries` section with short evidence snippets (test output is ideal).
-* If you change course mid-implementation, document why in the `Decision Log` and reflect the implications in `Progress`. Plans are guides for the next contributor as much as checklists for you.
-* At completion of a major task or the full plan, write an `Outcomes & Retrospective` entry summarizing what was achieved, what remains, and lessons learned.
-
-# Prototyping milestones and parallel implementations
-
-It is acceptable—and often encouraged—to include explicit prototyping milestones when they de-risk a larger change. Examples: adding a low-level operator to a dependency to validate feasibility, or exploring two composition orders while measuring optimizer effects. Keep prototypes additive and testable. Clearly label the scope as “prototyping”; describe how to run and observe results; and state the criteria for promoting or discarding the prototype.
-
-Prefer additive code changes followed by subtractions that keep tests passing. Parallel implementations (e.g., keeping an adapter alongside an older path during migration) are fine when they reduce risk or enable tests to continue passing during a large migration. Describe how to validate both paths and how to retire one safely with tests. When working with multiple new library or feature areas, consider creating spikes that evaluate the feasibility of these features _independently_ of one another, proving that the external library performs as expected and implements the features we need in isolation.
-
-When a plan will later be broken into tickets, prefer milestones that can become independently reviewable tickets. In practice, this usually means user-visible or contract-visible vertical slices plus a small number of clearly labeled enabler or cleanup milestones. Also make it clear which milestones are merely related, which are true prerequisites, and which should not be implemented concurrently because they collide on shared boundaries. Keep the prose narrative; do not replace milestone explanations with a rigid task schema.
-
-## Skeleton of a Good ExecPlan
-
-    # <Short, action-oriented description>
-
-    This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
-
-    If PLANS.md file is checked into the repo, reference the path to that file here from the repository root and note that this document must be maintained in accordance with PLANS.md.
-
-    ## Purpose / Big Picture
-
-    Explain in a few sentences what someone gains after this change and how they can see it working. State the user-visible behavior you will enable.
-
-    ## Progress
-
-    Use a list with checkboxes to summarize granular steps. Every stopping point must be documented here, even if it requires splitting a partially completed task into two (“done” vs. “remaining”). This section must always reflect the actual current state of the work.
-
-    - [x] (2025-10-01 13:00Z) Example completed step.
-    - [ ] Example incomplete step.
-    - [ ] Example partially completed step (completed: X; remaining: Y).
-
-    Use timestamps to measure rates of progress.
-
-    ## Surprises & Discoveries
-
-    Document unexpected behaviors, bugs, optimizations, or insights discovered during implementation. Provide concise evidence.
-
-    - Observation: …
-      Evidence: …
-
-    ## Decision Log
-
-    Record every decision made while working on the plan in the format:
-
-    - Decision: …
-      Rationale: …
-      Date/Author: …
-
-    ## Outcomes & Retrospective
-
-    Summarize outcomes, gaps, and lessons learned at major milestones or at completion. Compare the result against the original purpose.
-
-    ## Context and Orientation
-
-    Describe the current state relevant to this task as if the reader knows nothing. Name the key files and modules by full path. Define any non-obvious term you will use. Do not refer to prior plans.
-
-    ## Plan of Work
-
-    Describe, in prose, the sequence of edits and additions. For each edit, name the file and location (function, module) and what to insert or change. Keep it concrete and minimal.
-
-    ## Concrete Steps
-
-    State the exact commands to run and where to run them (working directory). When a command generates output, show a short expected transcript so the reader can compare. This section must be updated as work proceeds.
-
-    ## Validation and Acceptance
-
-    Describe how to start or exercise the system and what to observe. Phrase acceptance as behavior, with specific inputs and outputs. If tests are involved, say "run <project's test command> and expect <N> passed; the new test <name> fails before the change and passes after".
-
-    ## Idempotence and Recovery
-
-    If steps can be repeated safely, say so. If a step is risky, provide a safe retry or rollback path. Keep the environment clean after completion.
-
-    ## Artifacts and Notes
-
-    Include the most important transcripts, diffs, or snippets as indented examples. Keep them concise and focused on what proves success.
-
-    ## Interfaces and Dependencies
-
-    Be prescriptive. Name the libraries, modules, and services to use and why. Specify the types, traits/interfaces, and function signatures that must exist at the end of the milestone. Prefer stable names and paths such as `crate::module::function` or `package.submodule.Interface`. E.g.:
-
-    In crates/foo/planner.rs, define:
-
-        pub trait Planner {
-            fn plan(&self, observed: &Observed) -> Vec<Action>;
-        }
-
-If you follow the guidance above, a single, stateless agent -- or a human novice -- can read your ExecPlan from top to bottom and produce a working, observable result. That is the bar: SELF-CONTAINED, SELF-SUFFICIENT, NOVICE-GUIDING, OUTCOME-FOCUSED.
-
-When you revise a plan, you must ensure your changes are comprehensively reflected across all sections, including the living document sections, and you must write a note at the bottom of the plan describing the change and the reason why. ExecPlans must describe not just the what but the why for almost everything.
+When finished:
+- report which tracker mode was selected
+- report the copied/scaffolded paths
+- report whether `.pi/prompts/` was synced from `.execflow/settings.yml`
+- mention `/refresh-prompts` as the way to recopy canonical prompts later

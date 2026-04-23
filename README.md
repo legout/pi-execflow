@@ -42,7 +42,7 @@ pi -e /absolute/path/to/pi-execflow
 ### 1. Initialize a target project
 
 ```bash
-/init-execflow --tk
+/init-execflow
 ```
 
 or:
@@ -51,12 +51,14 @@ or:
 /init-execflow --br
 ```
 
+`/init-execflow` defaults to `br` when no tracker flag or existing tracker workspace determines the choice.
+
 This scaffolds:
 
 - `.execflow/AGENTS.md`
 - `.execflow/PLANS.md`
 - `.execflow/settings.yml`
-- `.pi/prompts/*.md` copied from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/`
+- `.pi/prompts/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
 ### 2. Create the plan
@@ -241,7 +243,7 @@ The package ships these checked-in templates under `execflow/`:
 - `execflow/PLANS.md`
 - `execflow/settings.yml`
 
-`/init-execflow` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from `~/.pi/agent/git/github.com/legout/pi-execflow/prompts/` into `.pi/prompts/`.
+`/init-execflow` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from the resolved installed `@legout/pi-execflow` package root into `.pi/prompts/`.
 
 ## Scope notes
 
