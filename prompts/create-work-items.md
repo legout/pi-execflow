@@ -2,7 +2,7 @@
 description: Convert an ExecPlan into tracker work items, auto-selecting tk tickets or br issues
 argument-hint: "[--tk|--br] [topic]"
 model: openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
-thinking: high, high, high
+thinking: high
 skill: work-itemize
 restore: true
 ---

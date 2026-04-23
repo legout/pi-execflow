@@ -2,7 +2,7 @@
 description: Implement a work item with the smallest correct diff
 argument-hint: "<work-item-ref> [context...]"
 model: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
-thinking: medium, medium, medium
+thinking: medium
 skill: execution
 restore: true
 ---

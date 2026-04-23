@@ -2,7 +2,7 @@
 description: Interactive brainstorming session for a topic or feature idea
 argument-hint: "<topic>"
 model: openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
-thinking: high, high, high
+thinking: high
 skill: brainstorm
 restore: true
 ---

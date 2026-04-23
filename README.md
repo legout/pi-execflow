@@ -207,6 +207,8 @@ prompts:
 
 Keep `prompts:` entries aligned with the project prompt files in `.pi/prompts/`. When developing this package itself, the same names also correspond to the checked-in source prompts under `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
 
+Wrapper prompts that only orchestrate other prompts or run deterministic shell steps may be intentionally omitted from `prompts:` because they do not own model selection themselves.
+
 ### Sync workflow
 
 After editing `.execflow/settings.yml`, run:
@@ -257,4 +259,10 @@ Sync models into package prompt frontmatter during package development:
 
 ```bash
 npm run setup-models
+```
+
+Validate prompt/settings/template consistency during package development with:
+
+```bash
+npm run validate-package
 ```

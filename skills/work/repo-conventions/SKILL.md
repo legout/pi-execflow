@@ -34,7 +34,7 @@ When editing prompt templates or skills in this repository, also inspect:
 
 - nearby prompt frontmatter conventions
 - existing skill naming and descriptions
-- relevant docs under `docs/`
+- relevant package docs such as `README.md` and `CONTRIBUTING.md`
 - workflow guidance under `.execflow/`
 
 ## Rules

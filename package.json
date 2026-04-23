@@ -29,7 +29,8 @@
     "access": "public"
   },
   "scripts": {
-    "setup-models": "node scripts/sync-models.mjs"
+    "setup-models": "node scripts/sync-models.mjs",
+    "validate-package": "node scripts/validate-package.mjs"
   },
   "files": [
     "execflow",
