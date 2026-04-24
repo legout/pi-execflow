@@ -4,6 +4,10 @@
 
 - No unreleased changes yet.
 
+## 0.2.7
+
+- Removed the `/refresh-prompts` requirement from the `/init-execflow` tracker-scaffolding instructions so the init workflow matches the canonical generated template again.
+
 ## 0.2.6
 
 - Aligned the default local workflow around `br`, added resumable brainstorm `in-progress` state support, and clarified the standard versus strict review/fix execution flow.

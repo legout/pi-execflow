@@ -159,7 +159,6 @@ Rules:
   - If the file already exists and contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, refresh only that generated block using the canonical source file from the resolved installed package root as the base.
   - If the file exists but does **not** contain those markers, leave it untouched and report that manual review may be needed because the file appears user-customized.
   - In the generated block, ensure `Primary tracker selected during init-execflow:` matches the selected tracker mode.
-  - Also ensure the Planning workflow mentions `/refresh-prompts` as the command that recopies canonical prompts into `.pi/prompts/` and reruns sync.
 - For `.execflow/PLANS.md`:
   - If the file was copied by the deterministic step, keep that copied content.
   - If it already existed before this run, leave it untouched.
@@ -204,4 +203,3 @@ When finished:
 - report which tracker mode was selected
 - report the copied/scaffolded paths
 - report whether `.pi/prompts/` was synced from `.execflow/settings.yml`
-- mention `/refresh-prompts` as the way to recopy canonical prompts later
