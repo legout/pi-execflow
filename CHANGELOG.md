@@ -4,6 +4,12 @@
 
 - No unreleased changes yet.
 
+## 0.2.6
+
+- Aligned the default local workflow around `br`, added resumable brainstorm `in-progress` state support, and clarified the standard versus strict review/fix execution flow.
+- Made `/init-execflow`, `/refresh-prompts`, and `/sync-models` discover the installed `@legout/pi-execflow` package root instead of assuming a git-checkout path.
+- Normalized prompt `thinking:` frontmatter to scalar values and added `npm run validate-package` to catch prompt, template, and metadata drift.
+
 ## 0.2.5
 
 - Made `/init-execflow` bootstrap project-local prompts deterministically by copying missing overlays into `.pi/prompts/` before continuing with normal setup.
