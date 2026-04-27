@@ -4,6 +4,12 @@
 
 - No unreleased changes yet.
 
+## 0.2.8
+
+- Clarified that delegated `/execflow` commands are optional external `tk` workflow commands when available, not shipped as primary `br` workflow commands.
+- Defined deterministic brainstorm recency selection for architecture context using top-level `date:` values with file modification time fallback.
+- Documented intentional reviewer subagent context isolation and strengthened `npm run validate-package` to catch related documentation drift.
+
 ## 0.2.7
 
 - Removed the `/refresh-prompts` requirement from the `/init-execflow` tracker-scaffolding instructions so the init workflow matches the canonical generated template again.
