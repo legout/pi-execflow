@@ -28,16 +28,16 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-issues <topic>` to convert an ExecPlan into dependency-aware `br` issues.
 - Use `/exec-standard <issue-ref>` or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validate`, `/review`, `/finalize`) for manual implementation, validation, review, and finalization.
-- The packaged delegated `/execflow` and `/execflow-queue` workflow is `tk`-oriented and should not be treated as the primary `br` execution path.
+- Optional external delegated `/execflow` and `/execflow-queue` commands, when available in the environment, are `tk`-oriented and should not be treated as the primary `br` execution path.
 
 ### tk mode
 
 - Use `tk` for ticket tracking when the repository explicitly chooses it.
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-tickets <topic>` to convert an ExecPlan into dependency-aware `tk` tickets.
-- Use `/execflow` for one-ticket delegated execution.
-- Use `/execflow-queue` for sequential batch execution.
-- Use `/execflow-reset` to clear stale orchestrator state.
+- If your environment provides the optional external delegated `tk` workflow, use `/execflow` for one-ticket delegated execution.
+- If your environment provides the optional external delegated `tk` workflow, use `/execflow-queue` for sequential batch execution.
+- If your environment provides the optional external delegated `tk` workflow, use `/execflow-reset` to clear stale orchestrator state.
 
 ## Artifact locations
 

@@ -36,4 +36,4 @@ Procedure:
 Follow the ticketize skill exactly for the ExecPlan Reference block format and ticketization rules.
 
 Report the number of tickets created and list each with ID, title, kind, priority, dependencies, and any important related/conflict hints.
-Suggest running `/execflow` or `/execflow-queue` for the delegated `tk` workflow, or `/exec-standard <ticket-ref>` for the local manual flow.
+If your Pi environment provides the optional external delegated `tk` workflow, suggest `/execflow` or `/execflow-queue`; otherwise suggest `/exec-standard <ticket-ref>` for the local manual flow.

@@ -22,7 +22,7 @@ Procedure:
 1. If `$@` is not empty, derive `<topic-slug>` from `$@` using kebab-case, lowercase normalization.
 2. Check if `ARCHITECTURE.md` exists at the project root.
 3. If `$@` is not empty, read `.execflow/plans/<topic-slug>/brainstorm.md` for context if it exists.
-4. If `$@` is empty, scan `.execflow/plans/` for the most recent brainstorm for optional context.
+4. If `$@` is empty, scan `.execflow/plans/*/brainstorm.md` for optional context. Choose the most recent brainstorm by the top-level `date:` value when it is valid ISO-8601; if no valid `date:` exists, fall back to the newest file modification time.
 5. Follow the architect skill exactly.
 
 If `ARCHITECTURE.md` does not exist, create it following the skill's output format.

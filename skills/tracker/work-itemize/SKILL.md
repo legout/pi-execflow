@@ -146,7 +146,7 @@ When the selected tracker is `tk`:
 2. Create work items with `tk create`.
 3. Set hard dependencies with `tk dep <id> <dep-id>`.
 4. Report created ticket IDs and scheduling hints.
-5. Suggest `/execflow`, `/execflow-queue`, or `/exec-standard <ticket-ref>` next.
+5. If the optional external delegated `tk` workflow is available, suggest `/execflow` or `/execflow-queue`; otherwise suggest `/exec-standard <ticket-ref>` next.
 
 ## br mode behavior
 

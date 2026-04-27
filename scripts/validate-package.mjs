@@ -109,6 +109,10 @@ function findTextMatches(paths, pattern, label) {
   }
 }
 
+function linesContaining(text, pattern) {
+  return text.split("\n").flatMap((line, index) => pattern.test(line) ? [{ line, lineNumber: index + 1 }] : []);
+}
+
 const settingsPath = join(repoRoot, "execflow", "settings.yml");
 const agentsPath = join(repoRoot, "execflow", "AGENTS.md");
 const readmePath = join(repoRoot, "README.md");
@@ -137,6 +141,10 @@ for (const promptFile of promptFiles) {
 
   if ((hasModel || hasThinking) && !configured) {
     addError(`Prompt ${promptFile} has model/thinking frontmatter but no settings.prompts entry`);
+  }
+
+  if (/^inheritContext:\s*false$/m.test(extracted.frontmatter) && !/Context isolation:.*inheritContext: false/s.test(extracted.body)) {
+    addError(`Prompt ${promptFile} uses inheritContext: false without an explicit Context isolation explanation`);
   }
 }
 
@@ -183,6 +191,21 @@ for (const dir of [promptsDir, join(repoRoot, "execflow"), skillsDir, scriptsDir
 findTextMatches(repoFiles, /~\/\.pi\/agent\/git\/github\.com\/legout\/pi-execflow/g, "Hardcoded git install path");
 findTextMatches(repoFiles.filter((filePath) => filePath !== validateScriptPath), /\bsubagents_list\b/g, "Invalid tool reference subagents_list");
 findTextMatches(repoFiles, /relevant docs under `docs\/`/g, "Stale docs/ reference");
+
+for (const filePath of repoFiles.filter((filePath) => filePath !== validateScriptPath)) {
+  const text = readFileSync(filePath, "utf8");
+  for (const { line, lineNumber } of linesContaining(text, /`\/(?:execflow|execflow-queue|execflow-reset)\b/)) {
+    if (!/(optional|external|when available|delegated|not shipped)/i.test(line)) {
+      addError(`Delegated execflow command reference needs optional/external wording in ${filePath.replace(`${repoRoot}/`, "")}:${lineNumber}`);
+    }
+  }
+
+  for (const { line, lineNumber } of linesContaining(text, /most recent brainstorm/i)) {
+    if (!/(date:|mtime|modification time)/i.test(line)) {
+      addError(`Most recent brainstorm reference must define date/mtime selection in ${filePath.replace(`${repoRoot}/`, "")}:${lineNumber}`);
+    }
+  }
+}
 
 if (errors.length) {
   console.error("pi-execflow validation failed:\n");

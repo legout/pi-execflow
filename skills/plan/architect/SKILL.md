@@ -19,7 +19,7 @@ Create or update ARCHITECTURE.md with an honest, code-grounded assessment of the
 ## Topic resolution
 
 1. If the user provides a topic argument, convert it to `<topic-slug>` (kebab-case, lowercase) before looking for `.execflow/plans/<topic-slug>/brainstorm.md`.
-2. If no argument, scan `.execflow/plans/` for the most recent brainstorm and use its directory name as `<topic-slug>` context.
+2. If no argument, scan `.execflow/plans/*/brainstorm.md` for the most recent brainstorm and use its directory name as `<topic-slug>` context. Determine recency by the top-level `date:` value when it is valid ISO-8601; if no valid `date:` exists, fall back to the newest file modification time.
 3. Architecture documentation is project-wide, so a topic is not required.
 
 ## Ousterhout lens

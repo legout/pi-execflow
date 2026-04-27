@@ -249,7 +249,7 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- delegated `/execflow` / `/execflow-queue` execution remains documented as a `tk`-oriented path
+- optional external delegated `/execflow` / `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
 - `br` support is primarily through `create-issues` and the manual local execution prompts
 - `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
 
