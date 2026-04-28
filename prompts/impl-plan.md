@@ -1,8 +1,8 @@
 ---
 description: Produce a minimal implementation plan for a work item
 argument-hint: "<work-item-ref> [context...]"
-model: kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini
-thinking: high
+model: kimi-coding/kimi-for-coding, zai/glm-5.1, openai-codex/gpt-5.4-mini
+thinking: medium
 fresh: true
 skill: planning
 restore: true

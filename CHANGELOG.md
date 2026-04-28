@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3
+
+- Added explicit orchestration `model` / `thinking` frontmatter to chain wrapper prompts (`execflow`, `exec-delegated`, `exec-worker`, `plan-chain`, `review`) so Pi core treats them as prompt-template-model commands instead of plain prompt bodies.
+- Synchronized all prompt frontmatter with `execflow/settings.yml` to fix model drift.
+- Added model-sync validation to `validate-package.mjs` to catch prompt frontmatter drift from `execflow/settings.yml`.
+
 ## 0.3.2
 
 - Refreshed model assignments: replaced deprecated `kimi-coding/k2p6` with `kimi-coding/kimi-for-coding`, updated `openai-codex/gpt-5.4` to `gpt-5.5`, switched fast model to `zai/glm-5-turbo`, and lowered `review1` thinking to medium.

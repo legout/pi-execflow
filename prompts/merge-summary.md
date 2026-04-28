@@ -1,7 +1,7 @@
 ---
 description: Concise merge summary for a completed work item
 argument-hint: "<work-item-ref> [context...]"
-model: minimax/MiniMax-M2.7
+model: zai/glm-5-turbo
 thinking: low
 fresh: true
 restore: true

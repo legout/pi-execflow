@@ -1,6 +1,8 @@
 ---
 description: Delegated validation-only work-item execution chain
 argument-hint: "<work-item-ref> [context...]"
+model: zai/glm-5-turbo
+thinking: medium
 chain: resolve -> spec -> derive-tests -> impl-plan -> exec-worker-implement -> exec-worker-validation-fix -> finalize
 chainContext: summary
 restore: true

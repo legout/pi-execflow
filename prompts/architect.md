@@ -1,7 +1,7 @@
 ---
 description: Create or update ARCHITECTURE.md for the project
 argument-hint: "[topic]"
-model: openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
+model: openai-codex/gpt-5.5, zai/glm-5.1, kimi-coding/kimi-for-coding
 thinking: high
 skill: architect
 restore: true

@@ -1,7 +1,7 @@
 ---
 description: Convert an ExecPlan into dependency-aware br issues with ExecPlan references
 argument-hint: "[topic]"
-model: openai-codex/gpt-5.4, zai/glm-5.1, kimi-coding/k2p6
+model: openai-codex/gpt-5.5, zai/glm-5.1, kimi-coding/kimi-for-coding
 thinking: high
 skill: issueize
 restore: true

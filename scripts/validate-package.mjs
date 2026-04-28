@@ -143,6 +143,16 @@ for (const promptFile of promptFiles) {
     addError(`Prompt ${promptFile} has model/thinking frontmatter but no settings.prompts entry`);
   }
 
+  if (configured) {
+    const model = getFrontmatterField(extracted.frontmatter, "model");
+    if (model !== configured.model) {
+      addError(`Prompt ${promptFile} model frontmatter is out of sync with settings.prompts.${promptKey}.model`);
+    }
+    if (thinking !== configured.thinking) {
+      addError(`Prompt ${promptFile} thinking frontmatter is out of sync with settings.prompts.${promptKey}.thinking`);
+    }
+  }
+
   if (/^inheritContext:\s*false$/m.test(extracted.frontmatter) && !/Context isolation:.*inheritContext: false/s.test(extracted.body)) {
     addError(`Prompt ${promptFile} uses inheritContext: false without an explicit Context isolation explanation`);
   }

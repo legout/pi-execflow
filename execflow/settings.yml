@@ -56,10 +56,22 @@ prompts:
     thinking: *review1_thinking
 
   # Orchestration prompts
+  exec-delegated:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  exec-worker:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  execflow:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
   finalize:
     model: *orchestration_model
     thinking: *orchestration_thinking
   init-execflow:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  plan-chain:
     model: *orchestration_model
     thinking: *orchestration_thinking
   update-architecture:
@@ -100,6 +112,9 @@ prompts:
     thinking: *fast_thinking
 
   # Review prompts
+  review:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
   review-consolidate:
     model: *review1_model
     thinking: *review1_thinking

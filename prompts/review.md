@@ -1,6 +1,8 @@
 ---
 description: Run specialized reviewer subagents in parallel and consolidate one final verdict
 argument-hint: "<work-item-ref> [context...]"
+model: zai/glm-5-turbo
+thinking: medium
 chain: resolve -> parallel(review-spec, review-regression, review-tests, review-maintainability) -> review-consolidate
 chainContext: summary
 restore: true

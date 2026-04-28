@@ -1,6 +1,8 @@
 ---
 description: Delegated worker chain for implementation and validation/fix
 argument-hint: "<work-item-ref> [context...]"
+model: zai/glm-5-turbo
+thinking: medium
 chain: exec-worker-implement -> exec-worker-validation-fix
 chainContext: summary
 restore: true

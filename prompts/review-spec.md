@@ -1,8 +1,8 @@
 ---
 description: Review implementation strictly for work-item and ExecPlan compliance
 argument-hint: "<work-item-ref> [context...]"
-model: openai-codex/gpt-5.4
-thinking: high
+model: openai-codex/gpt-5.5
+thinking: medium
 subagent: reviewer
 inheritContext: false
 skill: review-discipline
