@@ -29,7 +29,7 @@ Use these phases unless the prompt specifies a narrower flow. Review is intentio
 6. Validate
 7. Run `/validation-fix` or otherwise fix and re-check validation if needed
 8. Summarize / finalize from validation evidence
-9. Run `/review` and `/review-followups` as a separate fresh review workflow when requested
+9. Run `/exec-review` and `/review-followups` as a separate fresh review workflow when requested
 
 ## Phase discipline
 

@@ -68,7 +68,7 @@ prompts:
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
   # do not own model selection. This includes chain wrappers (`execflow`,
-  # `exec-delegated`, `plan-chain`, `review`), the manual orchestration wrapper
+  # `exec-delegated`, `plan-chain`, `exec-review`, `review`), the manual orchestration wrapper
   # (`plan`), and deterministic utility wrappers (`refresh-prompts`,
   # `sync-models`). Their leaf prompts carry the real model/thinking config.
 

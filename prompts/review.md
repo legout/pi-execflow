@@ -13,7 +13,7 @@ ERROR: This prompt body should never be executed.
 resolve -> parallel(review-spec, review-regression, review-tests, review-maintainability) -> review-verdict
 ```
 
-If you see this message, the project-local `.pi/prompts/review.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/refresh-prompts` or `/init-execflow`, then retry `/review <work-item-ref>`.
+If you see this message, the project-local `.pi/prompts/review.md` overlay is missing, stale, not being handled by `pi-prompt-template-model`, or shadowed by another extension command named `/review`.
+Run `/refresh-prompts` or `/init-execflow`, then retry `/exec-review <work-item-ref>` (preferred conflict-free alias) or the suffixed prompt-template command shown in autocomplete such as `/review:1`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

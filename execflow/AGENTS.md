@@ -13,9 +13,9 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
-- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning leaf prompts only; wrapper prompts like `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/review`, `/refresh-prompts`, and `/sync-models` are intentionally omitted.
+- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning leaf prompts only; wrapper prompts like `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/exec-review`, `/review`, `/refresh-prompts`, and `/sync-models` are intentionally omitted.
 - Prompt taxonomy:
-  - wrappers without model ownership: `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/review`, `/refresh-prompts`, `/sync-models`
+  - wrappers without model ownership: `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/exec-review`, `/review`, `/refresh-prompts`, `/sync-models`
   - local model-owning leaves: planning/execution/review consolidation prompts such as `/architect`, `/plan-create`, `/implementation-plan`, `/validation-plan`, `/implement`, `/validation-fix`, `/review-verdict`
   - delegated model-owning leaves: `/worker-implement`, `/worker-validation-fix`, `/review-spec`, `/review-regression`, `/review-tests`, `/review-maintainability`
   - deterministic + LLM setup leaf: `/init-execflow`
@@ -35,7 +35,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `/create-issues <topic>` to convert an ExecPlan into dependency-aware `br` issues.
 - Use `/execflow <issue-ref>` for fast validation-only implementation, bounded validation/fix looping, and finalization.
 - Use `/exec-delegated <issue-ref>` for larger/noisier work: parent-owned planning/finalization with worker-subagent implementation and validation/fix.
-- Use `/review <issue-ref>` for a fresh read-only parallel subagent review, then `/review-followups <issue-ref>` to record the review and create linked follow-up issues for material findings.
+- Use `/exec-review <issue-ref>` for a fresh read-only parallel subagent review, then `/review-followups <issue-ref>` to record the review and create linked follow-up issues for material findings. `/exec-review` is preferred over legacy `/review` because other extensions may also register `/review`.
 - Use focused local prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/fix`, `/finalize`) for narrower manual passes.
 - Optional external delegated `/execflow-queue` commands, when available in the environment, are `tk`-oriented and should not be treated as the primary `br` execution path.
 
@@ -46,7 +46,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `/create-tickets <topic>` to convert an ExecPlan into dependency-aware `tk` tickets.
 - Use `/execflow <ticket-ref>` for fast validation-only implementation, bounded validation/fix looping, and finalization.
 - Use `/exec-delegated <ticket-ref>` for larger/noisier work: parent-owned planning/finalization with worker-subagent implementation and validation/fix.
-- Use `/review <ticket-ref>` for a fresh read-only parallel subagent review, then `/review-followups <ticket-ref>` to record the review and create linked follow-up tickets for material findings.
+- Use `/exec-review <ticket-ref>` for a fresh read-only parallel subagent review, then `/review-followups <ticket-ref>` to record the review and create linked follow-up tickets for material findings. `/exec-review` is preferred over legacy `/review` because other extensions may also register `/review`.
 - If your environment provides the optional external delegated `tk` workflow, use `/execflow-queue` for sequential batch execution.
 - If your environment provides the optional external delegated `tk` workflow, use `/execflow-reset` to clear stale orchestrator state.
 

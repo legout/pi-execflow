@@ -15,7 +15,7 @@ You are converting the most recent consolidated review for exactly one work item
 
 ## Review tracking policy
 
-- `/review` is intentionally read-only and fresh: it produces an independent consolidated verdict without mutating tracker state.
+- `/exec-review` is intentionally read-only and fresh: it produces an independent consolidated verdict without mutating tracker state. Legacy `/review` may be shadowed by other extensions.
 - `/review-followups` is the mutation step: it records a concise review summary on the original work item and creates linked follow-up work items for material findings.
 - The original work item may already be closed by `/execflow` after validation. Do not reopen it unless a high-severity finding shows that acceptance criteria were not actually met or the implementation is unsafe to keep closed.
 - Follow-up work items must reference the original work item and the review verdict so the audit trail stays explicit.

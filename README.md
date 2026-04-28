@@ -110,13 +110,13 @@ For larger/noisier work items, use the delegated variant:
 Run an independent fresh review separately when needed:
 
 ```bash
-/review <ticket-or-issue-ref>
+/exec-review <ticket-or-issue-ref>
 /review-followups <ticket-or-issue-ref>
 ```
 
-`/review` is read-only and runs specialized reviewer subagents in parallel via prompt-template delegated `parallel(...)`, then consolidates their findings in the main session. `/review-followups` records the review summary on the original item and creates linked follow-up tickets/issues for material findings.
+`/exec-review` is read-only and runs specialized reviewer subagents in parallel via prompt-template delegated `parallel(...)`, then consolidates their findings in the main session. `/review-followups` records the review summary on the original item and creates linked follow-up tickets/issues for material findings. A legacy `/review` wrapper is still shipped, but `/exec-review` avoids collisions with other extensions that also register `/review`.
 
-Delegated prompt-template steps require `pi-subagents` and a discoverable subagent runtime root. If `pi-subagents` was installed with `pi install npm:pi-subagents`, use `pi list` to find its package root and start Pi with `PI_SUBAGENT_RUNTIME_ROOT=<that-root>` when it is not available at `~/.pi/agent/extensions/subagent`.
+Delegated prompt-template steps require `pi-subagents` and a discoverable subagent runtime root. `/init-execflow` and `/refresh-prompts` create a compatibility shim at `~/.pi/agent/extensions/subagent` when they can find a globally installed `pi-subagents`; if discovery still fails, use `pi list` to find the `pi-subagents` package root and start Pi with `PI_SUBAGENT_RUNTIME_ROOT=<that-root>`.
 
 ## Included resources
 
@@ -141,7 +141,7 @@ Main commands include:
 - `/execflow <ticket-or-issue-ref>`
 - `/exec-delegated <ticket-or-issue-ref>`
 - `/validation-fix <ticket-or-issue-ref>`
-- `/review <ticket-or-issue-ref>`
+- `/exec-review <ticket-or-issue-ref>`
 - `/review-followups <ticket-or-issue-ref>`
 - `/update-architecture [topic]`
 
@@ -259,7 +259,7 @@ Properties of the sync step:
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/execflow`, `/exec-delegated`, `/plan-chain`, `/review`
+- chain wrappers: `/execflow`, `/exec-delegated`, `/plan-chain`, `/exec-review`, `/review`
 - manual orchestration wrapper: `/plan`
 - deterministic utility wrappers: `/refresh-prompts`, `/sync-models`
 
@@ -267,7 +267,7 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Chain wrapper | No | `/execflow`, `/exec-delegated`, `/plan-chain`, `/review` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Chain wrapper | No | `/execflow`, `/exec-delegated`, `/plan-chain`, `/exec-review`, `/review` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Manual orchestration wrapper | No | `/plan` | Human-facing wrapper that checks brainstorm state and then dispatches to `/plan-chain` |
 | Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always`, so wrapper logic and post-run guidance share one prompt |
@@ -288,7 +288,7 @@ The package ships these checked-in templates under `execflow/`:
 
 - `/execflow` is shipped by this package as the default local validation-only implementation workflow
 - optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
-- `br` support is primarily through `create-issues`, `/execflow`, `/review`, `/review-followups`, and the focused local prompts
+- `br` support is primarily through `create-issues`, `/execflow`, `/exec-review`, `/review-followups`, and the focused local prompts
 - `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
 
 ## Development
