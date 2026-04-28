@@ -155,6 +155,13 @@ function upsertFrontmatterField(lines, key, value) {
   lines.push(rendered);
 }
 
+function removeFrontmatterField(lines, key) {
+  const index = lines.findIndex((line) => line.match(new RegExp(`^${key}:\\s*`)));
+  if (index !== -1) {
+    lines.splice(index, 1);
+  }
+}
+
 function resolvePromptConfig(promptKey, settings) {
   const prompts = settings.prompts ?? {};
   return prompts[promptKey] ?? prompts[`${promptKey}.md`] ?? null;
@@ -196,15 +203,23 @@ function syncPromptFile(filePath, settings, fallbackSettings) {
   const { config: promptConfig, source, settingsPath: resolvedSettingsPath } = resolvePromptConfigWithFallback(promptKey, settings, fallbackSettings);
 
   if (!promptConfig) {
-    if (frontmatterHasField(lines, "model") || frontmatterHasField(lines, "thinking")) {
-      fail(`Missing prompts.${promptKey} in ${settingsPath}${fallbackSettings ? ` and ${canonicalSettingsPath}` : ""}`);
+    const hadModel = frontmatterHasField(lines, "model");
+    const hadThinking = frontmatterHasField(lines, "thinking");
+    if (hadModel) removeFrontmatterField(lines, "model");
+    if (hadThinking) removeFrontmatterField(lines, "thinking");
+
+    const updated = `${prefix}${lines.join("\n")}${separator}${body}`;
+    const changed = updated !== text;
+    if (changed) {
+      writeFileSync(filePath, updated);
     }
+
     return {
       file: filePath,
       source: "skipped",
       model: null,
       thinking: null,
-      changed: false,
+      changed,
       skipped: true,
     };
   }

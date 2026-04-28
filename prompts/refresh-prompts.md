@@ -70,6 +70,14 @@ run: |
 
   const srcDir = path.join(packageRoot, 'prompts');
   const dstDir = path.join(process.cwd(), '.pi', 'prompts');
+  const retiredPromptFiles = [
+    'derive-tests.md',
+    'impl-plan.md',
+    'review-consolidate.md',
+    'exec-worker-implement.md',
+    'exec-worker-validation-fix.md',
+    'exec-worker.md',
+  ];
 
   function copyAll(srcBase, dstBase) {
     for (const entry of fs.readdirSync(srcBase, { withFileTypes: true })) {
@@ -92,6 +100,12 @@ run: |
 
   fs.mkdirSync(dstDir, { recursive: true });
   copyAll(srcDir, dstDir);
+  for (const fileName of retiredPromptFiles) {
+    const retiredPath = path.join(dstDir, fileName);
+    if (!fs.existsSync(retiredPath)) continue;
+    fs.rmSync(retiredPath);
+    console.log(`removed retired prompt overlay ${retiredPath}`);
+  }
   console.log(`Refreshed prompt overlays from ${srcDir} into ${dstDir}`);
 
   const syncScript = path.join(packageRoot, 'scripts', 'sync-models.mjs');

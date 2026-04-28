@@ -1,7 +1,7 @@
 ---
 description: Convert an ExecPlan into dependency-aware tk tickets with ExecPlan references
 argument-hint: "[topic]"
-model: openai-codex/gpt-5.5, zai/glm-5.1, kimi-coding/kimi-for-coding
+model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: high
 skill: ticketize
 restore: true

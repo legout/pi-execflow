@@ -209,7 +209,7 @@ prompts:
   create-work-items:
     model: *plan_model
     thinking: *plan_thinking
-  impl-plan:
+  implementation-plan:
     model: *implementation_model
     thinking: *implementation_thinking
   plan-create:
@@ -253,7 +253,26 @@ Properties of the sync step:
 
 - **`model` is a string.** For fallback chains, use a single comma-separated string such as `kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini`. Do not convert model values to YAML arrays unless the runtime is updated to support them.
 - **`thinking` is optional and also string-based.** Typical values are `low`, `medium`, and `high`.
-- **Chain prompts do not use wrapper `model` / `skill`.** When a prompt uses `chain:`, the wrapper prompt acts as orchestration only. Put model / thinking choices on the leaf prompts instead.
+- **Chain prompts do not use wrapper `model` / `thinking` / `skill`.** When a prompt uses `chain:`, the wrapper prompt acts as orchestration only. Put model / thinking choices on the leaf prompts instead.
+- **Chain prompts cannot be nested.** A `chain:` step cannot reference another `chain:` prompt, so reusable subflows like `validation-fix` must stay leaf prompts unless the upstream runtime adds chain nesting.
+- **`settings.prompts` is for model-owning leaf prompts, not wrappers.** Wrapper/orchestration prompts are intentionally omitted and `sync-models` will strip stale `model:` / `thinking:` frontmatter from them.
+
+Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
+
+- chain wrappers: `/execflow`, `/exec-delegated`, `/plan-chain`, `/review`
+- manual orchestration wrapper: `/plan`
+- deterministic utility wrappers: `/refresh-prompts`, `/sync-models`
+
+### Prompt taxonomy
+
+| Class | Model owner? | Prompts | Notes |
+|---|---|---|---|
+| Chain wrapper | No | `/execflow`, `/exec-delegated`, `/plan-chain`, `/review` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Manual orchestration wrapper | No | `/plan` | Human-facing wrapper that checks brainstorm state and then dispatches to `/plan-chain` |
+| Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
+| Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always`, so wrapper logic and post-run guidance share one prompt |
+| Local model-owning leaf | Yes | `/architect`, `/brainstorm`, `/create-issues`, `/create-tickets`, `/create-work-items`, `/finalize`, `/fix`, `/implement`, `/implementation-plan`, `/merge-summary`, `/plan-create`, `/plan-improve`, `/resolve`, `/review-followups`, `/review-verdict`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
+| Delegated worker/reviewer leaf | Yes | `/worker-implement`, `/worker-validation-fix`, `/review-spec`, `/review-regression`, `/review-tests`, `/review-maintainability` | Own `subagent`, isolation, and model config; referenced by chain wrappers |
 
 ## Included artifact templates
 

@@ -13,6 +13,12 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/sync-models` after editing `.execflow/settings.yml` to sync `.pi/prompts/` frontmatter.
+- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning leaf prompts only; wrapper prompts like `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/review`, `/refresh-prompts`, and `/sync-models` are intentionally omitted.
+- Prompt taxonomy:
+  - wrappers without model ownership: `/plan`, `/plan-chain`, `/execflow`, `/exec-delegated`, `/review`, `/refresh-prompts`, `/sync-models`
+  - local model-owning leaves: planning/execution/review consolidation prompts such as `/architect`, `/plan-create`, `/implementation-plan`, `/validation-plan`, `/implement`, `/validation-fix`, `/review-verdict`
+  - delegated model-owning leaves: `/worker-implement`, `/worker-validation-fix`, `/review-spec`, `/review-regression`, `/review-tests`, `/review-maintainability`
+  - deterministic + LLM setup leaf: `/init-execflow`
 - Use `/brainstorm <topic>` to explore the problem before locking a design.
 - Use `/plan <topic>` to go from brainstorming through ExecPlan creation.
 - Use `/plan-chain <topic>` only when brainstorming is already complete and the remaining planning steps are non-interactive.

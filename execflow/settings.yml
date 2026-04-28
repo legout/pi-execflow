@@ -4,7 +4,7 @@ tracker:
   primary: br
 
 models:
-  plan: &plan_model openai-codex/gpt-5.5, zai/glm-5.1, kimi-coding/kimi-for-coding
+  plan: &plan_model openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
   orchestration: &orchestration_model zai/glm-5-turbo
   implementation: &implementation_model kimi-coding/kimi-for-coding, zai/glm-5.1, openai-codex/gpt-5.4-mini
   validation_fix: &validation_fix_model zai/glm-5.1
@@ -42,7 +42,7 @@ prompts:
   create-work-items:
     model: *plan_model
     thinking: *plan_thinking
-  impl-plan:
+  implementation-plan:
     model: *implementation_model
     thinking: *review1_thinking
   plan-create:
@@ -56,33 +56,27 @@ prompts:
     thinking: *review1_thinking
 
   # Orchestration prompts
-  exec-delegated:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  exec-worker:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  execflow:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
   finalize:
     model: *orchestration_model
     thinking: *orchestration_thinking
   init-execflow:
     model: *orchestration_model
     thinking: *orchestration_thinking
-  plan-chain:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
   update-architecture:
     model: *orchestration_model
     thinking: *orchestration_thinking
 
+  # Wrapper-only prompts are intentionally omitted from settings.prompts because they
+  # do not own model selection. This includes chain wrappers (`execflow`,
+  # `exec-delegated`, `plan-chain`, `review`), the manual orchestration wrapper
+  # (`plan`), and deterministic utility wrappers (`refresh-prompts`,
+  # `sync-models`). Their leaf prompts carry the real model/thinking config.
+
   # Implementation prompts
-  exec-worker-implement:
+  worker-implement:
     model: *implementation_model
     thinking: *implementation_thinking
-  exec-worker-validation-fix:
+  worker-validation-fix:
     model: *validation_fix_model
     thinking: *validation_fix_thinking
   implement:
@@ -90,7 +84,7 @@ prompts:
     thinking: *implementation_thinking
 
   # Validation prompts
-  derive-tests:
+  validation-plan:
     model: *validation_fix_model
     thinking: *validation_fix_thinking
   fix:
@@ -112,10 +106,7 @@ prompts:
     thinking: *fast_thinking
 
   # Review prompts
-  review:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  review-consolidate:
+  review-verdict:
     model: *review1_model
     thinking: *review1_thinking
   review-followups:

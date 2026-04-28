@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+## 0.3.5
+
+- Renamed prompt templates for clearer phase semantics: `impl-plan` → `implementation-plan`, `derive-tests` → `validation-plan`, `review-consolidate` → `review-verdict`, `exec-worker-implement` → `worker-implement`, and `exec-worker-validation-fix` → `worker-validation-fix`.
+- Taught `/refresh-prompts` and `/init-execflow` to remove retired prompt overlay filenames from older installs so renamed commands do not leave stale duplicates behind.
+- Removed redundant `model:` / `thinking:` frontmatter from chain wrapper prompts (`execflow`, `exec-delegated`, `plan-chain`, `review`) and dropped their `execflow/settings.yml` entries so wrapper prompts stay orchestration-only.
+- Updated `sync-models.mjs` to strip stale `model:` / `thinking:` frontmatter from prompts intentionally omitted from `settings.prompts`, which keeps existing overlays compatible with wrapper-prompt omissions.
+- Documented the full set of wrapper-only prompts intentionally omitted from `execflow/settings.yml` (`execflow`, `exec-delegated`, `plan`, `plan-chain`, `review`, `refresh-prompts`, `sync-models`) so contributors keep model ownership on leaf prompts.
+- Added a compact prompt taxonomy to the README and generated AGENTS guidance so contributors can quickly distinguish wrapper prompts, local leaves, delegated leaves, and deterministic utilities.
+- Removed the unused `/exec-worker` chain wrapper prompt; `/exec-delegated` already delegates directly to `worker-implement` and `worker-validation-fix`.
+
 ## 0.3.4
 
 - Made `sync-models.mjs` fall back to canonical package `execflow/settings.yml` when a project's local `.execflow/settings.yml` is missing newer prompt entries, so `/refresh-prompts` no longer fails on stale settings during prompt overlay refresh.
@@ -23,7 +35,7 @@
 
 - Renamed the default local implementation chain from `/exec-standard` to `/execflow`, made it validation-only, and removed `/exec-strict`.
 - Added `/validation-fix` with bounded convergence loop (`loop: 10`, `converge: true`) for validate/fix iterations.
-- Added `/exec-delegated` with worker-subagent implementation (`exec-worker-implement`) and validation/fix (`exec-worker-validation-fix`) prompts, each using its own model for separate implementation and validation concerns.
+- Added `/exec-delegated` with worker-subagent implementation (`worker-implement`) and validation/fix (`worker-validation-fix`) prompts, each using its own model for separate implementation and validation concerns.
 - Restored `/review` to prompt-template parallel reviewer subagents now that `PI_SUBAGENT_RUNTIME_ROOT` can point to the installed `pi-subagents` package root.
 - Split independent review into `/review` plus new `/review-followups`, which records review summaries and creates linked tracker follow-up work.
 - Updated finalization semantics so validation-only closure is explicit and never implies that an independent review was run.

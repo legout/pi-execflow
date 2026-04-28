@@ -75,6 +75,14 @@ run: |
   const promptDstDir = path.join(process.cwd(), '.pi', 'prompts');
   const execflowSrcDir = path.join(packageRoot, 'execflow');
   const execflowDstDir = path.join(process.cwd(), '.execflow');
+  const retiredPromptFiles = [
+    'derive-tests.md',
+    'impl-plan.md',
+    'review-consolidate.md',
+    'exec-worker-implement.md',
+    'exec-worker-validation-fix.md',
+    'exec-worker.md',
+  ];
 
   function copyMissingTree(srcBase, dstBase, predicate) {
     for (const entry of fs.readdirSync(srcBase, { withFileTypes: true })) {
@@ -106,6 +114,12 @@ run: |
   fs.mkdirSync(execflowDstDir, { recursive: true });
 
   copyMissingTree(promptSrcDir, promptDstDir, (name) => name.endsWith('.md'));
+  for (const fileName of retiredPromptFiles) {
+    const retiredPath = path.join(promptDstDir, fileName);
+    if (!fs.existsSync(retiredPath)) continue;
+    fs.rmSync(retiredPath);
+    console.log(`removed retired prompt overlay ${path.relative(process.cwd(), retiredPath)}`);
+  }
   copyMissingTree(execflowSrcDir, execflowDstDir);
 
   console.log(`scaffold-source ${packageRoot}`);
