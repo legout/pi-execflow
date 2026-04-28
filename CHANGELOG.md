@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.7
 
 - Added `/exec-review` as the preferred conflict-free name for the work-item review chain; the legacy `/review` wrapper can be shadowed when other extensions also register `/review`.
 - Added a subagent runtime shim during `/refresh-prompts` and `/init-execflow` so delegated chain steps can find globally installed `pi-subagents` even when the legacy `~/.pi/agent/extensions/subagent` path is missing.
