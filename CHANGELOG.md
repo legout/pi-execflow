@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1
 
 - Made chain wrapper prompt bodies fail closed when Pi core executes them directly instead of `pi-prompt-template-model`, preventing `/execflow` and related commands from freeform execution.
 - Added package validation to require fail-closed bodies on all chain prompts.
