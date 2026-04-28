@@ -147,6 +147,15 @@ for (const promptFile of promptFiles) {
     addError(`Prompt ${promptFile} uses inheritContext: false without an explicit Context isolation explanation`);
   }
 
+  if (getFrontmatterField(extracted.frontmatter, "chain") !== null) {
+    const hasFailClosedBody = /ERROR: This prompt body should never be executed\./.test(extracted.body)
+      && /must be handled by `pi-prompt-template-model` as a chain prompt/.test(extracted.body)
+      && /Do not implement, edit files, validate, review, plan, or mutate tracker state/.test(extracted.body);
+    if (!hasFailClosedBody) {
+      addError(`Chain prompt ${promptFile} must have a fail-closed body for fallback execution`);
+    }
+  }
+
 }
 
 for (const configuredKey of Object.keys(configuredPrompts)) {

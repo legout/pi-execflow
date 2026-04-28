@@ -5,17 +5,15 @@ chain: resolve -> spec -> derive-tests -> impl-plan -> implement -> validation-f
 chainContext: summary
 restore: true
 ---
+ERROR: This prompt body should never be executed.
 
-This command runs the default fast work-item implementation workflow.
+`/execflow` must be handled by `pi-prompt-template-model` as a chain prompt using:
 
-Flow:
+```text
+resolve -> spec -> derive-tests -> impl-plan -> implement -> validation-fix -> finalize
+```
 
-- resolve the work item and plan context
-- normalize the spec
-- derive the validation plan
-- plan the smallest change
-- implement the work item
-- run `/validation-fix`, which validates and applies minimal scoped fixes in a bounded loop until acceptance criteria pass or progress stops
-- add a final work-item note and close only when validation proves the acceptance criteria are met
+If you see this message, the project-local `.pi/prompts/execflow.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
+Run `/refresh-prompts` or `/init-execflow`, then retry `/execflow <work-item-ref>`.
 
-This command is validation-only: it does not run the parallel review suite and does not claim review happened. Use `/review <work-item-ref>` for a fresh independent review after implementation, and `/review-followups <work-item-ref>` to turn consolidated review findings into linked follow-up work items.
+Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

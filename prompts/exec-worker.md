@@ -5,14 +5,15 @@ chain: exec-worker-implement -> exec-worker-validation-fix
 chainContext: summary
 restore: true
 ---
+ERROR: This prompt body should never be executed.
 
-This command delegates implementation and validation/fix work to worker subagents.
+`/exec-worker` must be handled by `pi-prompt-template-model` as a chain prompt using:
 
-Flow:
+```text
+exec-worker-implement -> exec-worker-validation-fix
+```
 
-- run `/exec-worker-implement` in a fresh worker subagent using the implementation model
-- run `/exec-worker-validation-fix` in a fresh worker subagent using the validation/fix model and bounded convergence loop
+If you see this message, the project-local `.pi/prompts/exec-worker.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
+Run `/refresh-prompts` or `/init-execflow`, then retry `/exec-worker <work-item-ref>`.
 
-This command does not mutate tracker state and does not finalize the work item. Use `/finalize <work-item-ref>` after validation evidence supports closure.
-
-Note: `/exec-delegated` inlines these two worker steps instead of nesting `/exec-worker`, because prompt-template chain nesting is not supported.
+Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.
