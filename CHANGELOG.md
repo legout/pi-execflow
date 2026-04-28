@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.8
 
 - Removed legacy prompt aliases in favor of canonical `/ef-implement`, `/ef-review`, and `/ef-review-followups`.
 - Added `/execplan-review` for whole-ExecPlan delivery audits and `/change-review` for broad branch/diff/path reviews.
