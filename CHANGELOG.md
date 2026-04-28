@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Refreshed model assignments: replaced deprecated `kimi-coding/k2p6` with `kimi-coding/kimi-for-coding`, updated `openai-codex/gpt-5.4` to `gpt-5.5`, switched fast model to `zai/glm-5-turbo`, and lowered `review1` thinking to medium.
+
 ## 0.3.1
 
 - Made chain wrapper prompt bodies fail closed when Pi core executes them directly instead of `pi-prompt-template-model`, preventing `/execflow` and related commands from freeform execution.
