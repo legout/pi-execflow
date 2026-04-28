@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - Renamed `/exec-delegated` to `/ef-implement-delegated` and updated workflow guidance accordingly.
 - Simplified `/ef-review` into one focused work-item reviewer and removed the old multi-lens `review-*` prompts plus `review-verdict`.
