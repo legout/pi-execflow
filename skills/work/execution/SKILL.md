@@ -57,11 +57,13 @@ When fixing validation failures or review findings:
 
 ## Verification heuristics
 
-After applying fixes, prefer this order:
+When the current prompt explicitly owns validation (for example `/validation-fix` or `/worker-validation-fix`), after applying fixes prefer this order:
 
 1. rerun the most relevant targeted test or command for the changed behavior
 2. rerun broader checks only when needed for confidence or required by repo norms
 3. record what was verified versus what remains recommended
+
+When the current prompt is a pure implementation step (for example `/implement` or `/worker-implement`), do not execute validation commands; instead record what should be run by the later validation step.
 
 ## Completion checklist
 

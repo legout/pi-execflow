@@ -1,7 +1,7 @@
 ---
 description: Worker subagent implementation step for delegated execflow
 argument-hint: "<work-item-ref> [context...]"
-model: kimi-coding/kimi-for-coding, zai/glm-5.1, openai-codex/gpt-5.4-mini
+model: kimi-coding/kimi-for-coding, openai-codex/gpt-5.4-mini
 thinking: medium
 subagent: worker
 inheritContext: false
@@ -20,7 +20,7 @@ Context isolation: this worker intentionally runs with `inheritContext: false`. 
 
 ## Your task
 
-Implement the smallest scoped change that satisfies the resolved work item, normalized spec, validation plan, and implementation plan from the parent chain context.
+Implement the smallest scoped change that satisfies the resolved work item, normalized spec, validation plan, and implementation plan from the parent chain context. Edit code and tests as needed, but leave all validation command execution to `/worker-validation-fix`.
 
 ## Rules
 
@@ -30,6 +30,8 @@ Implement the smallest scoped change that satisfies the resolved work item, norm
 - Preserve scope discipline and local repository conventions.
 - Prefer targeted implementation and tests tied to the acceptance criteria.
 - If required context is missing, resolve the work item and ExecPlan from repository evidence before editing.
+- Do not run tests, lint, type checks, builds, or manual verification in this step.
+- Record intended validation under `# Validation Needed`; actual command execution belongs to `/worker-validation-fix`.
 - If ambiguity blocks safe implementation, make no code changes and report the blocker.
 
 ## Output format

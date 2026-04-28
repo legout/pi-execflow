@@ -23,7 +23,7 @@ Unless the user explicitly asks for the delegated workflow, do not treat tracker
 3. Avoid unrelated refactors, cleanup, renames, and formatting churn.
 4. Preserve behavior outside the requested scope.
 5. Keep changes easy to review and easy to revert.
-6. Update tests when behavior changes or coverage is needed.
+6. Update tests when behavior changes or coverage is needed, but do not execute them in pure implementation mode.
 7. If ambiguity blocks safe implementation, stop and surface it.
 
 ## Required workflow
@@ -32,7 +32,7 @@ Unless the user explicitly asks for the delegated workflow, do not treat tracker
 2. Inspect nearby code before editing.
 3. Identify the minimal set of files that must change.
 4. Implement the smallest solution that satisfies the acceptance criteria.
-5. Add or update validation where appropriate.
+5. Add or update tests where appropriate, but leave command execution to the validation phase unless the user explicitly asked for a combined manual pass.
 6. Re-check scope before finishing.
 
 ## Code-change heuristics
@@ -49,6 +49,7 @@ Unless the user explicitly asks for the delegated workflow, do not treat tracker
 - Add or update tests that directly prove the requested behavior.
 - Prefer high-signal tests tied to acceptance criteria.
 - Avoid speculative tests for unrequested behavior.
+- Do not run tests, lint, type checks, or builds during a pure implementation step; capture what should be run by the later validation step.
 - If automated validation is unclear, state what manual validation is needed.
 
 ## Completion checklist
@@ -58,5 +59,6 @@ Before declaring completion, verify:
 - the requested behavior is implemented
 - acceptance criteria are addressed
 - tests were updated if needed
+- required validation is clearly handed off to the later validation step
 - no obvious unrelated changes were introduced
 - remaining ambiguity or risk is documented

@@ -6,6 +6,7 @@
 - Added `/execplan-review` for whole-ExecPlan delivery audits and `/change-review` for broad branch/diff/path reviews.
 - Added `/execplan-review-followups` and `/change-review-followups` as explicit post-review mutation steps.
 - Added explicit `--create-followups` handling to review prompts so tracker mutation is opt-in.
+- Tightened implementation/validation separation so `/implement` and `/worker-implement` defer all test/check execution to `/validation-fix` and `/worker-validation-fix`.
 
 ## 0.3.7
 

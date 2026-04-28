@@ -33,7 +33,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `br` for issue tracking.
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-issues <topic>` to convert an ExecPlan into dependency-aware `br` issues.
-- Use `/ef-implement <issue-ref>` for fast validation-only implementation, bounded validation/fix looping, and finalization.
+- Use `/ef-implement <issue-ref>` for fast validation-only implementation: `/implement` edits code/tests without running validation commands, then `/validation-fix` owns bounded validation/fix looping before finalization.
 - Use `/exec-delegated <issue-ref>` for larger/noisier work: parent-owned planning/finalization with worker-subagent implementation and validation/fix.
 - Use `/ef-review <issue-ref>` for a fresh read-only parallel subagent review. Use `/ef-review-followups <issue-ref>` to record the review and create linked follow-up issues, or pass `--create-followups` to `/ef-review` when mutation is explicitly desired.
 - Use `/execplan-review <plan> [--create-followups]` for whole-plan delivery audits across derived issues/tickets.
@@ -46,7 +46,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `tk` for ticket tracking when the repository explicitly chooses it.
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-tickets <topic>` to convert an ExecPlan into dependency-aware `tk` tickets.
-- Use `/ef-implement <ticket-ref>` for fast validation-only implementation, bounded validation/fix looping, and finalization.
+- Use `/ef-implement <ticket-ref>` for fast validation-only implementation: `/implement` edits code/tests without running validation commands, then `/validation-fix` owns bounded validation/fix looping before finalization.
 - Use `/exec-delegated <ticket-ref>` for larger/noisier work: parent-owned planning/finalization with worker-subagent implementation and validation/fix.
 - Use `/ef-review <ticket-ref>` for a fresh read-only parallel subagent review. Use `/ef-review-followups <ticket-ref>` to record the review and create linked follow-up tickets, or pass `--create-followups` to `/ef-review` when mutation is explicitly desired.
 - Use `/execplan-review <plan> [--create-followups]` for whole-plan delivery audits across derived issues/tickets.

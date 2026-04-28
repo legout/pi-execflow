@@ -12,6 +12,8 @@ restore: true
 
 You are running one iteration of a validation/fix loop for exactly one work item.
 
+This is the only step in `/ef-implement` that should execute validation commands. The earlier `/implement` step may edit code and tests, but it should not run tests, lint, type checks, builds, or manual verification.
+
 The prompt-template loop stops on convergence when an iteration makes no file changes. Therefore:
 
 - If validation passes, make no edits and report a clear pass verdict.

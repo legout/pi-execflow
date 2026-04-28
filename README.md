@@ -97,7 +97,7 @@ Tracker-specific alternatives:
 /ef-implement <ticket-or-issue-ref>
 ```
 
-`/ef-implement` is the fast validation-only implementation path: it implements the work item, runs `/validation-fix` to validate tests/checks/acceptance criteria and apply minimal fixes in a bounded convergence loop, then finalizes the item without claiming review happened.
+`/ef-implement` is the fast validation-only implementation path: its `/implement` step edits code/tests without executing validation commands, then `/validation-fix` owns test/check execution and applies minimal fixes in a bounded convergence loop before finalization.
 
 For larger/noisier work items, use the delegated variant:
 

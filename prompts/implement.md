@@ -1,7 +1,7 @@
 ---
 description: Implement a work item with the smallest correct diff
 argument-hint: "<work-item-ref> [context...]"
-model: kimi-coding/kimi-for-coding, zai/glm-5.1, openai-codex/gpt-5.4-mini
+model: kimi-coding/kimi-for-coding, openai-codex/gpt-5.4-mini
 thinking: medium
 skill: execution
 restore: true
@@ -35,10 +35,11 @@ Optional execution plans may exist in:
 
 1. Resolve the work item and matching ExecPlan if available.
 2. Extract acceptance criteria and constraints.
-3. Identify likely files and tests.
+3. Identify likely files and test changes.
 4. Make minimal code changes that satisfy the work item.
-5. Update or add tests where appropriate.
+5. Update or add tests where appropriate, but do not execute them here.
 6. Preserve local repository conventions and style.
+7. Leave all validation command execution to `/validation-fix`.
 
 ## Rules
 
@@ -49,6 +50,8 @@ Optional execution plans may exist in:
 - Prefer local patterns and existing abstractions.
 - If ambiguity blocks safe implementation, stop and explain.
 - Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless the user explicitly asks for that workflow.
+- Do not run tests, lint, type checks, builds, or manual verification in this step.
+- If validation evidence is needed, record what should be run and defer execution to `/validation-fix`.
 
 ## Priorities
 
@@ -87,6 +90,7 @@ Use exactly these sections:
 - Added:
 - Updated:
 - Not added, with reason if none:
+- Validation deferred to `/validation-fix`: 
 
 # Notes / Remaining Concerns
 
