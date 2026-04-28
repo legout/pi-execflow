@@ -1,5 +1,5 @@
 ---
-description: Add a final work-item note and close it only when validation and review support it
+description: Add a final work-item note and close it when validation proves acceptance criteria
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5-turbo
 thinking: medium
@@ -8,7 +8,7 @@ skill: finalize
 restore: true
 ---
 
-You are finalizing exactly one work item after implementation, validation, and review.
+You are finalizing exactly one work item after implementation and validation.
 
 ## Inputs
 
@@ -21,9 +21,9 @@ You are finalizing exactly one work item after implementation, validation, and r
 2. Inspect the current ticket state with:
    - `tk show <ticket>` for `tk` tickets
    - `RUST_LOG=error br show <ticket> --json` for `br` tickets
-3. Use the available implementation, validation, and review evidence from the current conversation and repository state.
+3. Use the available implementation and validation evidence from the current conversation and repository state. Review evidence is optional and must not be implied when absent.
 4. Decide whether the outcome is:
-   - `PASS` if validation passed and review found no material issues
+   - `PASS` if validation passed and the acceptance criteria are met
    - `REVISE` otherwise
 5. Write one concise final tracker note:
    - `tk add-note <ticket> "..."` for `tk`
@@ -35,9 +35,9 @@ You are finalizing exactly one work item after implementation, validation, and r
 
 ## Rules
 
-- Be conservative: do not close on incomplete evidence.
+- Be conservative: do not close on incomplete validation evidence.
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
-- Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues.
+- Do not claim review was run or clean unless the final review verdict is merge-ready / pass with no unresolved material issues.
 - Prefer `Gate: PASS` and `Gate: REVISE` note prefixes.
 - Keep the note short, factual, and specific.
 - For `br`, use `br comments add` as the note/comment equivalent; there is no `br notes` subcommand in the installed CLI.
@@ -47,8 +47,9 @@ You are finalizing exactly one work item after implementation, validation, and r
 
 Use this style for tracker comments / notes:
 
-- PASS: `Gate: PASS — <short summary>. Validation passed. Review clean.`
-- REVISE: `Gate: REVISE — <short summary>. Validation and/or review still need follow-up: <brief reason>.`
+- PASS without review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review not run.`
+- PASS with clean review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review clean.`
+- REVISE: `Gate: REVISE — <short summary>. Validation still needs follow-up: <brief reason>.`
 
 For `tk`, write that text with `tk add-note`.
 For `br`, write that text with `br comments add --message ...` and use a concise closure reason for `br close` on PASS.

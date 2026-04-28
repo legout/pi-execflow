@@ -1,11 +1,11 @@
 ---
 name: finalize
-description: Update a work item with a concise execution note and close it only when validation passed and review found no material issues. Use for prompts that finalize work-item status after manual execution chains.
+description: Update a work item with a concise execution note and close it only when validation proves the acceptance criteria. Use for prompts that finalize work-item status after manual execution chains.
 ---
 
 # Finalization
 
-Use this skill when preparing the final work-item update after implementation, validation, and review.
+Use this skill when preparing the final work-item update after implementation and validation. Review evidence is optional and must be reported honestly when present or absent.
 
 ## Purpose
 
@@ -17,7 +17,7 @@ Read these sibling skills for deeper detail when needed:
 
 - `../resolve/SKILL.md`
 - `../validation/SKILL.md`
-- `../review-suite/SKILL.md`
+- `../review-suite/SKILL.md` when review evidence is present
 
 ## Primary objective
 
@@ -26,10 +26,11 @@ Add an accurate work-item note and close it only when the evidence supports clos
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close only when validation passed and review is merge-ready / pass with no unresolved material issues.
+2. Close when validation passed and acceptance criteria are met, even if an independent review has not been run.
 3. If evidence is partial, missing, or negative, add a note and leave the ticket open.
 4. Prefer `Gate: PASS` and `Gate: REVISE` notes for compatibility with this repository's existing workflow.
 5. Include only claims supported by actual execution or explicit evidence in context.
+6. Do not imply review happened. Use "Review not run" when finalizing from `/execflow` without a consolidated review verdict.
 
 ## Tracker-specific guidance
 
@@ -56,7 +57,7 @@ A final note or close reason should concisely capture:
 - the outcome (`PASS` or `REVISE`)
 - the core change
 - validation status
-- review status
+- review status, explicitly `not run` when absent
 - any remaining follow-up, if the ticket stays open
 
 ## Completion checklist

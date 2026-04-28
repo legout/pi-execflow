@@ -146,6 +146,7 @@ for (const promptFile of promptFiles) {
   if (/^inheritContext:\s*false$/m.test(extracted.frontmatter) && !/Context isolation:.*inheritContext: false/s.test(extracted.body)) {
     addError(`Prompt ${promptFile} uses inheritContext: false without an explicit Context isolation explanation`);
   }
+
 }
 
 for (const configuredKey of Object.keys(configuredPrompts)) {
@@ -194,7 +195,7 @@ findTextMatches(repoFiles, /relevant docs under `docs\/`/g, "Stale docs/ referen
 
 for (const filePath of repoFiles.filter((filePath) => filePath !== validateScriptPath)) {
   const text = readFileSync(filePath, "utf8");
-  for (const { line, lineNumber } of linesContaining(text, /`\/(?:execflow|execflow-queue|execflow-reset)\b/)) {
+  for (const { line, lineNumber } of linesContaining(text, /`\/(?:execflow-queue|execflow-reset)\b/)) {
     if (!/(optional|external|when available|delegated|not shipped)/i.test(line)) {
       addError(`Delegated execflow command reference needs optional/external wording in ${filePath.replace(`${repoRoot}/`, "")}:${lineNumber}`);
     }

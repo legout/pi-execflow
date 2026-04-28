@@ -1,6 +1,6 @@
 ---
 name: execution
-description: Implement or fix a work item using minimal diffs while preserving scope, local conventions, and testability. Use for prompts that change code or apply review fixes.
+description: Implement or fix a work item using minimal diffs while preserving scope, local conventions, and testability. Use for prompts that change code or apply validation/review fixes.
 ---
 
 # Execution
@@ -44,9 +44,9 @@ This is especially important for `.beads/` / `br` workflows, where there may be 
 
 ## Fix workflow
 
-When fixing review findings:
+When fixing validation failures or review findings:
 
-- triage by severity first: high before medium before low
+- triage validation failures and acceptance-criteria gaps before review-only improvements; then address high severity before medium before low
 - address the smallest real issue first
 - keep each fix tied to a concrete finding
 - revalidate the affected behavior after each logical fix batch

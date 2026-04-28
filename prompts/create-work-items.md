@@ -32,5 +32,5 @@ Procedure:
 Follow the `work-itemize` skill exactly.
 
 At the end:
-- if `tk` was selected and the optional external delegated `tk` workflow is available, suggest `/execflow` or `/execflow-queue`; otherwise suggest `/exec-standard <ticket-ref>`
-- if `br` was selected, suggest `/exec-standard <issue-ref>` or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validate`, `/review`, `/finalize`)
+- if `tk` was selected, suggest `/execflow <ticket-ref>` for the default validation-only implementation path or `/exec-delegated <ticket-ref>` for larger/noisier work; mention optional external `/execflow-queue` only if that delegated `tk` workflow is available
+- if `br` was selected, suggest `/execflow <issue-ref>` for the default validation-only implementation path, `/exec-delegated <issue-ref>` for larger/noisier work, or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/review`, `/review-followups`, `/finalize`)

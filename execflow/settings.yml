@@ -67,6 +67,12 @@ prompts:
     thinking: *orchestration_thinking
 
   # Implementation prompts
+  exec-worker-implement:
+    model: *implementation_model
+    thinking: *implementation_thinking
+  exec-worker-validation-fix:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
   implement:
     model: *implementation_model
     thinking: *implementation_thinking
@@ -76,6 +82,9 @@ prompts:
     model: *validation_fix_model
     thinking: *validation_fix_thinking
   fix:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
+  validation-fix:
     model: *validation_fix_model
     thinking: *validation_fix_thinking
   validate:
@@ -94,6 +103,9 @@ prompts:
   review-consolidate:
     model: *review1_model
     thinking: *review1_thinking
+  review-followups:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
   review-spec:
     model: *review1_model
     thinking: *review1_thinking

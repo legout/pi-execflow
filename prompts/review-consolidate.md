@@ -31,6 +31,7 @@ You are consolidating specialized review passes for one work item into a single 
 - If no material issues remain, say merge-ready plainly.
 - Do not edit code.
 - Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts.
+- Do not create follow-up work items here. Use `/review-followups <work-item-ref>` after consolidation for tracker mutations.
 
 ## Output format
 

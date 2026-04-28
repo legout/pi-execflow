@@ -13,7 +13,7 @@ Implement the requested change with the smallest correct diff.
 
 ## Repository fit
 
-These local prompts complement optional external delegated `/execflow` workflows when they are available.
+These focused local prompts complement the package `/execflow` chain when a narrower implementation pass is needed.
 Unless the user explicitly asks for the delegated workflow, do not treat tracker state changes (`tk` / `br`) or repo-root `execflow/` runtime artifacts as part of ordinary implementation work.
 
 ## Principles

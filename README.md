@@ -91,17 +91,32 @@ Tracker-specific alternatives:
 /create-issues <topic>
 ```
 
-### 4. Execute one work item manually
+### 4. Execute and review one work item
 
 ```bash
-/exec-standard <ticket-or-issue-ref>
+/execflow <ticket-or-issue-ref>
 ```
 
-or for stricter execution:
+`/execflow` is the fast validation-only implementation path: it implements the work item, runs `/validation-fix` to validate tests/checks/acceptance criteria and apply minimal fixes in a bounded convergence loop, then finalizes the item without claiming review happened.
+
+For larger/noisier work items, use the delegated variant:
 
 ```bash
-/exec-strict <ticket-or-issue-ref>
+/exec-delegated <ticket-or-issue-ref>
 ```
+
+`/exec-delegated` keeps resolution, spec, validation planning, implementation planning, and finalization in the main session, but delegates implementation and validation/fix to worker subagents. The implementation worker uses the implementation model; the validation/fix worker uses the validation/fix model.
+
+Run an independent fresh review separately when needed:
+
+```bash
+/review <ticket-or-issue-ref>
+/review-followups <ticket-or-issue-ref>
+```
+
+`/review` is read-only and runs specialized reviewer subagents in parallel via prompt-template delegated `parallel(...)`, then consolidates their findings in the main session. `/review-followups` records the review summary on the original item and creates linked follow-up tickets/issues for material findings.
+
+Delegated prompt-template steps require `pi-subagents` and a discoverable subagent runtime root. If `pi-subagents` was installed with `pi install npm:pi-subagents`, use `pi list` to find its package root and start Pi with `PI_SUBAGENT_RUNTIME_ROOT=<that-root>` when it is not available at `~/.pi/agent/extensions/subagent`.
 
 ## Included resources
 
@@ -123,8 +138,11 @@ Main commands include:
 - `/create-work-items <topic>`
 - `/create-tickets <topic>`
 - `/create-issues <topic>`
-- `/exec-standard <ticket-or-issue-ref>`
-- `/exec-strict <ticket-or-issue-ref>`
+- `/execflow <ticket-or-issue-ref>`
+- `/exec-delegated <ticket-or-issue-ref>`
+- `/validation-fix <ticket-or-issue-ref>`
+- `/review <ticket-or-issue-ref>`
+- `/review-followups <ticket-or-issue-ref>`
 - `/update-architecture [topic]`
 
 ### Skills
@@ -249,8 +267,9 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- optional external delegated `/execflow` / `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
-- `br` support is primarily through `create-issues` and the manual local execution prompts
+- `/execflow` is shipped by this package as the default local validation-only implementation workflow
+- optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
+- `br` support is primarily through `create-issues`, `/execflow`, `/review`, `/review-followups`, and the focused local prompts
 - `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
 
 ## Development

@@ -1,8 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
-- No unreleased changes yet.
+- Renamed the default local implementation chain from `/exec-standard` to `/execflow`, made it validation-only, and removed `/exec-strict`.
+- Added `/validation-fix` with bounded convergence loop (`loop: 10`, `converge: true`) for validate/fix iterations.
+- Added `/exec-delegated` with worker-subagent implementation (`exec-worker-implement`) and validation/fix (`exec-worker-validation-fix`) prompts, each using its own model for separate implementation and validation concerns.
+- Restored `/review` to prompt-template parallel reviewer subagents now that `PI_SUBAGENT_RUNTIME_ROOT` can point to the installed `pi-subagents` package root.
+- Split independent review into `/review` plus new `/review-followups`, which records review summaries and creates linked tracker follow-up work.
+- Updated finalization semantics so validation-only closure is explicit and never implies that an independent review was run.
+- Relaxed `validate-package` to allow `subagent:` frontmatter and `parallel(...)` in chains, since delegated execution now requires these.
 
 ## 0.2.8
 
