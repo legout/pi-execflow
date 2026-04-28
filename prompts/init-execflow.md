@@ -79,7 +79,9 @@ run: |
     'derive-tests.md',
     'impl-plan.md',
     'review-consolidate.md',
+    'exec-delegate.md',
     'exec-worker-implement.md',
+    'exec-worker-implementation.md',
     'exec-worker-validation-fix.md',
     'exec-worker.md',
   ];

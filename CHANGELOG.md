@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-## 0.3.5
+- Expanded prompt-overlay cleanup so `/refresh-prompts` and `/init-execflow` also remove older legacy filenames such as `exec-delegate.md` and `exec-worker-implementation.md`, which prevents stale duplicate commands from lingering after prompt renames.
+
+## 0.3.6
 
 - Renamed prompt templates for clearer phase semantics: `impl-plan` → `implementation-plan`, `derive-tests` → `validation-plan`, `review-consolidate` → `review-verdict`, `exec-worker-implement` → `worker-implement`, and `exec-worker-validation-fix` → `worker-validation-fix`.
 - Taught `/refresh-prompts` and `/init-execflow` to remove retired prompt overlay filenames from older installs so renamed commands do not leave stale duplicates behind.
