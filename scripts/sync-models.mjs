@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const repoRoot = process.cwd();
 const targetSettingsPath = join(repoRoot, ".execflow", "settings.yml");
@@ -8,6 +9,9 @@ const packageSettingsPath = join(repoRoot, "execflow", "settings.yml");
 const settingsPath = existsSync(targetSettingsPath) ? targetSettingsPath : packageSettingsPath;
 const projectPromptDir = join(repoRoot, ".pi", "prompts");
 const packagePromptDir = join(repoRoot, "prompts");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const canonicalPackageRoot = dirname(scriptDir);
+const canonicalSettingsPath = join(canonicalPackageRoot, "execflow", "settings.yml");
 
 function fail(message) {
   process.stderr.write(`${message}\n`);
@@ -156,16 +160,44 @@ function resolvePromptConfig(promptKey, settings) {
   return prompts[promptKey] ?? prompts[`${promptKey}.md`] ?? null;
 }
 
-function syncPromptFile(filePath, settings) {
+function resolvePromptConfigWithFallback(promptKey, primarySettings, fallbackSettings) {
+  const primaryConfig = resolvePromptConfig(promptKey, primarySettings);
+  if (primaryConfig) {
+    return {
+      config: primaryConfig,
+      source: `prompts.${promptKey}`,
+      settingsPath,
+    };
+  }
+
+  if (fallbackSettings) {
+    const fallbackConfig = resolvePromptConfig(promptKey, fallbackSettings);
+    if (fallbackConfig) {
+      return {
+        config: fallbackConfig,
+        source: `prompts.${promptKey} (fallback from package settings)`,
+        settingsPath: canonicalSettingsPath,
+      };
+    }
+  }
+
+  return {
+    config: null,
+    source: null,
+    settingsPath,
+  };
+}
+
+function syncPromptFile(filePath, settings, fallbackSettings) {
   const promptKey = basename(filePath, ".md");
   const text = readFileSync(filePath, "utf8");
   const { prefix, frontmatter, separator, body } = extractFrontmatter(text, filePath);
   const lines = frontmatter.split("\n");
-  const promptConfig = resolvePromptConfig(promptKey, settings);
+  const { config: promptConfig, source, settingsPath: resolvedSettingsPath } = resolvePromptConfigWithFallback(promptKey, settings, fallbackSettings);
 
   if (!promptConfig) {
     if (frontmatterHasField(lines, "model") || frontmatterHasField(lines, "thinking")) {
-      fail(`Missing prompts.${promptKey} in ${settingsPath}`);
+      fail(`Missing prompts.${promptKey} in ${settingsPath}${fallbackSettings ? ` and ${canonicalSettingsPath}` : ""}`);
     }
     return {
       file: filePath,
@@ -178,10 +210,10 @@ function syncPromptFile(filePath, settings) {
   }
 
   if (promptConfig.model === undefined || promptConfig.model === "") {
-    fail(`Missing prompts.${promptKey}.model in ${settingsPath}`);
+    fail(`Missing prompts.${promptKey}.model in ${resolvedSettingsPath}`);
   }
   if (promptConfig.thinking === undefined || promptConfig.thinking === "") {
-    fail(`Missing prompts.${promptKey}.thinking in ${settingsPath}`);
+    fail(`Missing prompts.${promptKey}.thinking in ${resolvedSettingsPath}`);
   }
 
   upsertFrontmatterField(lines, "model", promptConfig.model);
@@ -195,7 +227,7 @@ function syncPromptFile(filePath, settings) {
 
   return {
     file: filePath,
-    source: `prompts.${promptKey}`,
+    source,
     model: promptConfig.model,
     thinking: promptConfig.thinking,
     changed,
@@ -219,8 +251,11 @@ if (!existsSync(promptDir)) {
 }
 
 const settings = parseSimpleYaml(readFileSync(settingsPath, "utf8"));
+const fallbackSettings = existsSync(canonicalSettingsPath) && canonicalSettingsPath !== settingsPath
+  ? parseSimpleYaml(readFileSync(canonicalSettingsPath, "utf8"))
+  : null;
 const promptFiles = readdirSync(promptDir).filter((name) => name.endsWith(".md")).sort();
-const results = promptFiles.map((promptFile) => syncPromptFile(join(promptDir, promptFile), settings));
+const results = promptFiles.map((promptFile) => syncPromptFile(join(promptDir, promptFile), settings, fallbackSettings));
 
 const changed = results.filter((result) => result.changed);
 const skipped = results.filter((result) => result.skipped);

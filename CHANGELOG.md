@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- Made `sync-models.mjs` fall back to canonical package `execflow/settings.yml` when a project's local `.execflow/settings.yml` is missing newer prompt entries, so `/refresh-prompts` no longer fails on stale settings during prompt overlay refresh.
+
 ## 0.3.3
 
 - Added explicit orchestration `model` / `thinking` frontmatter to chain wrapper prompts (`execflow`, `exec-delegated`, `exec-worker`, `plan-chain`, `review`) so Pi core treats them as prompt-template-model commands instead of plain prompt bodies.
