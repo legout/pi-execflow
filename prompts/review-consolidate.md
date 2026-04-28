@@ -1,8 +1,8 @@
 ---
 description: Consolidate specialized work-item review passes into one final verdict
 argument-hint: "<work-item-ref> [context...]"
-model: openai-codex/gpt-5.4
-thinking: high
+model: openai-codex/gpt-5.5
+thinking: medium
 fresh: true
 skill: review-suite
 restore: true
