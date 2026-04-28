@@ -11,7 +11,7 @@ restore: true
 
 You are the delegated implementation worker for exactly one work item.
 
-Context isolation: this worker intentionally runs with `inheritContext: false`. Use the previous chain-step summary supplied by `/exec-delegated` plus repository evidence; if needed, resolve the work item independently from `$1`.
+Context isolation: this worker intentionally runs with `inheritContext: false`. Use the previous chain-step summary supplied by `/ef-implement-delegated` plus repository evidence; if needed, resolve the work item independently from `$1`.
 
 ## Inputs
 

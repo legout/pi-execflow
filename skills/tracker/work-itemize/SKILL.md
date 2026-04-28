@@ -146,7 +146,7 @@ When the selected tracker is `tk`:
 2. Create work items with `tk create`.
 3. Set hard dependencies with `tk dep <id> <dep-id>`.
 4. Report created ticket IDs and scheduling hints.
-5. Suggest `/ef-implement <ticket-ref>` for the default validation-only implementation workflow or `/exec-delegated <ticket-ref>` for larger/noisier work. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+5. Suggest `/ef-implement <ticket-ref>` for the default validation-only implementation workflow or `/ef-implement-delegated <ticket-ref>` for larger/noisier work. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
 
 ## br mode behavior
 
@@ -166,7 +166,7 @@ When the selected tracker is `br`:
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br sync --flush-only
 
 8. Report created issue IDs and scheduling hints.
-9. Suggest `/ef-implement <issue-ref>` for the default validation-only implementation workflow, `/exec-delegated <issue-ref>` for larger/noisier work, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/ef-review`, `/ef-review-followups`, `/finalize`) next.
+9. Suggest `/ef-implement <issue-ref>` for the default validation-only implementation workflow, `/ef-implement-delegated <issue-ref>` for larger/noisier work, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/ef-review`, `/ef-review-followups`, `/finalize`) next.
 
 ## Hard rules
 

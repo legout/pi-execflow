@@ -102,10 +102,10 @@ Tracker-specific alternatives:
 For larger/noisier work items, use the delegated variant:
 
 ```bash
-/exec-delegated <ticket-or-issue-ref>
+/ef-implement-delegated <ticket-or-issue-ref>
 ```
 
-`/exec-delegated` keeps resolution, spec, validation planning, implementation planning, and finalization in the main session, but delegates implementation and validation/fix to worker subagents. The implementation worker uses the implementation model; the validation/fix worker uses the validation/fix model.
+`/ef-implement-delegated` keeps resolution, spec, validation planning, implementation planning, and finalization in the main session, but delegates implementation and validation/fix to worker subagents. The implementation worker uses the implementation model; the validation/fix worker uses the validation/fix model.
 
 Run an independent fresh review separately when needed:
 
@@ -114,7 +114,7 @@ Run an independent fresh review separately when needed:
 /ef-review-followups <ticket-or-issue-ref>
 ```
 
-`/ef-review` is read-only by default and reviews exactly one work-item implementation with specialized reviewer subagents via prompt-template delegated `parallel(...)`, then consolidates their findings in the main session. Add `--create-followups` to create tracker follow-ups in the same run, or run `/ef-review-followups` afterward for an explicit mutation step.
+`/ef-review` is read-only by default and runs one focused work-item review covering acceptance criteria, ExecPlan compliance, scope control, missing required behavior, and obvious validation-evidence gaps. Add `--create-followups` to create tracker follow-ups in the same run, or run `/ef-review-followups` afterward for an explicit mutation step.
 
 For broader review scopes, use:
 
@@ -148,7 +148,7 @@ Main commands include:
 - `/create-tickets <topic>`
 - `/create-issues <topic>`
 - `/ef-implement <ticket-or-issue-ref>`
-- `/exec-delegated <ticket-or-issue-ref>`
+- `/ef-implement-delegated <ticket-or-issue-ref>`
 - `/validation-fix <ticket-or-issue-ref>`
 - `/ef-review <ticket-or-issue-ref> [--create-followups]`
 - `/ef-review-followups <ticket-or-issue-ref>`
@@ -190,10 +190,7 @@ models:
   implementation: &implementation_model <implementation model string>
   validation_fix: &validation_fix_model <validation model string>
   fast: &fast_model <fast model string>
-  review1: &review1_model <review1 model string>
-  review2: &review2_model <review2 model string>
-  review3: &review3_model <review3 model string>
-  review4: &review4_model <review4 model string>
+  review: &review_model <review model string>
 
 thinking:
   plan: &plan_thinking <plan thinking>
@@ -201,10 +198,7 @@ thinking:
   implementation: &implementation_thinking <implementation thinking>
   validation_fix: &validation_fix_thinking <validation thinking>
   fast: &fast_thinking <fast thinking>
-  review1: &review1_thinking <review1 thinking>
-  review2: &review2_thinking <review2 thinking>
-  review3: &review3_thinking <review3 thinking>
-  review4: &review4_thinking <review4 thinking>
+  review: &review_thinking <review thinking>
 
 prompts:
   architect:
@@ -233,7 +227,7 @@ prompts:
     thinking: *plan_thinking
   spec:
     model: *implementation_model
-    thinking: *review1_thinking
+    thinking: *review_thinking
 ```
 
 Keep `prompts:` entries aligned with the project prompt files in `.pi/prompts/`. When developing this package itself, the same names also correspond to the checked-in source prompts under `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
@@ -272,7 +266,7 @@ Properties of the sync step:
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/ef-implement`, `/exec-delegated`, `/plan-chain`, `/ef-review`
+- chain wrappers: `/ef-implement`, `/ef-implement-delegated`, `/plan-chain`
 - manual orchestration wrapper: `/plan`
 - deterministic utility wrappers: `/refresh-prompts`, `/sync-models`
 
@@ -280,12 +274,12 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Chain wrapper | No | `/ef-implement`, `/exec-delegated`, `/plan-chain`, `/ef-review` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Chain wrapper | No | `/ef-implement`, `/ef-implement-delegated`, `/plan-chain` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Manual orchestration wrapper | No | `/plan` | Human-facing wrapper that checks brainstorm state and then dispatches to `/plan-chain` |
 | Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always`, so wrapper logic and post-run guidance share one prompt |
-| Local model-owning leaf | Yes | `/architect`, `/brainstorm`, `/change-review`, `/change-review-followups`, `/create-issues`, `/create-tickets`, `/create-work-items`, `/ef-review-followups`, `/execplan-review`, `/execplan-review-followups`, `/finalize`, `/fix`, `/implement`, `/implementation-plan`, `/merge-summary`, `/plan-create`, `/plan-improve`, `/resolve`, `/review-verdict`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
-| Delegated worker/reviewer leaf | Yes | `/worker-implement`, `/worker-validation-fix`, `/review-spec`, `/review-regression`, `/review-tests`, `/review-maintainability` | Own `subagent`, isolation, and model config; referenced by chain wrappers |
+| Local model-owning leaf | Yes | `/architect`, `/brainstorm`, `/change-review`, `/change-review-followups`, `/create-issues`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/ef-review-followups`, `/execplan-review`, `/execplan-review-followups`, `/finalize`, `/fix`, `/implement`, `/implementation-plan`, `/merge-summary`, `/plan-create`, `/plan-improve`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
+| Delegated worker leaf | Yes | `/worker-implement`, `/worker-validation-fix` | Own `subagent`, isolation, and model config; referenced by chain wrappers |
 
 ## Included artifact templates
 
@@ -301,7 +295,7 @@ The package ships these checked-in templates under `execflow/`:
 
 - `/ef-implement` is shipped by this package as the default local validation-only implementation workflow
 - optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
-- `br` support is primarily through `create-issues`, `/ef-implement`, `/ef-review`, `/ef-review-followups`, `/execplan-review`, `/change-review`, and the focused local prompts
+- `br` support is primarily through `create-issues`, `/ef-implement`, `/ef-implement-delegated`, `/ef-review`, `/ef-review-followups`, `/execplan-review`, `/change-review`, and the focused local prompts
 - `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
 
 ## Development

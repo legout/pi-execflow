@@ -7,13 +7,13 @@ restore: true
 ---
 ERROR: This prompt body should never be executed.
 
-`/exec-delegated` must be handled by `pi-prompt-template-model` as a chain prompt using:
+`/ef-implement-delegated` must be handled by `pi-prompt-template-model` as a chain prompt using:
 
 ```text
 resolve -> spec -> validation-plan -> implementation-plan -> worker-implement -> worker-validation-fix -> finalize
 ```
 
-If you see this message, the project-local `.pi/prompts/exec-delegated.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/refresh-prompts` or `/init-execflow`, then retry `/exec-delegated <work-item-ref>`.
+If you see this message, the project-local `.pi/prompts/ef-implement-delegated.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
+Run `/refresh-prompts` or `/init-execflow`, then retry `/ef-implement-delegated <work-item-ref>`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

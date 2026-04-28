@@ -14,9 +14,9 @@ restore: true
 
 You are running one delegated worker iteration of a validation/fix loop for exactly one work item.
 
-This is the only worker step in `/exec-delegated` that should execute validation commands. The earlier `/worker-implement` step may edit code and tests, but it should not run tests, lint, type checks, builds, or manual verification.
+This is the only worker step in `/ef-implement-delegated` that should execute validation commands. The earlier `/worker-implement` step may edit code and tests, but it should not run tests, lint, type checks, builds, or manual verification.
 
-Context isolation: this worker intentionally runs with `inheritContext: false`. Use the previous chain-step summary supplied by `/exec-delegated` plus repository evidence; if needed, resolve the work item independently from `$1`.
+Context isolation: this worker intentionally runs with `inheritContext: false`. Use the previous chain-step summary supplied by `/ef-implement-delegated` plus repository evidence; if needed, resolve the work item independently from `$1`.
 
 The prompt-template loop stops on convergence when an iteration makes no file changes. Therefore:
 

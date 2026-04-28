@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Renamed `/exec-delegated` to `/ef-implement-delegated` and updated workflow guidance accordingly.
+- Simplified `/ef-review` into one focused work-item reviewer and removed the old multi-lens `review-*` prompts plus `review-verdict`.
+- Expanded prompt-overlay cleanup so `/refresh-prompts` and `/init-execflow` remove the retired delegated/review prompt files.
+
 ## 0.3.9
 
 - Removed legacy prompt aliases in favor of canonical `/ef-implement`, `/ef-review`, and `/ef-review-followups`.

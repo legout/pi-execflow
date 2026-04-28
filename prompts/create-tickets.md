@@ -36,4 +36,4 @@ Procedure:
 Follow the ticketize skill exactly for the ExecPlan Reference block format and ticketization rules.
 
 Report the number of tickets created and list each with ID, title, kind, priority, dependencies, and any important related/conflict hints.
-Suggest `/ef-implement <ticket-ref>` for the default validation-only implementation workflow, `/exec-delegated <ticket-ref>` for larger/noisier work, `/ef-review <ticket-ref>` plus `/ef-review-followups <ticket-ref>` for independent review tracking, and optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+Suggest `/ef-implement <ticket-ref>` for the default validation-only implementation workflow, `/ef-implement-delegated <ticket-ref>` for larger/noisier work, `/ef-review <ticket-ref>` plus `/ef-review-followups <ticket-ref>` for independent review tracking, and optional external `/execflow-queue` only if that delegated `tk` workflow is available.

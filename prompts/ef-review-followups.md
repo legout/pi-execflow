@@ -1,12 +1,12 @@
 ---
-description: Create linked tracker follow-ups from a consolidated work-item review
+description: Create linked tracker follow-ups from a focused work-item review
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5-turbo
 thinking: medium
 restore: true
 ---
 
-You are converting the most recent consolidated review for exactly one work item into tracker follow-up work.
+You are converting the most recent `/ef-review` verdict for exactly one work item into tracker follow-up work.
 
 ## Inputs
 
@@ -15,7 +15,7 @@ You are converting the most recent consolidated review for exactly one work item
 
 ## Review tracking policy
 
-- `/ef-review` is intentionally read-only and fresh by default: it produces an independent consolidated verdict without mutating tracker state.
+- `/ef-review` is intentionally read-only and fresh by default: it produces an independent review verdict without mutating tracker state.
 - `/ef-review --create-followups <work-item>` may combine review and follow-up creation in one command when the user explicitly opts in.
 - `/ef-review-followups` is the explicit mutation step: it records a concise review summary on the original work item and creates linked follow-up work items for material findings.
 - `/ef-review` is the canonical work-item review command.
@@ -28,8 +28,8 @@ You are converting the most recent consolidated review for exactly one work item
 2. Inspect the current item state with:
    - `tk show <ticket>` for `tk` tickets
    - `RUST_LOG=error br show <issue> --json` for `br` issues
-3. Read the most recent `# Review Verdict` / `# Consolidated Findings` from the current conversation. If no consolidated review is available, stop and tell the user to run `/ef-review $1` first.
-4. For each material consolidated finding, create a follow-up item unless it is clearly duplicate, speculative, or too vague to act on.
+3. Read the most recent `# Review Verdict` / `# Findings` from the current conversation. If no review verdict is available, stop and tell the user to run `/ef-review $1` first.
+4. For each material finding, create a follow-up item unless it is clearly duplicate, speculative, or too vague to act on.
 5. Use severity to decide tracking behavior:
    - high: create a high-priority bug/task follow-up; if the original closure is invalid, explicitly recommend reopening the original
    - medium: create a normal-priority bug/task follow-up
@@ -54,7 +54,6 @@ Review Follow-up
 Original work item: <id>
 Review verdict: <merge-ready|needs-fixes|blocked>
 Severity: <high|medium|low>
-Lens: <spec|regression|tests|maintainability>
 Source finding: <short quote or paraphrase>
 Required remediation: <specific action>
 Acceptance criteria:
@@ -64,7 +63,7 @@ Acceptance criteria:
 
 ## Rules
 
-- Do not create follow-ups for `# Consolidated Findings` equal to exactly `- none`.
+- Do not create follow-ups for `# Findings` equal to exactly `- none`.
 - Do not create duplicate follow-ups for the same finding if an equivalent open item already exists.
 - Do not silently downgrade high-severity findings; explain the chosen action.
 - Do not claim review follow-ups were created until tracker commands succeeded.
