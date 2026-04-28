@@ -30,7 +30,7 @@ Add an accurate work-item note and close it only when the evidence supports clos
 3. If evidence is partial, missing, or negative, add a note and leave the ticket open.
 4. Prefer `Gate: PASS` and `Gate: REVISE` notes for compatibility with this repository's existing workflow.
 5. Include only claims supported by actual execution or explicit evidence in context.
-6. Do not imply review happened. Use "Review not run" when finalizing from `/execflow` without a consolidated review verdict.
+6. Do not imply review happened. Use "Review not run" when finalizing from `/ef-implement` without a consolidated review verdict.
 
 ## Tracker-specific guidance
 

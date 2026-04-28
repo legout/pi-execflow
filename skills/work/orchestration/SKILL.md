@@ -14,7 +14,7 @@ Run work-item execution through a disciplined sequence of phases so the outcome 
 ## Repository fit
 
 This skill is for the local `.pi/prompts/` overlay.
-It is not a replacement for the package `/execflow` chain; use focused prompts when a narrower manual pass is needed.
+It is not a replacement for the package `/ef-implement` chain; use focused prompts when a narrower manual pass is needed.
 Unless the user asks for that official workflow, avoid mutating `tk` state or repo-root `execflow/` runtime artifacts as side effects.
 
 ## Required phase model
@@ -29,7 +29,7 @@ Use these phases unless the prompt specifies a narrower flow. Review is intentio
 6. Validate
 7. Run `/validation-fix` or otherwise fix and re-check validation if needed
 8. Summarize / finalize from validation evidence
-9. Run `/exec-review` and `/review-followups` as a separate fresh review workflow when requested
+9. Run `/ef-review` and `/ef-review-followups` as a separate fresh review workflow when requested
 
 ## Phase discipline
 
@@ -48,7 +48,7 @@ Use these phases unless the prompt specifies a narrower flow. Review is intentio
 
 Use loops only where they add value:
 
-- `/validation-fix` bounded convergence loops, with review handled separately through `/review` and `/review-followups`
+- `/validation-fix` bounded convergence loops, with review handled separately through `/ef-review` and `/ef-review-followups`
 
 Do not loop endlessly on:
 

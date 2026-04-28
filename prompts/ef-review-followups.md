@@ -15,9 +15,11 @@ You are converting the most recent consolidated review for exactly one work item
 
 ## Review tracking policy
 
-- `/exec-review` is intentionally read-only and fresh: it produces an independent consolidated verdict without mutating tracker state. Legacy `/review` may be shadowed by other extensions.
-- `/review-followups` is the mutation step: it records a concise review summary on the original work item and creates linked follow-up work items for material findings.
-- The original work item may already be closed by `/execflow` after validation. Do not reopen it unless a high-severity finding shows that acceptance criteria were not actually met or the implementation is unsafe to keep closed.
+- `/ef-review` is intentionally read-only and fresh by default: it produces an independent consolidated verdict without mutating tracker state.
+- `/ef-review --create-followups <work-item>` may combine review and follow-up creation in one command when the user explicitly opts in.
+- `/ef-review-followups` is the explicit mutation step: it records a concise review summary on the original work item and creates linked follow-up work items for material findings.
+- `/ef-review` is the canonical work-item review command.
+- The original work item may already be closed by `/ef-implement` after validation. Do not reopen it unless a high-severity finding shows that acceptance criteria were not actually met or the implementation is unsafe to keep closed.
 - Follow-up work items must reference the original work item and the review verdict so the audit trail stays explicit.
 
 ## Your tasks
@@ -26,7 +28,7 @@ You are converting the most recent consolidated review for exactly one work item
 2. Inspect the current item state with:
    - `tk show <ticket>` for `tk` tickets
    - `RUST_LOG=error br show <issue> --json` for `br` issues
-3. Read the most recent `# Review Verdict` / `# Consolidated Findings` from the current conversation. If no consolidated review is available, stop and tell the user to run `/review $1` first.
+3. Read the most recent `# Review Verdict` / `# Consolidated Findings` from the current conversation. If no consolidated review is available, stop and tell the user to run `/ef-review $1` first.
 4. For each material consolidated finding, create a follow-up item unless it is clearly duplicate, speculative, or too vague to act on.
 5. Use severity to decide tracking behavior:
    - high: create a high-priority bug/task follow-up; if the original closure is invalid, explicitly recommend reopening the original

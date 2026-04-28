@@ -38,4 +38,4 @@ Procedure:
 Follow the `issueize` skill exactly for the ExecPlan Reference block format, issueization rules, and `br` command discipline.
 
 Report the number of issues created and list each with ID, title, kind, priority, dependencies, and any important related/conflict hints.
-Suggest running `/execflow <issue-ref>` for the default validation-only implementation workflow, `/exec-delegated <issue-ref>` for larger/noisier work, `/review <issue-ref>` plus `/review-followups <issue-ref>` for independent review tracking, or the focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`) for a narrower pass.
+Suggest running `/ef-implement <issue-ref>` for the default validation-only implementation workflow, `/exec-delegated <issue-ref>` for larger/noisier work, `/ef-review <issue-ref>` plus `/ef-review-followups <issue-ref>` for independent review tracking, or the focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`) for a narrower pass.

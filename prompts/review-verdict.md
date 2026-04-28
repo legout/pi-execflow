@@ -1,6 +1,6 @@
 ---
 description: Consolidate specialized work-item review passes into one final verdict
-argument-hint: "<work-item-ref> [context...]"
+argument-hint: "<work-item-ref> [--create-followups] [context...]"
 model: openai-codex/gpt-5.5
 thinking: medium
 fresh: true
@@ -13,7 +13,8 @@ You are consolidating specialized review passes for one work item into a single 
 ## Inputs
 
 - Target work-item reference or path: `$1`
-- Optional context: `${@:2}`
+- Optional context and flags: `${@:2}`
+- Optional mutation flag: `--create-followups`
 
 ## Your tasks
 
@@ -22,6 +23,7 @@ You are consolidating specialized review passes for one work item into a single 
 3. De-duplicate overlapping findings.
 4. Prefer concrete, evidence-backed issues over speculative concerns.
 5. Produce one final verdict and the smallest sensible next step.
+6. If `--create-followups` is present, create linked tracker follow-up work items for concrete material findings after producing the verdict.
 
 ## Rules
 
@@ -30,8 +32,9 @@ You are consolidating specialized review passes for one work item into a single 
 - Preserve the highest severity when multiple passes identify the same material issue.
 - If no material issues remain, say merge-ready plainly.
 - Do not edit code.
-- Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts.
-- Do not create follow-up work items here. Use `/review-followups <work-item-ref>` after consolidation for tracker mutations.
+- Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless `--create-followups` is explicitly present.
+- Without `--create-followups`, do not create follow-up work items here. Use `/ef-review-followups <work-item-ref>` after consolidation for tracker mutations.
+- With `--create-followups`, create follow-ups only for concrete material findings, skip duplicates, and add a concise review-summary note/comment to the original item.
 
 ## Output format
 
@@ -90,3 +93,10 @@ Use exactly these sections:
 # Final Recommendation
 
 - Recommended next step:
+
+# Follow-up Actions
+
+- Follow-ups requested: yes / no
+- Review summary note added:
+- Follow-up items created:
+- Findings skipped:

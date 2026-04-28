@@ -33,7 +33,7 @@ You are applying fixes to a work-item implementation after validation or review.
 - Do not refactor unrelated code.
 - Keep the diff reviewable.
 - If a requested fix requires scope change, flag it explicitly.
-- Treat the most recent validation result as authoritative for `/execflow`; treat the most recent consolidated review as authoritative for review-driven fixes unless it clearly contains a false positive.
+- Treat the most recent validation result as authoritative for `/ef-implement`; treat the most recent consolidated review as authoritative for review-driven fixes unless it clearly contains a false positive.
 - If a finding is a false positive, do not change code for it; explain why it was skipped.
 - This is a single-pass fix prompt. Any additional repair cycle must follow a fresh validation pass, and a fresh review pass when the fix is review-driven.
 - Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless the user explicitly asks for that workflow.

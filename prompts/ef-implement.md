@@ -7,13 +7,13 @@ restore: true
 ---
 ERROR: This prompt body should never be executed.
 
-`/execflow` must be handled by `pi-prompt-template-model` as a chain prompt using:
+`/ef-implement` must be handled by `pi-prompt-template-model` as a chain prompt using:
 
 ```text
 resolve -> spec -> validation-plan -> implementation-plan -> implement -> validation-fix -> finalize
 ```
 
-If you see this message, the project-local `.pi/prompts/execflow.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/refresh-prompts` or `/init-execflow`, then retry `/execflow <work-item-ref>`.
+If you see this message, the project-local `.pi/prompts/ef-implement.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
+Run `/refresh-prompts` or `/init-execflow`, then retry `/ef-implement <work-item-ref>`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

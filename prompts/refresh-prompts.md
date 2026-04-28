@@ -90,7 +90,7 @@ run: |
 
     const runtimeRoot = subagentRuntimeRootCandidates(packageRoot).find(isSubagentRuntimeRoot);
     if (!runtimeRoot) {
-      console.warn('warning: pi-subagents runtime not found; /exec-delegated and /exec-review delegated steps may require PI_SUBAGENT_RUNTIME_ROOT.');
+      console.warn('warning: pi-subagents runtime not found; /exec-delegated and /ef-review delegated steps may require PI_SUBAGENT_RUNTIME_ROOT.');
       return;
     }
 
@@ -124,6 +124,10 @@ run: |
     'impl-plan.md',
     'review-consolidate.md',
     'exec-delegate.md',
+    'execflow.md',
+    'exec-review.md',
+    'review.md',
+    'review-followups.md',
     'exec-worker-implement.md',
     'exec-worker-implementation.md',
     'exec-worker-validation-fix.md',

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Removed legacy prompt aliases in favor of canonical `/ef-implement`, `/ef-review`, and `/ef-review-followups`.
+- Added `/execplan-review` for whole-ExecPlan delivery audits and `/change-review` for broad branch/diff/path reviews.
+- Added `/execplan-review-followups` and `/change-review-followups` as explicit post-review mutation steps.
+- Added explicit `--create-followups` handling to review prompts so tracker mutation is opt-in.
+
 ## 0.3.7
 
 - Added `/exec-review` as the preferred conflict-free name for the work-item review chain; the legacy `/review` wrapper can be shadowed when other extensions also register `/review`.

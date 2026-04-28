@@ -67,8 +67,8 @@ prompts:
     thinking: *orchestration_thinking
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
-  # do not own model selection. This includes chain wrappers (`execflow`,
-  # `exec-delegated`, `plan-chain`, `exec-review`, `review`), the manual orchestration wrapper
+  # do not own model selection. This includes chain wrappers (`ef-implement`,
+  # `exec-delegated`, `plan-chain`, `ef-review`), the manual orchestration wrapper
   # (`plan`), and deterministic utility wrappers (`refresh-prompts`,
   # `sync-models`). Their leaf prompts carry the real model/thinking config.
 
@@ -109,7 +109,19 @@ prompts:
   review-verdict:
     model: *review1_model
     thinking: *review1_thinking
-  review-followups:
+  ef-review-followups:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  execplan-review:
+    model: *plan_model
+    thinking: *plan_thinking
+  change-review:
+    model: *plan_model
+    thinking: *plan_thinking
+  execplan-review-followups:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  change-review-followups:
     model: *orchestration_model
     thinking: *orchestration_thinking
   review-spec:
