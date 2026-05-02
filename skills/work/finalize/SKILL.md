@@ -60,6 +60,22 @@ A final note or close reason should concisely capture:
 - review status, explicitly `not run` when absent
 - any remaining follow-up, if the ticket stays open
 
+## Git commit policy
+
+On a PASS outcome, after closing the tracker item, commit all related changes:
+
+1. Run `git status` and `git diff --stat` to confirm what changed.
+2. Stage only the files that belong to the work item. Do not stage unrelated changes.
+3. Commit with a Conventional Commits message:
+   - `<type>(<scope>): <summary>` where summary is ≤ 72 chars, imperative mood, no trailing period.
+   - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf).
+   - Derive `scope` from the area/module if clear, otherwise omit.
+   - If the work-item title is short enough, it can be adapted into the subject line.
+4. If there are no changes to commit (e.g., the work was tracker-only), skip the commit and report "No code changes to commit."
+5. Do **not** push.
+6. Do **not** add sign-offs.
+7. On REVISE, do **not** commit. Leave changes in the working tree for the next iteration.
+
 ## Completion checklist
 
 Before finalizing, verify:
@@ -68,3 +84,4 @@ Before finalizing, verify:
 - the outcome is supported by evidence
 - the note text is concise and truthful
 - close only happens on a real pass
+- on PASS: related changes are committed; on REVISE: nothing is committed

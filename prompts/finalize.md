@@ -32,6 +32,14 @@ You are finalizing exactly one work item after implementation and validation.
    - `tk close <ticket>` for `tk`
    - `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br close --actor "$ACTOR" <ticket> --reason "..." --json` for `br`
 7. If the ticket is managed by neither `tk` nor `br`, do not invent a close command. Report the exact manual follow-up instead.
+8. **On PASS only**: commit the related code changes.
+   - Run `git status` and `git diff --stat` to see what changed.
+   - Stage only files belonging to this work item (no unrelated changes).
+   - Commit with a Conventional Commits message: `<type>(<scope>): <summary>` — summary ≤ 72 chars, imperative mood, no trailing period.
+   - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf). Omit scope if unclear.
+   - If nothing changed in code, skip the commit and note "No code changes to commit."
+   - Do **not** push. Do **not** add sign-offs.
+9. **On REVISE**: do **not** commit. Leave changes in the working tree.
 
 ## Rules
 
@@ -72,6 +80,13 @@ Use exactly these sections:
 - Note added:
 - Ticket closed: yes / no
 - Manual follow-up, if any:
+
+# Git Commit
+
+- Changes staged: (list files or "none")
+- Commit message:
+- Committed: yes / no / skipped (no changes)
+- Pushed: no
 
 # Evidence Summary
 

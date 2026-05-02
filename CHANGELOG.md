@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Added git commit to `/finalize` so PASS outcomes automatically stage and commit work-item changes with Conventional Commits messages.
+- REVISE outcomes explicitly leave changes uncommitted in the working tree for the next iteration.
+- Added "Git Commit" section to the finalize prompt output format for traceability.
+
 ## 0.4.0
 
 - Renamed `/exec-delegated` to `/ef-implement-delegated` and updated workflow guidance accordingly.
