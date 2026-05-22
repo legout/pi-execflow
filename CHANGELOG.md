@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+
+- Removed `/plan`, `/architect`, and `/plan-chain` in favor of explicit planning steps: `/brainstorm`, `/create-plan`, `/grill-plan`, and `/improve-plan`.
+- Renamed `/plan-create` to `/create-plan` and `/plan-improve` to `/improve-plan`.
+- Added `/grill-plan` for interactive ExecPlan pressure-testing inspired by grill-style planning sessions.
+- Aligned `/brainstorm` more closely with Superpowers-style design gating: project-context exploration, one-question-at-a-time discipline, approach comparison, design approval, artifact self-review, and `/create-plan` handoff.
+- Removed delegated execution prompts (`/ef-implement-delegated`, `/worker-implement`, `/worker-validation-fix`) while keeping `/validation-fix` as the bounded validation/fix loop in the standard `/ef-implement` path.
+- Removed dedicated review follow-up prompts. `/ef-review`, `/execplan-review`, and `/change-review` now create follow-up work items directly for concrete material findings.
+- Simplified `/init-execflow` and `/refresh-prompts` by removing the subagent runtime shim and adding removed command files to retired prompt cleanup.
+
 ## 0.4.1
 
 - Added git commit to `/finalize` so PASS outcomes automatically stage and commit work-item changes with Conventional Commits messages.

@@ -1,67 +1,115 @@
 ---
 name: brainstorm
 description: >
-  Interactive divergent brainstorming session for a topic or feature idea.
-  Produces a structured brainstorm.md repo file in .execflow/plans/. Use
-  when the user wants to explore ideas, brainstorm, think through a feature,
-  or discuss architecture before planning. Also auto-triggered by /plan when
-  no brainstorm exists yet.
+  Interactive design brainstorming for a topic or feature idea. Explores
+  project context before implementation, asks one focused question at a time,
+  compares 2-3 approaches, obtains user approval, writes a reviewed
+  brainstorm/design artifact under .execflow/plans/, and gates transition to
+  ExecPlan creation.
 ---
 
-# Brainstorm: Interactive Divergent Thinking
+# Brainstorm: Ideas Into Approved Designs
 
-This skill implements an interactive brainstorming session that produces a structured brainstorm.md repo file.
+Help turn ideas into fully formed design direction through natural collaborative dialogue.
 
-## Goal
+This skill is deliberately interactive. Do not treat it as a one-shot prompt. Explore the repository, ask questions one at a time, compare approaches, present the design for approval, then write a structured brainstorm/design document.
 
-Explore a topic or feature idea from multiple angles: assumptions, constraints, trade-offs, alternatives, and risks. The output is a structured document that captures the exploration and the user's chosen direction.
-
-## Mode
-
-This is an **interactive** skill. The agent and the user engage in multi-turn conversation. The agent must not treat this as a one-shot prompt — it should explore deeply, ask probing questions, and let the user steer.
+<HARD-GATE>
+Do not implement code, scaffold a project, create tracker work items, or take any implementation action during brainstorming. The terminal state of this skill is an approved brainstorm/design artifact and a recommendation to run `/create-plan`.
+</HARD-GATE>
 
 ## Supported document states
 
 The brainstorm file may be saved in one of two states:
 
-- `status: in-progress` — exploration has been captured, but the user has not yet chosen a direction or the session was intentionally paused for later resumption.
-- `status: complete` — exploration is finished and a direction has been chosen.
+- `status: in-progress` — exploration has been captured, but the design direction is not approved yet.
+- `status: complete` — exploration is finished, a direction has been chosen, and the user has approved the written artifact.
 
-When resuming an `in-progress` brainstorm, read the existing file first, summarize the captured context back to the user, and continue from the unresolved questions instead of restarting by default.
+When resuming an `in-progress` brainstorm, read the existing file first, summarize the captured context, and continue from unresolved questions instead of restarting by default.
 
 ## Topic resolution
 
 1. If the user provides a topic argument, use it.
-2. If the user invokes `/plan <topic>` and no brainstorm exists, this skill is auto-triggered with that topic.
-3. The `<topic-slug>` is derived from the topic (kebab-case, lowercase, max 40 chars).
+2. The `<topic-slug>` is derived from the topic (kebab-case, lowercase, max 40 chars).
+3. Write to `.execflow/plans/<topic-slug>/brainstorm.md`.
 
-## Behavior
+## Required process
 
-### Phase 1: Explore
+Complete these steps in order.
 
-1. Acknowledge the topic and restate it to confirm understanding.
-2. Explore the following dimensions:
-   - **Problem statement**: What is the core problem or opportunity? User-facing perspective.
-   - **Stakeholders**: Who cares about this and why?
-   - **Constraints**: Hard constraints (cannot change) vs. soft preferences (could relax).
-   - **Approaches**: Present at least 2 alternative approaches with pros, cons, and risks.
-   - **Trade-offs**: What is being exchanged for what?
-   - **Risks and unknowns**: What could go wrong? What is uncertain?
-   - **Success criteria**: What does "done" look like?
-3. Ask the user for input at natural pause points. Do not dump all questions at once.
+### 1. Explore project context
 
-### Phase 2: Converge
+Before asking detailed design questions, inspect the repository:
 
-4. After sufficient exploration, summarize the key insights.
-5. Ask the user to choose a direction (or confirm the direction they've been steering toward).
-6. Record the chosen direction and all decisions made during the session.
+- file structure and package metadata
+- existing docs such as README, ARCHITECTURE.md, `.execflow/` artifacts, or domain docs
+- relevant code paths when the topic names an existing feature or module
+- recent conventions visible in nearby files
 
-### Phase 3: Write
+Use this context to avoid asking questions that the repository already answers.
 
-7. If the conversation pauses before convergence, write the brainstorm document to `.execflow/plans/<topic-slug>/brainstorm.md` with `status: in-progress`.
-8. If the conversation converges on a direction, write or update the same file with `status: complete`.
-9. Create the directory if it does not exist.
-10. Report the file path and a brief summary.
+### 2. Assess scope and decompose when necessary
+
+If the topic describes multiple independent subsystems or is too large for one coherent design, stop and help the user decompose it. Identify the sub-projects, relationships, and suggested order, then brainstorm the first sub-project through the normal flow.
+
+### 3. Ask clarifying questions one at a time
+
+Ask exactly one focused question per turn. Prefer multiple-choice questions when helpful, but open-ended questions are fine.
+
+Focus on:
+
+- purpose and user-visible outcome
+- stakeholders
+- hard constraints and soft preferences
+- success criteria
+- important edge cases and failure modes
+- compatibility with existing project patterns
+
+Do not dump a questionnaire.
+
+### 4. Propose 2-3 approaches
+
+Once enough context is known, present 2-3 plausible approaches with pros, cons, risks, and your recommendation. Lead with the recommended option and explain why it best fits the repository and user goal.
+
+Apply these design principles:
+
+- YAGNI ruthlessly: remove unnecessary features and knobs
+- prefer simpler boundaries and fewer concepts
+- prefer deep modules that hide sequencing and policy
+- stay focused on improvements that serve the current goal
+- avoid unrelated refactoring
+
+### 5. Present the design for approval
+
+Present the design in sections scaled to the complexity of the topic. Cover, when relevant:
+
+- user-visible behavior
+- architecture or module boundaries
+- data flow
+- error handling
+- validation/testing strategy
+- scope exclusions
+
+Ask the user whether each section looks right before moving on. Revise until the user approves the design direction.
+
+### 6. Write the brainstorm/design artifact
+
+Write `.execflow/plans/<topic-slug>/brainstorm.md` using the output format below.
+
+If the user pauses before approval, write `status: in-progress`. If the user approves the design and written artifact, write `status: complete`.
+
+### 7. Self-review the written artifact
+
+After writing the artifact, review it with fresh eyes and fix issues inline:
+
+1. Placeholder scan: no `TBD`, `TODO`, or empty sections.
+2. Internal consistency: no contradictions between problem, chosen direction, constraints, and success criteria.
+3. Scope check: focused enough for one ExecPlan or explicitly decomposed.
+4. Ambiguity check: requirements that could be read two ways are resolved or listed under Open Questions.
+
+### 8. User review gate
+
+Ask the user to review the written brainstorm/design artifact. If they request changes, update the file and rerun the self-review. Only mark `status: complete` after the user approves.
 
 ## Output format
 
@@ -72,6 +120,10 @@ Write the brainstorm document using this exact structure:
 
 date: <ISO-8601>
 status: in-progress | complete
+
+## Project Context
+
+<What repository context was inspected and what matters for this topic.>
 
 ## Problem Statement
 
@@ -93,14 +145,22 @@ status: in-progress | complete
 
 ## Ideas Explored
 
-### Approach A: <name>
+### Recommended Approach: <name>
+
+- Description: <what this approach entails>
+- Why recommended: <why this is the best fit>
+- Pros: <benefits>
+- Cons: <drawbacks>
+- Risks: <what could go wrong>
+
+### Alternative Approach: <name>
 
 - Description: <what this approach entails>
 - Pros: <benefits>
 - Cons: <drawbacks>
 - Risks: <what could go wrong>
 
-### Approach B: <name>
+### Alternative Approach: <name>
 
 - Description: <what this approach entails>
 - Pros: <benefits>
@@ -112,6 +172,16 @@ status: in-progress | complete
 - <trade-off 1: what is being exchanged for what>
 - <trade-off 2>
 
+## Design Direction
+
+<Approved design direction. If still in progress, write `Not approved yet.`>
+
+## Design Sections Reviewed
+
+- Section: <section name>
+  Status: approved | needs revision | not reviewed
+  Notes: <summary>
+
 ## Risks and Unknowns
 
 - <risk 1>
@@ -120,10 +190,6 @@ status: in-progress | complete
 ## Open Questions
 
 - <question that needs resolution before or during planning>
-
-## Chosen Direction
-
-<What the user decided, in their own words when possible. If the brainstorm is still in progress, write `Not chosen yet.`>
 
 ## Decisions Made
 
@@ -138,26 +204,30 @@ status: in-progress | complete
 
 - <observable outcome that means "done">
 
+## Self-Review
+
+- Placeholder scan: pass | needs work
+- Internal consistency: pass | needs work
+- Scope check: pass | needs work
+- Ambiguity check: pass | needs work
+
 ## Next Resume Point
 
-- <what remains unresolved before the brainstorm can be completed>
+- <what remains unresolved before the brainstorm can be completed, or `Ready for /create-plan`.>
 ```
 
 ## Hard rules
 
-1. **Never implement code.** This is a thinking session, not a coding session.
-2. **Never create tickets.** That is `/ticketize`'s job.
-3. **Always present multiple perspectives.** At least 2 approaches must be explored.
-4. **Record user decisions explicitly.** When the user makes a choice, capture it.
-5. **Stop and ask when direction is ambiguous.** Do not assume the user's intent.
-6. **Be interactive, not dump-and-run.** Present ideas in digestible chunks. Pause for user input. Let the user steer.
-7. **Do not turn the brainstorm into a running transcript.** Update the file only at meaningful checkpoints: when the user explicitly pauses/saves for later or when the brainstorm is completed.
+1. Never implement code.
+2. Never create tickets or issues.
+3. Explore project context before detailed questions.
+4. Ask exactly one question at a time.
+5. Always explore 2-3 approaches before settling.
+6. Lead with a recommendation once enough context is known.
+7. Obtain user approval before marking the artifact complete.
+8. Self-review the written artifact before asking the user to proceed.
+9. Do not turn the brainstorm into a transcript; capture decisions and design state.
 
 ## Ending the session
 
-The brainstorm ends when:
-- The user says "done", "that's enough", "make a plan", or similar.
-- The agent and user have converged on a direction.
-- The user explicitly asks to write the brainstorm.
-
-At that point, write `status: complete`, update the resume point to indicate no further brainstorm work is required, and report the file path.
+The brainstorm ends when the user approves the design artifact, asks to pause, or asks to proceed to planning. Report the file path and recommend `/create-plan <topic>` next when the artifact is complete.

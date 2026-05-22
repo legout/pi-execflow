@@ -1,19 +1,19 @@
 # pi-execflow
 
-**`@legout/pi-execflow`** is a Pi package for turning ideas into executable plans and then into tracked work.
+**`@legout/pi-execflow`** is a Pi package for turning ideas into approved designs, self-contained ExecPlans, tracked work items, validated implementation, and direct review follow-ups.
 
 It bundles a practical workflow for:
 
-- interactive brainstorming
-- architecture discovery
-- ExecPlan creation and improvement
+- interactive Superpowers-style brainstorming with design approval gates
+- ExecPlan creation, grilling, and improvement
 - tracker-aware work-item generation for both `tk` and `br`
-- manual single-ticket / single-issue execution
+- validation-only single-ticket / single-issue execution
+- direct review follow-up creation for concrete bugs and delivery gaps
 - model and thinking configuration via `.execflow/settings.yml`
 
 ## What it is
 
-`pi-execflow` packages the workflow resources that were previously kept project-local under `.pi/`, together with the checked-in `execflow/` template files that `/init-execflow` materializes into `.execflow/` inside target repositories, plus the supporting planning skills required by the prompts.
+`pi-execflow` packages prompt templates, skills, and checked-in `execflow/` template files that `/init-execflow` materializes into `.execflow/` inside target repositories.
 
 The result is a Pi-installable extension package you can use in other repositories.
 
@@ -61,20 +61,28 @@ This scaffolds:
 - `.pi/prompts/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
-### 2. Create the plan
+### 2. Brainstorm and create the plan
 
 ```bash
 /brainstorm <topic>
-/plan <topic>
+/create-plan <topic>
+/grill-plan <topic>
+/improve-plan <topic>
 ```
 
-Other planning entrypoints:
+`/brainstorm` now follows a stricter design-gated flow: inspect project context, ask one focused question at a time, compare 2-3 approaches, obtain user approval, write `.execflow/plans/<topic-slug>/brainstorm.md`, and self-review the artifact before moving to planning.
 
-- `/architect [topic]`
-- `/plan-chain <topic>`
-- `/plan-create <topic>`
-- `/plan-improve <topic>`
-- `/update-architecture [topic]`
+`/create-plan` writes `.execflow/plans/<topic-slug>/execplan.md` following `.execflow/PLANS.md`.
+
+`/grill-plan` pressure-tests an existing ExecPlan interactively, asks one question at a time with a recommended answer, checks code before asking questions the repository can answer, and updates the ExecPlan as decisions crystallize.
+
+`/improve-plan` runs a code-grounded ExecPlan audit loop and rewrites only when substantive improvements remain.
+
+Optional post-implementation architecture sync:
+
+```bash
+/update-architecture [topic]
+```
 
 ### 3. Convert the plan into tracked work
 
@@ -97,35 +105,24 @@ Tracker-specific alternatives:
 /ef-implement <ticket-or-issue-ref>
 ```
 
-`/ef-implement` is the fast validation-only implementation path: its `/implement` step edits code/tests without executing validation commands, then `/validation-fix` owns test/check execution and applies minimal fixes in a bounded convergence loop before finalization.
+`/ef-implement` is the validation-only implementation path: its `/implement` step edits code/tests without executing validation commands, then `/validation-fix` owns test/check execution and applies minimal fixes in a bounded convergence loop before finalization.
 
-For larger/noisier work items, use the delegated variant:
-
-```bash
-/ef-implement-delegated <ticket-or-issue-ref>
-```
-
-`/ef-implement-delegated` keeps resolution, spec, validation planning, implementation planning, and finalization in the main session, but delegates implementation and validation/fix to worker subagents. The implementation worker uses the implementation model; the validation/fix worker uses the validation/fix model.
-
-Run an independent fresh review separately when needed:
+Run an independent review when needed:
 
 ```bash
 /ef-review <ticket-or-issue-ref>
-/ef-review-followups <ticket-or-issue-ref>
 ```
 
-`/ef-review` is read-only by default and runs one focused work-item review covering acceptance criteria, ExecPlan compliance, scope control, missing required behavior, and obvious validation-evidence gaps. Add `--create-followups` to create tracker follow-ups in the same run, or run `/ef-review-followups` afterward for an explicit mutation step.
+`/ef-review` creates linked tracker follow-up work items directly for concrete `critical`, `major`, and `minor` bug findings. There is no separate review-followups prompt.
 
 For broader review scopes, use:
 
 ```bash
-/execplan-review <plan-slug-or-path> [--create-followups]
-/change-review [--base main] [--create-followups] [paths/context...]
+/execplan-review <plan-slug-or-path>
+/change-review [--base main] [paths/context...]
 ```
 
-`/execplan-review` audits an entire ExecPlan delivery across derived issues/tickets. `/change-review` reviews an arbitrary branch, diff, or path-scoped code change. Both are read-only by default and only create follow-ups when `--create-followups` is explicit. Use `/execplan-review-followups <plan>` or `/change-review-followups` as explicit post-review mutation steps.
-
-Delegated prompt-template steps require `pi-subagents` and a discoverable subagent runtime root. `/init-execflow` and `/refresh-prompts` create a compatibility shim at `~/.pi/agent/extensions/subagent` when they can find a globally installed `pi-subagents`; if discovery still fails, use `pi list` to find the `pi-subagents` package root and start Pi with `PI_SUBAGENT_RUNTIME_ROOT=<that-root>`.
+`/execplan-review` audits an entire ExecPlan delivery across derived issues/tickets and creates follow-ups directly for material delivery gaps. `/change-review` reviews an arbitrary branch, diff, or path-scoped code change and creates follow-ups directly for concrete bug findings.
 
 ## Included resources
 
@@ -139,23 +136,19 @@ Main commands include:
 
 - `/init-execflow [--tk|--br]`
 - `/sync-models`
+- `/refresh-prompts`
 - `/brainstorm <topic>`
-- `/plan <topic>`
-- `/plan-chain <topic>`
-- `/plan-create <topic>`
-- `/plan-improve <topic>`
+- `/create-plan <topic>`
+- `/grill-plan <topic>`
+- `/improve-plan <topic>`
 - `/create-work-items <topic>`
 - `/create-tickets <topic>`
 - `/create-issues <topic>`
 - `/ef-implement <ticket-or-issue-ref>`
-- `/ef-implement-delegated <ticket-or-issue-ref>`
 - `/validation-fix <ticket-or-issue-ref>`
-- `/ef-review <ticket-or-issue-ref> [--create-followups]`
-- `/ef-review-followups <ticket-or-issue-ref>`
-- `/execplan-review <plan-slug-or-path> [--create-followups]`
-- `/execplan-review-followups <plan-slug-or-path>`
-- `/change-review [--base <ref>] [--create-followups] [paths/context...]`
-- `/change-review-followups [review-target/context...]`
+- `/ef-review <ticket-or-issue-ref>`
+- `/execplan-review <plan-slug-or-path>`
+- `/change-review [--base <ref>] [paths/context...]`
 - `/update-architecture [topic]`
 
 ### Skills
@@ -166,7 +159,7 @@ Loaded from:
 
 This package includes:
 
-- planning skills: `brainstorm`, `architect`, `execplan-create`, `execplan-improve`, `update-architecture`
+- planning skills: `brainstorm`, `create-plan`, `grill-plan`, `improve-plan`, `update-architecture`
 - execution skills: `resolve`, `specification`, `planning`, `implement`, `testing`, `validation`, `execution`, `orchestration`, `scope`, `repo-conventions`, `finalize`, `review-discipline`, `review-maintenance`, `review-suite`
 - tracker skills: `issueize`, `work-itemize`, `ticketize`
 
@@ -176,7 +169,7 @@ In initialized target repositories, the source of truth is `.execflow/settings.y
 
 ### Settings schema
 
-Use this shape in target repositories at `.execflow/settings.yml`. The checked-in template in this repo lives at `execflow/settings.yml`. The top-level `models` and `thinking` keys are reusable YAML anchor buckets, and the `prompts:` section is the per-prompt source of truth.
+Use this shape in target repositories at `.execflow/settings.yml`. The top-level `models` and `thinking` keys are reusable YAML anchor buckets, and the `prompts:` section is the per-prompt source of truth.
 
 ```yml
 version: 1
@@ -201,36 +194,30 @@ thinking:
   review: &review_thinking <review thinking>
 
 prompts:
-  architect:
-    model: *plan_model
-    thinking: *plan_thinking
   brainstorm:
     model: *plan_model
     thinking: *plan_thinking
-  create-issues:
+  create-plan:
     model: *plan_model
     thinking: *plan_thinking
-  create-tickets:
+  grill-plan:
     model: *plan_model
     thinking: *plan_thinking
-  create-work-items:
+  improve-plan:
     model: *plan_model
     thinking: *plan_thinking
-  implementation-plan:
+  implement:
     model: *implementation_model
     thinking: *implementation_thinking
-  plan-create:
-    model: *plan_model
-    thinking: *plan_thinking
-  plan-improve:
-    model: *plan_model
-    thinking: *plan_thinking
-  spec:
-    model: *implementation_model
+  validation-fix:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
+  ef-review:
+    model: *review_model
     thinking: *review_thinking
 ```
 
-Keep `prompts:` entries aligned with the project prompt files in `.pi/prompts/`. When developing this package itself, the same names also correspond to the checked-in source prompts under `prompts/`. The sync step uses those per-prompt entries directly; the anchor buckets above are only there to avoid repeating long model strings.
+Keep `prompts:` entries aligned with project prompt files in `.pi/prompts/`. When developing this package itself, the same names correspond to the checked-in source prompts under `prompts/`.
 
 Wrapper prompts that only orchestrate other prompts or run deterministic shell steps may be intentionally omitted from `prompts:` because they do not own model selection themselves.
 
@@ -258,28 +245,25 @@ Properties of the sync step:
 
 ### Important frontmatter notes
 
-- **`model` is a string.** For fallback chains, use a single comma-separated string such as `kimi-coding/k2p6, zai/glm-5-turbo, openai-codex/gpt-5.4-mini`. Do not convert model values to YAML arrays unless the runtime is updated to support them.
+- **`model` is a string.** For fallback chains, use a single comma-separated string such as `kimi-coding/kimi-for-coding, zai/glm-5-turbo, openai-codex/gpt-5.4-mini`.
 - **`thinking` is optional and also string-based.** Typical values are `low`, `medium`, and `high`.
 - **Chain prompts do not use wrapper `model` / `thinking` / `skill`.** When a prompt uses `chain:`, the wrapper prompt acts as orchestration only. Put model / thinking choices on the leaf prompts instead.
-- **Chain prompts cannot be nested.** A `chain:` step cannot reference another `chain:` prompt, so reusable subflows like `validation-fix` must stay leaf prompts unless the upstream runtime adds chain nesting.
+- **Chain prompts cannot be nested.** A `chain:` step cannot reference another `chain:` prompt.
 - **`settings.prompts` is for model-owning leaf prompts, not wrappers.** Wrapper/orchestration prompts are intentionally omitted and `sync-models` will strip stale `model:` / `thinking:` frontmatter from them.
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/ef-implement`, `/ef-implement-delegated`, `/plan-chain`
-- manual orchestration wrapper: `/plan`
+- chain wrappers: `/ef-implement`
 - deterministic utility wrappers: `/refresh-prompts`, `/sync-models`
 
 ### Prompt taxonomy
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Chain wrapper | No | `/ef-implement`, `/ef-implement-delegated`, `/plan-chain` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
-| Manual orchestration wrapper | No | `/plan` | Human-facing wrapper that checks brainstorm state and then dispatches to `/plan-chain` |
+| Chain wrapper | No | `/ef-implement` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
-| Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always`, so wrapper logic and post-run guidance share one prompt |
-| Local model-owning leaf | Yes | `/architect`, `/brainstorm`, `/change-review`, `/change-review-followups`, `/create-issues`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/ef-review-followups`, `/execplan-review`, `/execplan-review-followups`, `/finalize`, `/fix`, `/implement`, `/implementation-plan`, `/merge-summary`, `/plan-create`, `/plan-improve`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
-| Delegated worker leaf | Yes | `/worker-implement`, `/worker-validation-fix` | Own `subagent`, isolation, and model config; referenced by chain wrappers |
+| Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
+| Local model-owning leaf | Yes | `/brainstorm`, `/change-review`, `/create-issues`, `/create-plan`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/execplan-review`, `/finalize`, `/fix`, `/grill-plan`, `/implement`, `/implementation-plan`, `/improve-plan`, `/merge-summary`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 
@@ -293,10 +277,12 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- `/ef-implement` is shipped by this package as the default local validation-only implementation workflow
-- optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path
-- `br` support is primarily through `create-issues`, `/ef-implement`, `/ef-implement-delegated`, `/ef-review`, `/ef-review-followups`, `/execplan-review`, `/change-review`, and the focused local prompts
-- `.pi/todos/` is intentionally not included in this package (it lives in the project-local `.pi/` overlay, not in the package)
+- `/ef-implement` is shipped by this package as the default validation-only implementation workflow.
+- Delegated `/ef-implement-delegated` and worker prompts are no longer shipped.
+- Dedicated review-followup prompts are no longer shipped; review prompts create follow-ups directly.
+- Optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path.
+- `br` support is primarily through `create-issues`, `/ef-implement`, `/ef-review`, `/execplan-review`, `/change-review`, and the focused local prompts.
+- `.pi/todos/` is intentionally not included in this package.
 
 ## Development
 

@@ -17,7 +17,7 @@ Procedure:
 2. If `$@` is not empty, derive `<topic-slug>` from `$@` using kebab-case, lowercase normalization.
 3. Read the ExecPlan at `.execflow/plans/<topic-slug>/execplan.md`. Focus on the Progress section and Decision Log.
 4. Locate `ARCHITECTURE.md` at the repo root.
-5. If it does not exist, create it following the architect skill template.
+5. If it does not exist, create it using the architecture document format described by the update-architecture skill.
 6. If it exists, update only affected sections following the update-architecture skill principles.
 7. Update the `Last updated` date.
 

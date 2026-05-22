@@ -62,60 +62,12 @@ run: |
     return null;
   }
 
-  function subagentRuntimeRootCandidates(packageRoot) {
-    const candidates = [];
-    const envRoot = process.env.PI_SUBAGENT_RUNTIME_ROOT?.trim();
-    if (envRoot) candidates.push(envRoot);
-    candidates.push(path.join(os.homedir(), '.pi', 'agent', 'extensions', 'subagent'));
-    candidates.push(path.join(path.dirname(packageRoot), 'pi-subagents'));
-
-    const nodeHome = path.dirname(path.dirname(process.execPath));
-    candidates.push(path.join(nodeHome, 'lib', 'node_modules', 'pi-subagents'));
-
-    const npmRoot = spawnSync('npm', ['root', '-g'], { encoding: 'utf8' });
-    if (npmRoot.status === 0 && npmRoot.stdout.trim()) {
-      candidates.push(path.join(npmRoot.stdout.trim(), 'pi-subagents'));
-    }
-
-    return [...new Set(candidates.map((candidate) => path.resolve(candidate)))];
-  }
-
-  function isSubagentRuntimeRoot(candidate) {
-    return fs.existsSync(path.join(candidate, 'agents.ts')) || fs.existsSync(path.join(candidate, 'agents.js'));
-  }
-
-  function ensureLegacySubagentRuntimePath(packageRoot) {
-    const legacyRoot = path.join(os.homedir(), '.pi', 'agent', 'extensions', 'subagent');
-    if (isSubagentRuntimeRoot(legacyRoot)) return;
-
-    const runtimeRoot = subagentRuntimeRootCandidates(packageRoot).find(isSubagentRuntimeRoot);
-    if (!runtimeRoot) {
-      console.warn('warning: pi-subagents runtime not found; /ef-implement-delegated may require PI_SUBAGENT_RUNTIME_ROOT.');
-      return;
-    }
-
-    fs.mkdirSync(path.dirname(legacyRoot), { recursive: true });
-    try {
-      const existing = fs.lstatSync(legacyRoot, { throwIfNoEntry: false });
-      if (existing?.isSymbolicLink()) fs.unlinkSync(legacyRoot);
-      if (existing && !existing.isSymbolicLink()) {
-        console.warn(`warning: ${legacyRoot} exists but is not a pi-subagents runtime; set PI_SUBAGENT_RUNTIME_ROOT if delegated prompts fail.`);
-        return;
-      }
-      fs.symlinkSync(runtimeRoot, legacyRoot, 'dir');
-      console.log(`created subagent runtime shim ${legacyRoot} -> ${runtimeRoot}`);
-    } catch (error) {
-      console.warn(`warning: could not create subagent runtime shim at ${legacyRoot}: ${error.message}`);
-    }
-  }
-
   const packageRoot = findPackageRoot();
   if (!packageRoot) {
     console.error('Unable to locate the installed @legout/pi-execflow package root. Reinstall the package or run from the package checkout.');
     process.exit(1);
   }
 
-  ensureLegacySubagentRuntimePath(packageRoot);
 
   const srcDir = path.join(packageRoot, 'prompts');
   const dstDir = path.join(process.cwd(), '.pi', 'prompts');
@@ -138,6 +90,17 @@ run: |
     'exec-worker-implementation.md',
     'exec-worker-validation-fix.md',
     'exec-worker.md',
+    'plan.md',
+    'plan-chain.md',
+    'architect.md',
+    'plan-create.md',
+    'plan-improve.md',
+    'ef-implement-delegated.md',
+    'worker-implement.md',
+    'worker-validation-fix.md',
+    'ef-review-followups.md',
+    'execplan-review-followups.md',
+    'change-review-followups.md',
   ];
 
   function copyAll(srcBase, dstBase) {

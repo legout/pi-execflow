@@ -1,6 +1,6 @@
 ---
-description: Review exactly one work-item implementation with a focused work-item reviewer
-argument-hint: "<work-item-ref> [--create-followups] [context...]"
+description: Review exactly one work-item implementation and create bug follow-ups directly
+argument-hint: "<work-item-ref> [context...]"
 model: openai-codex/gpt-5.5
 thinking: medium
 fresh: true
@@ -8,13 +8,12 @@ skill: review-discipline
 restore: true
 ---
 
-You are reviewing exactly one implemented work item.
+You are reviewing exactly one implemented work item and creating tracker follow-up work items directly for concrete bugs.
 
 ## Inputs
 
 - Target work-item reference or path: `$1`
-- Optional context and flags: `${@:2}`
-- Optional mutation flag: `--create-followups`
+- Optional context: `${@:2}`
 
 ## Your tasks
 
@@ -27,33 +26,53 @@ You are reviewing exactly one implemented work item.
    - accidental scope expansion
    - missing required behavior
    - weak or missing validation evidence when implementation claims rely on tests/checks that were not actually evidenced
-4. Prefer concrete, evidence-backed issues over speculative concerns or stylistic preferences.
-5. Produce one final verdict and the smallest sensible next step.
-6. If `--create-followups` is present, create linked tracker follow-up work items for concrete material findings after producing the verdict.
+4. Prefer concrete, evidence-backed bugs over speculative concerns or stylistic preferences.
+5. Classify findings as `critical`, `major`, or `minor`.
+6. Create linked tracker follow-up work items directly for every concrete `critical`, `major`, and `minor` bug finding, after checking for obvious duplicates.
+7. Add one concise review-summary note/comment to the original item listing the verdict and created follow-up IDs.
+8. For `br`, prefer `RUST_LOG=error br ... --json` commands and finish with `RUST_LOG=error br sync --flush-only` when mutation occurred.
 
-## Follow-up behavior when `--create-followups` is present
+## Severity definitions
 
-- Create follow-ups only for concrete material findings.
+- `critical` — acceptance criteria are not actually met, the implementation is unsafe to keep closed, or there is a data-loss/security/compatibility merge blocker.
+- `major` — a real bug, missing required behavior, or validation gap that should be fixed before relying on the work.
+- `minor` — a concrete bug or correctness/validation gap worth tracking, but not a blocker by itself.
+
+Do not create follow-ups for style nits, speculative concerns, or vague maintainability preferences.
+
+## Follow-up behavior
+
 - Skip duplicates if an equivalent open tracker item already exists.
-- Use severity to drive urgency:
-  - high: create a high-priority bug/task follow-up; if the original closure is invalid, say so explicitly
-  - medium: create a normal-priority bug/task follow-up
-  - low: create a cleanup/docs follow-up only when it is concrete and worth tracking; otherwise mention it only in the summary note
 - Link every created follow-up to the original work item when the tracker supports it.
-- Add one concise review-summary note/comment to the original item after creation so it includes the verdict and created follow-up IDs.
-- For `br`, prefer `RUST_LOG=error br ... --json` commands and finish with `RUST_LOG=error br sync --flush-only` when mutation occurred.
-- For `tk`, use the repository's normal `tk create` / note / sync flow when available.
+- For `br`, prefer:
+
+      ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br create --actor "$ACTOR" "<title>" --type bug --priority <0-4> --description "<body>" --deps discovered-from:<original> --json
+
+- For `tk`, create the ticket using the repository's normal `tk create` form, then add a related/discovered-from dependency if supported; otherwise include the relationship in the description and summary note.
+
+## Follow-up body format
+
+```md
+Review Follow-up
+
+Original work item: <id>
+Review verdict: <merge-ready|needs-fixes|blocked>
+Severity: <critical|major|minor>
+Source finding: <short quote or paraphrase>
+Required remediation: <specific action>
+Acceptance criteria:
+- The bug is addressed with the smallest scoped change.
+- Relevant validation is run and documented.
+```
 
 ## Rules
 
-- `/ef-review` is read-only by default.
-- Ignore stylistic preferences unless they materially affect work-item compliance, mergeability, or maintainability of the requested change.
+- Do not edit code.
+- Do not mutate repo-root `execflow/` runtime artifacts.
 - Do not invent findings that were not surfaced by evidence or direct inspection.
 - Do not propose redesign unless required by the work item.
-- Do not edit code.
-- Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless `--create-followups` is explicitly present.
-- Without `--create-followups`, do not create follow-up work items here. Use `/ef-review-followups <work-item-ref>` after review for tracker mutations.
-- With `--create-followups`, create follow-ups only for concrete material findings, skip duplicates, and add one concise review-summary note/comment to the original item.
+- If there are no concrete bug findings, create no follow-ups and add a clean review summary note when the tracker supports comments/notes.
+- Do not claim follow-ups were created until tracker commands succeed.
 
 ## Output format
 
@@ -69,19 +88,12 @@ Use exactly these sections:
 
 # Findings
 
-- If there are no material issues, write exactly: `- none`
+- If there are no material bug findings, write exactly: `- none`
 - Otherwise use repeated blocks in this exact format:
 
 ### Finding 1
 
-- Severity: high / medium / low
-- File: `path/to/file:line` or `none`
-- Observation:
-- Remediation:
-
-### Finding 2
-
-- Severity: high / medium / low
+- Severity: critical / major / minor
 - File: `path/to/file:line` or `none`
 - Observation:
 - Remediation:
@@ -105,13 +117,13 @@ Use exactly these sections:
 - Evidence reviewed:
 - Gaps:
 
+# Follow-up Actions
+
+- Review summary note added:
+- Follow-up items created:
+- Duplicates skipped:
+- Sync run:
+
 # Final Recommendation
 
 - Recommended next step:
-
-# Follow-up Actions
-
-- Follow-ups requested: yes / no
-- Review summary note added:
-- Follow-up items created:
-- Findings skipped:

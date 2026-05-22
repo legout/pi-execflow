@@ -124,6 +124,32 @@ const validateScriptPath = join(repoRoot, "scripts", "validate-package.mjs");
 const settings = parseSimpleYaml(readFileSync(settingsPath, "utf8"));
 const promptFiles = readdirSync(promptsDir).filter((name) => name.endsWith(".md")).sort();
 const configuredPrompts = settings.prompts ?? {};
+const removedPromptFiles = [
+  "plan.md",
+  "plan-chain.md",
+  "architect.md",
+  "plan-create.md",
+  "plan-improve.md",
+  "ef-implement-delegated.md",
+  "worker-implement.md",
+  "worker-validation-fix.md",
+  "ef-review-followups.md",
+  "execplan-review-followups.md",
+  "change-review-followups.md",
+];
+const removedSettingsPrompts = removedPromptFiles.map((name) => name.replace(/\.md$/, ""));
+
+for (const removedPromptFile of removedPromptFiles) {
+  if (existsSync(join(promptsDir, removedPromptFile))) {
+    addError(`Removed prompt file still exists in prompts/: ${removedPromptFile}`);
+  }
+}
+
+for (const removedPromptKey of removedSettingsPrompts) {
+  if (configuredPrompts[removedPromptKey] || configuredPrompts[`${removedPromptKey}.md`]) {
+    addError(`Removed prompt still configured in execflow/settings.yml: ${removedPromptKey}`);
+  }
+}
 
 for (const promptFile of promptFiles) {
   const promptPath = join(promptsDir, promptFile);

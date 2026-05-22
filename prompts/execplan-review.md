@@ -1,19 +1,18 @@
 ---
-description: Audit an ExecPlan delivery across derived issues/tickets
-argument-hint: "<plan-slug-or-path> [--create-followups] [context...]"
+description: Audit an ExecPlan delivery across derived issues/tickets and create gap follow-ups directly
+argument-hint: "<plan-slug-or-path> [context...]"
 model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: high
 skill: review-suite
 restore: true
 ---
 
-You are reviewing delivery of a whole ExecPlan and its derived work items.
+You are reviewing delivery of a whole ExecPlan and its derived work items, and creating tracker follow-up work items directly for concrete delivery gaps.
 
 ## Inputs
 
 - ExecPlan slug, path, or topic: `$1`
-- Optional flags/context: `${@:2}`
-- Optional mutation flag: `--create-followups`
+- Optional context: `${@:2}`
 
 ## Scope
 
@@ -26,7 +25,7 @@ Review whether the ExecPlan was delivered coherently across its issues/tickets:
 - dependency and sequencing correctness
 - implementation drift from plan intent
 - acceptance and validation evidence
-- missing docs or `ARCHITECTURE.md` updates
+- missing docs or `ARCHITECTURE.md` updates when the plan required them
 - unresolved high-risk implementation areas
 - need for follow-up work items
 
@@ -40,23 +39,45 @@ Review whether the ExecPlan was delivered coherently across its issues/tickets:
 3. Find derived issues/tickets that reference the plan path, topic, milestone names, or ExecPlan sections.
 4. Inspect issue/ticket status, descriptions, dependencies, comments, and validation notes.
 5. Sample high-risk changed code paths only as needed to verify drift and evidence. Do not broaden into a full codebase review.
-6. Produce a plan-level verdict.
-7. If `--create-followups` is present, create follow-up issues/tickets only for concrete material gaps and add a concise review note to the plan-related tracker items when appropriate.
+6. Classify material gaps as `critical`, `major`, or `minor`.
+7. Create follow-up issues/tickets directly for every concrete material gap, after checking for duplicates.
+8. Add concise notes/comments to relevant existing issues/tickets when useful for auditability.
+9. For `br`, run `RUST_LOG=error br sync --flush-only` when mutation occurred.
 
-## Follow-up creation policy for `--create-followups`
+## Severity definitions
+
+- `critical` — a milestone appears falsely complete, a closed item does not meet its acceptance intent, or delivery is unsafe to rely on.
+- `major` — a material missing milestone, plan drift, dependency error, or validation gap that should be fixed.
+- `minor` — a concrete delivery gap worth tracking, such as missing evidence or docs required by the plan, but not a blocker by itself.
+
+## Follow-up creation policy
 
 Only create follow-ups for material, actionable gaps:
 
 - missing milestone issue/ticket
 - closed work item that does not satisfy its ExecPlan acceptance intent
-- validation evidence gap that blocks confidence
+- validation evidence gap that blocks or weakens confidence
 - plan drift requiring explicit correction
 - missing architecture/docs update required by the plan
 - dependency/sequencing issue that still matters
 
 Do not create tickets for speculative concerns, low-value nits, or findings that already have equivalent open work items.
 
-For `br`, prefer `br create --actor "$ACTOR" ... --deps discovered-from:<related-id> --json` when there is a clear related issue. For `tk`, use the repository's normal `tk create` flow and add the relationship if supported.
+## Follow-up body format
+
+```md
+ExecPlan Review Follow-up
+
+ExecPlan: <path>
+Milestone: <milestone or none>
+Related work item: <id or none>
+Severity: <critical|major|minor>
+Source finding: <short quote or paraphrase>
+Required remediation: <specific action>
+Acceptance criteria:
+- The ExecPlan gap is addressed or explicitly superseded.
+- Relevant validation or evidence is documented.
+```
 
 ## Output format
 
@@ -69,7 +90,6 @@ Use exactly these sections:
 - Verdict: delivered / partial / failed / blocked
 - Confidence: high / medium / low
 - Summary:
-- Follow-ups requested: yes / no
 
 # Milestone Coverage
 
@@ -93,7 +113,7 @@ Use exactly these sections:
 # Implementation Drift
 
 - Drift item:
-  - Severity: high / medium / low
+  - Severity: critical / major / minor
   - Evidence:
   - Recommended correction:
 
@@ -103,11 +123,13 @@ Use exactly these sections:
 - Missing or weak evidence:
 - Commands or checks recommended:
 
-# Follow-up Decisions
+# Follow-up Actions
 
 - Material follow-ups needed:
-- Follow-ups created, if `--create-followups` was requested:
-- Findings intentionally not ticketed:
+- Follow-up items created:
+- Duplicates skipped:
+- Notes/comments added:
+- Sync run:
 
 # Recommended Next Actions
 

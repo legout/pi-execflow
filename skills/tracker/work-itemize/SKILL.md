@@ -16,7 +16,7 @@ The goal is not mechanical milestone-to-work-item conversion. The goal is a set 
 ## Required inputs
 
 - An ExecPlan must exist at `.execflow/plans/<topic-slug>/execplan.md`.
-- If no ExecPlan exists, tell the user to run `/plan-create` first and stop.
+- If no ExecPlan exists, tell the user to run `/create-plan` first and stop.
 - If multiple ExecPlans exist in `.execflow/plans/`, list them and ask which to split.
 - The tracker must be explicitly forced with `--tk` or `--br`, or resolvable from repo context.
 
@@ -146,7 +146,7 @@ When the selected tracker is `tk`:
 2. Create work items with `tk create`.
 3. Set hard dependencies with `tk dep <id> <dep-id>`.
 4. Report created ticket IDs and scheduling hints.
-5. Suggest `/ef-implement <ticket-ref>` for the default validation-only implementation workflow or `/ef-implement-delegated <ticket-ref>` for larger/noisier work. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+5. Suggest `/ef-implement <ticket-ref>` for the validation-only implementation workflow. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
 
 ## br mode behavior
 
@@ -166,7 +166,7 @@ When the selected tracker is `br`:
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br sync --flush-only
 
 8. Report created issue IDs and scheduling hints.
-9. Suggest `/ef-implement <issue-ref>` for the default validation-only implementation workflow, `/ef-implement-delegated <issue-ref>` for larger/noisier work, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/ef-review`, `/ef-review-followups`, `/finalize`) next.
+9. Suggest `/ef-implement <issue-ref>` for the validation-only implementation workflow, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/ef-review`, `/finalize`) next.
 
 ## Hard rules
 

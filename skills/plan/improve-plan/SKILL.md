@@ -1,5 +1,5 @@
 ---
-name: execplan-improve
+name: improve-plan
 description: >
   Deep-audit an existing ExecPlan by reading every referenced file and code
   path, then rewrite with code-grounded improvements. Applies 7-criteria
@@ -16,7 +16,7 @@ Every improvement must trace back to something found in the actual code. No spec
 
 - An ExecPlan must exist at `.execflow/plans/<topic-slug>/execplan.md`.
 - `.execflow/PLANS.md` must exist and be read in full before auditing the plan.
-- If no ExecPlan exists, tell the user to run `/plan-create` first and stop.
+- If no ExecPlan exists, tell the user to run `/create-plan` first and stop.
 - If `.execflow/PLANS.md` is missing, tell the user to run `/init-execflow` first and stop.
 - If multiple ExecPlans exist in `.execflow/plans/`, list them and ask which to improve.
 

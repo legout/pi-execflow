@@ -26,7 +26,7 @@ Synchronize ARCHITECTURE.md with changes made during ExecPlan implementation.
 
 1. Read the ExecPlan at `.execflow/plans/<topic-slug>/execplan.md`. Focus on the Progress section and Decision Log to understand what was actually implemented.
 2. Locate ARCHITECTURE.md at the repo root.
-3. If ARCHITECTURE.md does not exist, create one using the `architect` skill template, populated with the current state post-implementation. Stop after creation.
+3. If ARCHITECTURE.md does not exist, create one using the architecture document format below, populated with the current state post-implementation. Stop after creation.
 4. Analyze what was implemented and identify architectural impacts:
    - New modules or bounded contexts added
    - Changed data flows or boundaries
@@ -37,6 +37,71 @@ Synchronize ARCHITECTURE.md with changes made during ExecPlan implementation.
 5. Update only the affected sections of ARCHITECTURE.md.
 6. If diagrams exist (Mermaid or otherwise), update them to reflect new components and flows.
 7. Update the "Last updated" date.
+
+## Architecture document format
+
+When creating `ARCHITECTURE.md`, use this structure:
+
+```md
+# Architecture: <project-name>
+
+_Last updated: <ISO-8601>_
+
+## Purpose
+
+<One paragraph describing what this system does and for whom.>
+
+## High-Level Design
+
+<Prose description of the overall architecture.>
+
+## Module Map
+
+### <module-name>
+
+- Path: `<repo-relative path>`
+- Responsibility: <one sentence>
+- Boundary: <what it hides from callers>
+- Depends on: <other modules, libraries>
+
+## Data Flow
+
+<How data moves through the system.>
+
+## Key Design Decisions
+
+- Decision: <what was decided>
+  Rationale: <why>
+  Date: <when>
+
+## Directory Structure
+
+    <tree of key directories with one-line descriptions>
+
+## Dependencies
+
+| Dependency | Version | Purpose |
+|------------|---------|---------|
+| <name> | <version> | <why it exists> |
+
+## Open Questions
+
+- <unresolved architectural questions>
+
+## Complexity Assessment
+
+### Deep Modules (good)
+
+- <module-name>: <what complexity it hides from callers>
+
+### Shallow Boundaries (candidates for deepening)
+
+- <module-name>: <why it is shallow and what it could hide>
+
+### Leaky Abstractions
+
+- <where sequencing or policy leaks to callers>
+```
 
 ## Update principles
 

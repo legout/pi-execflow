@@ -29,7 +29,7 @@ Use these phases unless the prompt specifies a narrower flow. Review is intentio
 6. Validate
 7. Run `/validation-fix` or otherwise fix and re-check validation if needed
 8. Summarize / finalize from validation evidence
-9. Run `/ef-review` and `/ef-review-followups` as a separate fresh review workflow when requested
+9. Run `/ef-review` as a separate fresh review workflow when requested; it creates follow-up work items directly for concrete bug findings
 
 ## Phase discipline
 
@@ -48,7 +48,7 @@ Use these phases unless the prompt specifies a narrower flow. Review is intentio
 
 Use loops only where they add value:
 
-- `/validation-fix` bounded convergence loops, with review handled separately through `/ef-review` and `/ef-review-followups`
+- `/validation-fix` bounded convergence loops, with review handled separately through `/ef-review`
 
 Do not loop endlessly on:
 

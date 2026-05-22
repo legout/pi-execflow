@@ -15,7 +15,7 @@ The goal is not mechanical milestone-to-ticket conversion. The goal is a set of 
 ## Required inputs
 
 - An ExecPlan must exist at `.execflow/plans/<topic-slug>/execplan.md`.
-- If no ExecPlan exists, tell the user to run `/plan-create` first and stop.
+- If no ExecPlan exists, tell the user to run `/create-plan` first and stop.
 - If multiple ExecPlans exist in `.execflow/plans/`, list them and ask which to ticketize.
 
 ## Topic resolution

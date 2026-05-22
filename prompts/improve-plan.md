@@ -3,7 +3,7 @@ description: Deep-audit and improve an existing ExecPlan with code-grounded impr
 argument-hint: "[topic]"
 model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: high
-skill: execplan-improve
+skill: improve-plan
 loop: 3
 rotate: true
 fresh: true
@@ -21,7 +21,7 @@ Be extra explicit about missing dependencies, hidden execution blockers, validat
 
 Use `$@` as the primary topic selector. If `$@` is empty, auto-detect from existing ExecPlans.
 
-On each iteration, follow the execplan-improve skill workflow exactly:
+On each iteration, follow the improve-plan skill workflow exactly:
 - Parse the ExecPlan
 - Deep-read referenced files
 - Explore adjacent code

@@ -21,13 +21,13 @@ thinking:
 
 prompts:
   # Plan prompts
-  architect:
-    model: *plan_model
-    thinking: *plan_thinking
   brainstorm:
     model: *plan_model
     thinking: *plan_thinking
   create-issues:
+    model: *plan_model
+    thinking: *plan_thinking
+  create-plan:
     model: *plan_model
     thinking: *plan_thinking
   create-tickets:
@@ -36,15 +36,15 @@ prompts:
   create-work-items:
     model: *plan_model
     thinking: *plan_thinking
+  grill-plan:
+    model: *plan_model
+    thinking: *plan_thinking
+  improve-plan:
+    model: *plan_model
+    thinking: *plan_thinking
   implementation-plan:
     model: *implementation_model
     thinking: *implementation_thinking
-  plan-create:
-    model: *plan_model
-    thinking: *plan_thinking
-  plan-improve:
-    model: *plan_model
-    thinking: *plan_thinking
   spec:
     model: *implementation_model
     thinking: *implementation_thinking
@@ -61,18 +61,11 @@ prompts:
     thinking: *orchestration_thinking
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
-  # do not own model selection. This includes chain wrappers (`ef-implement`,
-  # `ef-implement-delegated`, `plan-chain`), the manual orchestration wrapper
-  # (`plan`), and deterministic utility wrappers (`refresh-prompts`,
-  # `sync-models`). Their leaf prompts carry the real model/thinking config.
+  # do not own model selection. This includes chain wrappers (`ef-implement`) and
+  # deterministic utility wrappers (`refresh-prompts`, `sync-models`). Their leaf
+  # prompts carry the real model/thinking config.
 
   # Implementation prompts
-  worker-implement:
-    model: *implementation_model
-    thinking: *implementation_thinking
-  worker-validation-fix:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
   implement:
     model: *implementation_model
     thinking: *implementation_thinking
@@ -103,18 +96,9 @@ prompts:
   ef-review:
     model: *review_model
     thinking: *review_thinking
-  ef-review-followups:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
   execplan-review:
     model: *plan_model
     thinking: *plan_thinking
   change-review:
     model: *plan_model
     thinking: *plan_thinking
-  execplan-review-followups:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  change-review-followups:
-    model: *orchestration_model
-    thinking: *orchestration_thinking

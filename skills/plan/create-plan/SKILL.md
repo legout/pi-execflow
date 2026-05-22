@@ -1,5 +1,5 @@
 ---
-name: execplan-create
+name: create-plan
 description: >
   Create a self-contained ExecPlan from a brainstorm artifact and/or a user
   brief. Follows the project's .execflow/PLANS.md spec. Applies the
@@ -84,11 +84,7 @@ Author milestones so they convert cleanly into high-quality tickets later.
 1. Read `.execflow/PLANS.md` in full and keep it as the primary authoring contract.
 2. Read the brainstorm (if it exists at `.execflow/plans/<topic-slug>/brainstorm.md`) and identify the concrete outcomes, acceptance criteria, hard constraints, and any soft guidance about scope or risk.
 3. Read `ARCHITECTURE.md` (if it exists at the project root) for architectural context.
-4. **Scout the codebase** — spawn a scout to map the relevant area before drafting:
-   ```
-   subagent({ name: "Scout", agent: "scout", task: "Map the codebase area relevant to the planned change. Identify file structure, patterns, conventions, dependencies, coupling, and the likely files/boundaries affected." })
-   ```
-   Wait for the scout's results before proceeding.
+4. **Scout the codebase** — if a `scout` subagent is available, use it to map the relevant area before drafting. If no scout is available, do the same inspection yourself. The scout task should be: "Map the codebase area relevant to the planned change. Identify file structure, patterns, conventions, dependencies, coupling, and the likely files/boundaries affected."
 5. Inspect the repo to understand the relevant files, current flows, and the complexity being paid today. Ask: what do callers currently need to know, where does sequencing leak, where are concepts duplicated, and where do special cases accumulate.
 6. Decide the plan shape that most reduces system complexity while still satisfying the request. Prefer the path that creates a simpler interface or a deeper owned module, not the one that merely redistributes logic.
 7. Shape the milestones so they are independently verifiable and ticket-ready. Prefer vertical slices; use explicit enabler/migration/cleanup/prototype milestones only when they materially reduce risk or unlock later slices.
