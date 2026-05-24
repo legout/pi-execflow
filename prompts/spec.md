@@ -45,6 +45,8 @@ Execution plans may live in:
    - explicit non-goals
    - ambiguities
    - required validations
+   - likely files/modules to inspect
+   - smallest safe edit sequence
 
 ## Rules
 
@@ -100,6 +102,12 @@ Use exactly these sections:
 - Test expectations:
 - Lint/type/build expectations:
 - Manual verification expectations:
+
+# Likely Implementation Path
+
+- Files/modules to inspect:
+- Smallest safe edit sequence:
+- Do not change:
 
 # Implementation Go/No-Go
 

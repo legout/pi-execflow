@@ -16,7 +16,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning leaf prompts only; wrapper prompts like `/ef-implement`, `/refresh-prompts`, and `/sync-models` are intentionally omitted.
 - Prompt taxonomy:
   - wrappers without model ownership: `/ef-implement`, `/refresh-prompts`, `/sync-models`
-  - local model-owning leaves: planning/execution/review prompts such as `/brainstorm`, `/create-plan`, `/grill-plan`, `/improve-plan`, `/implementation-plan`, `/validation-plan`, `/implement`, `/validation-fix`, `/ef-review`, `/execplan-review`, `/change-review`
+  - local model-owning leaves: planning/execution/review prompts such as `/brainstorm`, `/create-plan`, `/grill-plan`, `/improve-plan`, `/implement`, `/validation-fix`, `/ef-review`, `/execplan-review`, `/change-review`
   - deterministic + LLM setup leaf: `/init-execflow`
 - Use `/brainstorm <topic>` to explore the problem, inspect project context, compare approaches, and get design approval before planning.
 - Use `/create-plan <topic>` to create a self-contained ExecPlan.
@@ -33,10 +33,10 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `br` for issue tracking.
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-issues <topic>` to convert an ExecPlan into dependency-aware `br` issues.
-- Use `/ef-implement <issue-ref>` for validation-only implementation: `/implement` edits code/tests without running validation commands, then `/validation-fix` owns bounded validation/fix looping before finalization.
-- Use `/ef-review <issue-ref>` for a fresh focused work-item review. It creates linked follow-up issues directly for concrete critical, major, and minor bug findings.
-- Use `/execplan-review <plan>` for whole-plan delivery audits across derived issues/tickets. It creates follow-up work items directly for concrete material gaps.
-- Use `/change-review [--base <ref>] [paths/context...]` for broad arbitrary branch/diff/path reviews. It creates follow-up work items directly for concrete bug findings.
+- Use `/ef-implement <issue-ref>` for validation-only implementation: `/spec` normalizes requirements and validation expectations, `/implement` edits code/tests without running validation commands, `/validation-fix` owns bounded validation/fix looping, and `/finalize` closes/commits only after strict `Gate: PASS` evidence.
+- Use `/ef-review <issue-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up issues for concrete bug findings.
+- Use `/execplan-review <plan>` for whole-plan delivery audits across derived issues/tickets. It is read-only by default; add `--create-followups` to create tracker follow-ups for material gaps.
+- Use `/change-review [--base <ref>] [paths/context...]` for broad arbitrary branch/diff/path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for concrete bug findings.
 - Use focused local prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/fix`, `/finalize`) for narrower manual passes.
 - Optional external delegated `/execflow-queue` commands, when available in the environment, are `tk`-oriented and should not be treated as the primary `br` execution path.
 
@@ -45,10 +45,10 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 - Use `tk` for ticket tracking when the repository explicitly chooses it.
 - Use `/create-work-items <topic>` to auto-select the primary tracker.
 - Use `/create-tickets <topic>` to convert an ExecPlan into dependency-aware `tk` tickets.
-- Use `/ef-implement <ticket-ref>` for validation-only implementation: `/implement` edits code/tests without running validation commands, then `/validation-fix` owns bounded validation/fix looping before finalization.
-- Use `/ef-review <ticket-ref>` for a fresh focused work-item review. It creates linked follow-up tickets directly for concrete critical, major, and minor bug findings.
-- Use `/execplan-review <plan>` for whole-plan delivery audits across derived issues/tickets. It creates follow-up work items directly for concrete material gaps.
-- Use `/change-review [--base <ref>] [paths/context...]` for broad arbitrary branch/diff/path reviews. It creates follow-up work items directly for concrete bug findings.
+- Use `/ef-implement <ticket-ref>` for validation-only implementation: `/spec` normalizes requirements and validation expectations, `/implement` edits code/tests without running validation commands, `/validation-fix` owns bounded validation/fix looping, and `/finalize` closes/commits only after strict `Gate: PASS` evidence.
+- Use `/ef-review <ticket-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up tickets for concrete bug findings.
+- Use `/execplan-review <plan>` for whole-plan delivery audits across derived issues/tickets. It is read-only by default; add `--create-followups` to create tracker follow-ups for material gaps.
+- Use `/change-review [--base <ref>] [paths/context...]` for broad arbitrary branch/diff/path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for concrete bug findings.
 - If your environment provides the optional external delegated `tk` workflow, use `/execflow-queue` for sequential batch execution.
 - If your environment provides the optional external delegated `tk` workflow, use `/execflow-reset` to clear stale orchestrator state.
 
@@ -74,8 +74,8 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 ## Work-item guidance
 
 - If a ticket or issue contains an `ExecPlan Reference` block, read the referenced ExecPlan before implementing or reviewing.
-- `/ef-implement` closure means validation passed and acceptance criteria were met; it does not imply independent review.
-- Reviews add review summary comments/notes and create linked follow-up work items directly when material findings exist.
+- `/ef-implement` closure requires strict `Gate: PASS` validation evidence and means acceptance criteria were met; it does not imply independent review.
+- Reviews are read-only by default. They create linked follow-up work items only when invoked with `--create-followups`.
 - Keep ExecPlans and architecture documentation aligned with reality as work progresses.
 
 ## Coding behavior guidelines

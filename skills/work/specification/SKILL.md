@@ -17,7 +17,6 @@ It stands on its own, but it is designed to build on the lower-level work-item s
 If you need deeper detail on a sub-concern, read these sibling skills:
 
 - `../resolve/SKILL.md`
-- `../scope/SKILL.md`
 - `../validation/SKILL.md`
 
 ## Core responsibilities

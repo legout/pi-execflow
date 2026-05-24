@@ -3,7 +3,7 @@ description: Validate and apply minimal fixes until acceptance criteria pass or 
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.1
 thinking: medium
-loop: 10
+loop: 5
 converge: true
 fresh: true
 skill: execution
@@ -16,9 +16,9 @@ This is the only step in `/ef-implement` that should execute validation commands
 
 The prompt-template loop stops on convergence when an iteration makes no file changes. Therefore:
 
-- If validation passes, make no edits and report a clear pass verdict.
-- If validation fails but no safe scoped fix is possible, make no edits and report the blocker clearly.
-- If validation fails and a safe scoped fix is possible, apply the smallest fix; the file change allows the next loop iteration to revalidate.
+- If validation passes, make no edits and report `Gate: PASS`.
+- If validation fails but no safe scoped fix is possible, make no edits and report `Gate: BLOCKED`.
+- If validation fails and a safe scoped fix is possible, apply the smallest fix and report `Gate: REVISE`; the file change allows the next loop iteration to revalidate.
 
 ## Inputs
 
@@ -58,6 +58,7 @@ The prompt-template loop stops on convergence when an iteration makes no file ch
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
 - Prefer targeted validation first; run broader checks when needed for confidence or repository convention.
 - If a command cannot be run, say exactly why and whether that leaves validation partial.
+- The final validation verdict must include exactly one gate line: `Gate: PASS`, `Gate: REVISE`, or `Gate: BLOCKED`.
 
 ## Output format
 
@@ -68,6 +69,7 @@ Use exactly these sections:
 - Ticket:
 - Ticket system: tk / br / other
 - ExecPlan:
+- Gate: PASS / REVISE / BLOCKED
 - Iteration result: pass / fixed / blocked / partial
 - Why:
 

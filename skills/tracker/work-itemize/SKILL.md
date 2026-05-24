@@ -20,13 +20,6 @@ The goal is not mechanical milestone-to-work-item conversion. The goal is a set 
 - If multiple ExecPlans exist in `.execflow/plans/`, list them and ask which to split.
 - The tracker must be explicitly forced with `--tk` or `--br`, or resolvable from repo context.
 
-## Primary references
-
-For tracker-specific details, also follow:
-
-- `../ticketize/SKILL.md`
-- `../issueize/SKILL.md`
-
 ## Tracker override parsing
 
 1. If the input contains `--tk`, force `tk` mode.
@@ -142,31 +135,29 @@ When useful, append this optional block after the ExecPlan Reference block:
 
 When the selected tracker is `tk`:
 
-1. Follow the ticketization rules from `skills/tracker/ticketize/SKILL.md`.
-2. Create work items with `tk create`.
-3. Set hard dependencies with `tk dep <id> <dep-id>`.
-4. Report created ticket IDs and scheduling hints.
-5. Suggest `/ef-implement <ticket-ref>` for the validation-only implementation workflow. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+1. Create work items with `tk create`.
+2. Set hard dependencies with `tk dep <id> <dep-id>`.
+3. Report created ticket IDs and scheduling hints.
+4. Suggest `/ef-implement <ticket-ref>` for the validation-only implementation workflow and `/ef-review <ticket-ref>` for read-only review. Mention `/ef-review <ticket-ref> --create-followups` when tracker follow-ups are desired. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
 
 ## br mode behavior
 
 When the selected tracker is `br`:
 
-1. Follow the issueization rules from `skills/tracker/issueize/SKILL.md`.
-2. Ensure `.beads/` exists.
-3. Use `ACTOR="${BR_ACTOR:-assistant}"` and prefer `RUST_LOG=error br ... --json`.
-4. Create work items with `br create`.
-5. Set hard dependencies with:
+1. Ensure `.beads/` exists.
+2. Use `ACTOR="${BR_ACTOR:-assistant}"` and prefer `RUST_LOG=error br ... --json`.
+3. Create work items with `br create`.
+4. Set hard dependencies with:
 
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br dep add <child-id> <parent-id> --type blocks --actor "$ACTOR" --json
 
-6. Encode soft links as `related` dependencies only when the plan makes them explicit enough to justify it. Otherwise keep them in the issue description.
-7. Finish with:
+5. Encode soft links as `related` dependencies only when the plan makes them explicit enough to justify it. Otherwise keep them in the issue description.
+6. Finish with:
 
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br sync --flush-only
 
-8. Report created issue IDs and scheduling hints.
-9. Suggest `/ef-implement <issue-ref>` for the validation-only implementation workflow, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/ef-review`, `/finalize`) next.
+7. Report created issue IDs and scheduling hints.
+8. Suggest `/ef-implement <issue-ref>` for the validation-only implementation workflow, `/ef-review <issue-ref>` for read-only review, `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`) next.
 
 ## Hard rules
 

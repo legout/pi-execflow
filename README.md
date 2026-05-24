@@ -1,6 +1,6 @@
 # pi-execflow
 
-**`@legout/pi-execflow`** is a Pi package for turning ideas into approved designs, self-contained ExecPlans, tracked work items, validated implementation, and direct review follow-ups.
+**`pi-execflow`** is a GitHub-installed Pi package for turning ideas into approved designs, self-contained ExecPlans, tracked work items, validated implementation, and optional review follow-ups.
 
 It bundles a practical workflow for:
 
@@ -8,7 +8,7 @@ It bundles a practical workflow for:
 - ExecPlan creation, grilling, and improvement
 - tracker-aware work-item generation for both `tk` and `br`
 - validation-only single-ticket / single-issue execution
-- direct review follow-up creation for concrete bugs and delivery gaps
+- opt-in review follow-up creation for concrete bugs and delivery gaps
 - model and thinking configuration via `.execflow/settings.yml`
 
 ## What it is
@@ -19,22 +19,16 @@ The result is a Pi-installable extension package you can use in other repositori
 
 ## Install
 
-### From npm
+### From GitHub
 
 ```bash
-pi install npm:@legout/pi-execflow
-```
-
-### From a local path
-
-```bash
-pi install /absolute/path/to/pi-execflow
+pi install git:github.com/legout/pi-execflow
 ```
 
 ### One-off use without installing
 
 ```bash
-pi -e /absolute/path/to/pi-execflow
+pi -e git:github.com/legout/pi-execflow
 ```
 
 ## Core workflow
@@ -105,7 +99,7 @@ Tracker-specific alternatives:
 /ef-implement <ticket-or-issue-ref>
 ```
 
-`/ef-implement` is the validation-only implementation path: its `/implement` step edits code/tests without executing validation commands, then `/validation-fix` owns test/check execution and applies minimal fixes in a bounded convergence loop before finalization.
+`/ef-implement` is the validation-only implementation path: `/spec` normalizes requirements and validation expectations, `/implement` edits code/tests without executing validation commands, `/validation-fix` owns test/check execution and bounded fixes, and `/finalize` closes/commits only after a strict `Gate: PASS`.
 
 Run an independent review when needed:
 
@@ -113,7 +107,7 @@ Run an independent review when needed:
 /ef-review <ticket-or-issue-ref>
 ```
 
-`/ef-review` creates linked tracker follow-up work items directly for concrete `critical`, `major`, and `minor` bug findings. There is no separate review-followups prompt.
+`/ef-review` is read-only by default. Add `--create-followups` when you want linked tracker follow-up work items for concrete `critical`, `major`, and `minor` bug findings.
 
 For broader review scopes, use:
 
@@ -122,7 +116,7 @@ For broader review scopes, use:
 /change-review [--base main] [paths/context...]
 ```
 
-`/execplan-review` audits an entire ExecPlan delivery across derived issues/tickets and creates follow-ups directly for material delivery gaps. `/change-review` reviews an arbitrary branch, diff, or path-scoped code change and creates follow-ups directly for concrete bug findings.
+`/execplan-review` audits an entire ExecPlan delivery across derived issues/tickets. `/change-review` reviews an arbitrary branch, diff, or path-scoped code change. Both are read-only by default; add `--create-followups` to create tracker work items for material findings.
 
 ## Included resources
 
@@ -146,9 +140,9 @@ Main commands include:
 - `/create-issues <topic>`
 - `/ef-implement <ticket-or-issue-ref>`
 - `/validation-fix <ticket-or-issue-ref>`
-- `/ef-review <ticket-or-issue-ref>`
-- `/execplan-review <plan-slug-or-path>`
-- `/change-review [--base <ref>] [paths/context...]`
+- `/ef-review <ticket-or-issue-ref> [--create-followups]`
+- `/execplan-review <plan-slug-or-path> [--create-followups]`
+- `/change-review [--base <ref>] [--create-followups] [paths/context...]`
 - `/update-architecture [topic]`
 
 ### Skills
@@ -160,8 +154,8 @@ Loaded from:
 This package includes:
 
 - planning skills: `brainstorm`, `create-plan`, `grill-plan`, `improve-plan`, `update-architecture`
-- execution skills: `resolve`, `specification`, `planning`, `implement`, `testing`, `validation`, `execution`, `orchestration`, `scope`, `repo-conventions`, `finalize`, `review-discipline`, `review-maintenance`, `review-suite`
-- tracker skills: `issueize`, `work-itemize`, `ticketize`
+- execution skills: `resolve`, `specification`, `validation`, `execution`, `finalize`, `review-suite`
+- tracker skills: `work-itemize`
 
 ## Model configuration
 
@@ -263,7 +257,7 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 | Chain wrapper | No | `/ef-implement` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
-| Local model-owning leaf | Yes | `/brainstorm`, `/change-review`, `/create-issues`, `/create-plan`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/execplan-review`, `/finalize`, `/fix`, `/grill-plan`, `/implement`, `/implementation-plan`, `/improve-plan`, `/merge-summary`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix`, `/validation-plan` | Configure these in `.execflow/settings.yml` |
+| Local model-owning leaf | Yes | `/brainstorm`, `/change-review`, `/create-issues`, `/create-plan`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/execplan-review`, `/finalize`, `/fix`, `/grill-plan`, `/implement`, `/improve-plan`, `/merge-summary`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 
@@ -279,9 +273,9 @@ The package ships these checked-in templates under `execflow/`:
 
 - `/ef-implement` is shipped by this package as the default validation-only implementation workflow.
 - Delegated `/ef-implement-delegated` and worker prompts are no longer shipped.
-- Dedicated review-followup prompts are no longer shipped; review prompts create follow-ups directly.
+- Dedicated review-followup prompts are no longer shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
 - Optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path.
-- `br` support is primarily through `create-issues`, `/ef-implement`, `/ef-review`, `/execplan-review`, `/change-review`, and the focused local prompts.
+- `br` support is primarily through `create-work-items` / `create-issues`, `/ef-implement`, read-only reviews with optional `--create-followups`, and the focused local prompts.
 - `.pi/todos/` is intentionally not included in this package.
 
 ## Development

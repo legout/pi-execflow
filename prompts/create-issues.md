@@ -3,39 +3,24 @@ description: Convert an ExecPlan into dependency-aware br issues with ExecPlan r
 argument-hint: "[topic]"
 model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: high
-skill: issueize
+skill: work-itemize
 restore: true
 ---
 
 Convert the ExecPlan for `$@` into `br` issues.
 
-Use `$@` as the primary topic selector. If `$@` is empty, auto-detect from existing ExecPlans.
-
-If the repository is clearly configured for `tk` ticket tracking rather than `br` issue tracking, stop and suggest `/create-tickets $@` instead.
+This is the tracker-specific form of `/create-work-items --br $@`.
 
 Procedure:
 
-1. Determine the topic using topic resolution from the `issueize` skill.
-2. If `$@` is not empty, derive `<topic-slug>` from `$@` using kebab-case, lowercase normalization.
+1. Force `br` mode regardless of repository auto-selection.
+2. Determine the topic from `$@` using the `work-itemize` skill's topic resolution rules.
 3. Read `.execflow/plans/<topic-slug>/execplan.md` in full.
-4. Parse all milestones and extract explicit dependency, parallelism, related-work, conflict-risk, enabler, migration, cleanup, and prototype cues.
-5. Apply the smart issue-splitting rules from the skill:
-   - Default: one issue per independently verifiable milestone
-   - Prefer vertical end-to-end slices when splitting a large milestone
-   - Merge tiny adjacent enabler or cleanup steps when that yields a better review unit
-   - Build a dependency DAG from real prerequisites; only fall back to milestone order when needed
-6. Ensure `br` is available and the repo has a `.beads/` workspace. If not, stop and suggest `/init-execflow --br`.
-7. For each issue, create it using `br create` with:
-   - Title from the milestone name
-   - Description with milestone prose, concrete steps, acceptance criteria
-   - Type / scheduling hints when useful
-   - Priority based on milestone ordering
-   - The ExecPlan Reference block
-8. Set hard dependencies from explicit prerequisites first, inferred blocking relationships second, and milestone ordering only as a fallback.
-9. Finish with `RUST_LOG=error br sync --flush-only`.
-10. Report all created issues with kind, dependencies, and any important related/conflict hints.
+4. Split milestones into dependency-aware issues using the `work-itemize` shared shaping rules.
+5. Ensure `br` is available and the repo has a `.beads/` workspace. If not, stop and suggest `/init-execflow --br`.
+6. Create issues with `br create`, embed the required ExecPlan Reference block, set hard dependencies with `br dep add`, and finish with `RUST_LOG=error br sync --flush-only` when mutation occurred.
+7. Report all created issues with ID, title, kind, priority, dependencies, and important scheduling hints.
 
-Follow the `issueize` skill exactly for the ExecPlan Reference block format, issueization rules, and `br` command discipline.
+Follow the `work-itemize` skill exactly. Do not implement code or modify the ExecPlan.
 
-Report the number of issues created and list each with ID, title, kind, priority, dependencies, and any important related/conflict hints.
-Suggest running `/ef-implement <issue-ref>` for the validation-only implementation workflow, `/ef-review <issue-ref>` for independent review with direct follow-up creation, or the focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`) for a narrower pass.
+Suggest `/ef-implement <issue-ref>` for implementation. Suggest `/ef-review <issue-ref> --create-followups` only when the user wants review findings to create tracker issues automatically.

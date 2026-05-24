@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
+import { retiredPromptFiles } from "./retired-prompts.mjs";
 
 const repoRoot = process.cwd();
 const errors = [];
@@ -123,23 +124,20 @@ const validateScriptPath = join(repoRoot, "scripts", "validate-package.mjs");
 
 const settings = parseSimpleYaml(readFileSync(settingsPath, "utf8"));
 const promptFiles = readdirSync(promptsDir).filter((name) => name.endsWith(".md")).sort();
+const skillFiles = readdirSync(skillsDir, { recursive: true })
+  .map((entry) => join(skillsDir, entry.toString()))
+  .filter((filePath) => filePath.endsWith("SKILL.md") && existsSync(filePath));
+const skillNames = new Set();
+for (const skillPath of skillFiles) {
+  const extracted = extractFrontmatter(readFileSync(skillPath, "utf8"), skillPath);
+  if (!extracted) continue;
+  const name = getFrontmatterField(extracted.frontmatter, "name");
+  if (name) skillNames.add(name);
+}
 const configuredPrompts = settings.prompts ?? {};
-const removedPromptFiles = [
-  "plan.md",
-  "plan-chain.md",
-  "architect.md",
-  "plan-create.md",
-  "plan-improve.md",
-  "ef-implement-delegated.md",
-  "worker-implement.md",
-  "worker-validation-fix.md",
-  "ef-review-followups.md",
-  "execplan-review-followups.md",
-  "change-review-followups.md",
-];
-const removedSettingsPrompts = removedPromptFiles.map((name) => name.replace(/\.md$/, ""));
+const removedSettingsPrompts = retiredPromptFiles.map((name) => name.replace(/\.md$/, ""));
 
-for (const removedPromptFile of removedPromptFiles) {
+for (const removedPromptFile of retiredPromptFiles) {
   if (existsSync(join(promptsDir, removedPromptFile))) {
     addError(`Removed prompt file still exists in prompts/: ${removedPromptFile}`);
   }
@@ -177,6 +175,11 @@ for (const promptFile of promptFiles) {
     if (thinking !== configured.thinking) {
       addError(`Prompt ${promptFile} thinking frontmatter is out of sync with settings.prompts.${promptKey}.thinking`);
     }
+  }
+
+  const promptSkill = getFrontmatterField(extracted.frontmatter, "skill");
+  if (promptSkill && !skillNames.has(promptSkill)) {
+    addError(`Prompt ${promptFile} references missing skill: ${promptSkill}`);
   }
 
   if (/^inheritContext:\s*false$/m.test(extracted.frontmatter) && !/Context isolation:.*inheritContext: false/s.test(extracted.body)) {
@@ -217,6 +220,25 @@ if (settingsTracker !== "br") {
 
 if (!/defaults to `br`/.test(readmeText)) {
   addError("README.md must document that /init-execflow defaults to br");
+}
+
+if (/pi install npm:|From npm/i.test(readmeText)) {
+  addError("README.md must not document npm installation; use the GitHub install path instead");
+}
+
+const packageJsonText = readFileSync(join(repoRoot, "package.json"), "utf8");
+if (/"publishConfig"/.test(packageJsonText)) {
+  addError("package.json must not contain npm publishConfig; GitHub install is the supported distribution path");
+}
+
+for (const promptName of ["init-execflow.md", "refresh-prompts.md", "sync-models.md"]) {
+  const promptText = readFileSync(join(promptsDir, promptName), "utf8");
+  if (/\.pi['\", ]+agent['\", ]+npm|node_modules/.test(promptText)) {
+    addError(`${promptName} must not search npm/node_modules install locations; GitHub install is the supported distribution path`);
+  }
+  if (!/git\/github\.com\/legout\/pi-execflow/.test(promptText)) {
+    addError(`${promptName} must search the GitHub package install location`);
+  }
 }
 
 const repoFiles = [readmePath];

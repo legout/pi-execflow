@@ -16,10 +16,6 @@ This is a composite skill for code-changing prompts that need implementation gui
 Read these sibling skills when the task needs deeper detail:
 
 - `../resolve/SKILL.md`
-- `../implement/SKILL.md`
-- `../scope/SKILL.md`
-- `../repo-conventions/SKILL.md`
-- `../testing/SKILL.md`
 - `../validation/SKILL.md`
 
 ## Primary objective

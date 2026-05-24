@@ -42,9 +42,6 @@ prompts:
   improve-plan:
     model: *plan_model
     thinking: *plan_thinking
-  implementation-plan:
-    model: *implementation_model
-    thinking: *implementation_thinking
   spec:
     model: *implementation_model
     thinking: *implementation_thinking
@@ -71,9 +68,6 @@ prompts:
     thinking: *implementation_thinking
 
   # Validation prompts
-  validation-plan:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
   fix:
     model: *validation_fix_model
     thinking: *validation_fix_thinking

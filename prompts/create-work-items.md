@@ -33,4 +33,4 @@ Follow the `work-itemize` skill exactly.
 
 At the end:
 - if `tk` was selected, suggest `/ef-implement <ticket-ref>` for the validation-only implementation path; mention optional external `/execflow-queue` only if that delegated `tk` workflow is available
-- if `br` was selected, suggest `/ef-implement <issue-ref>` for the validation-only implementation path, `/ef-review <issue-ref>` for review with direct follow-up creation, or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`)
+- if `br` was selected, suggest `/ef-implement <issue-ref>` for the validation-only implementation path, `/ef-review <issue-ref>` for read-only review, `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired, or the focused local prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`)

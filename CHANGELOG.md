@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0 - 2026-05-24
+
+- Removed npm-install documentation and npm publish metadata; GitHub installation is now the supported shared install path.
+- Updated `/init-execflow`, `/refresh-prompts`, and `/sync-models` package discovery to look in Pi GitHub install locations instead of npm/node_modules locations.
+- Made `/ef-review`, `/execplan-review`, and `/change-review` read-only by default; tracker follow-up creation now requires `--create-followups`.
+- Shortened `/ef-implement` to `resolve -> spec -> implement -> validation-fix -> finalize`; `/spec` now carries validation and likely implementation planning context.
+- Removed `/implementation-plan` and `/validation-plan` plus their dedicated planning/testing skills from the active command set.
+- Reduced `/validation-fix` to five iterations and added explicit `Gate: PASS | REVISE | BLOCKED` output for finalization.
+- Tightened `/finalize` so ticket closure and commits require strict `Gate: PASS` evidence.
+- Consolidated tracker splitting around `work-itemize` and removed duplicate `issueize` / `ticketize` skills.
+- Removed unused work-rule skills after folding their essential scope and validation guidance into the remaining execution, specification, validation, and review skills.
+- Consolidated review behavior into `review-suite`; `/ef-review`, `/execplan-review`, and `/change-review` are now thin wrappers around one shared review policy.
+- Moved `/init-execflow` and `/refresh-prompts` deterministic logic into package scripts and centralized retired prompt cleanup in `scripts/retired-prompts.mjs`.
+- Strengthened package validation to catch npm-install docs, npm package discovery paths, npm publish metadata, and prompt references to missing skills.
+
 ## 0.5.0
 
 - Removed `/plan`, `/architect`, and `/plan-chain` in favor of explicit planning steps: `/brainstorm`, `/create-plan`, `/grill-plan`, and `/improve-plan`.

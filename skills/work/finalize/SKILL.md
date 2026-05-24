@@ -26,9 +26,9 @@ Add an accurate work-item note and close it only when the evidence supports clos
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close when validation passed and acceptance criteria are met, even if an independent review has not been run.
-3. If evidence is partial, missing, or negative, add a note and leave the ticket open.
-4. Prefer `Gate: PASS` and `Gate: REVISE` notes for compatibility with this repository's existing workflow.
+2. Close only when the latest validation evidence contains the exact line `Gate: PASS` and the acceptance criteria are met, even if an independent review has not been run.
+3. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
+4. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
 5. Include only claims supported by actual execution or explicit evidence in context.
 6. Do not imply review happened. Use "Review not run" when finalizing from `/ef-implement` without a consolidated review verdict.
 
@@ -54,7 +54,7 @@ For other tracker systems, do not invent a close command. Instead, report the re
 
 A final note or close reason should concisely capture:
 
-- the outcome (`PASS` or `REVISE`)
+- the outcome (`PASS`, `REVISE`, or `BLOCKED`)
 - the core change
 - validation status
 - review status, explicitly `not run` when absent
@@ -62,7 +62,7 @@ A final note or close reason should concisely capture:
 
 ## Git commit policy
 
-On a PASS outcome, after closing the tracker item, commit all related changes:
+On a strict `Gate: PASS` outcome, commit all related changes before closing the tracker item:
 
 1. Run `git status` and `git diff --stat` to confirm what changed.
 2. Stage only the files that belong to the work item. Do not stage unrelated changes.
@@ -72,9 +72,10 @@ On a PASS outcome, after closing the tracker item, commit all related changes:
    - Derive `scope` from the area/module if clear, otherwise omit.
    - If the work-item title is short enough, it can be adapted into the subject line.
 4. If there are no changes to commit (e.g., the work was tracker-only), skip the commit and report "No code changes to commit."
-5. Do **not** push.
-6. Do **not** add sign-offs.
-7. On REVISE, do **not** commit. Leave changes in the working tree for the next iteration.
+5. Close the tracker item only after the commit succeeds or is skipped because there are no code changes.
+6. Do **not** push.
+7. Do **not** add sign-offs.
+8. On REVISE or BLOCKED, do **not** commit. Leave changes in the working tree for the next iteration.
 
 ## Completion checklist
 
@@ -83,5 +84,5 @@ Before finalizing, verify:
 - the work-item identity is correct
 - the outcome is supported by evidence
 - the note text is concise and truthful
-- close only happens on a real pass
-- on PASS: related changes are committed; on REVISE: nothing is committed
+- close only happens on strict `Gate: PASS`
+- on PASS: related changes are committed; on REVISE/BLOCKED: nothing is committed

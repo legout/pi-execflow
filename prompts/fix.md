@@ -3,7 +3,6 @@ description: Fix validation failures or review findings with minimal scope-prese
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.1
 thinking: medium
-fresh: true
 skill: execution
 restore: true
 ---

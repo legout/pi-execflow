@@ -48,7 +48,7 @@ Before opening a PR, check:
 Please preserve these package boundaries unless the change intentionally expands scope:
 
 - delegated `/execflow` / `/execflow-queue` is documented as a `tk`-oriented path
-- `br` support is primarily through `create-issues` and the manual local execution prompts
+- `br` support is primarily through `create-work-items` / `create-issues` and the manual local execution prompts
 - `execflow/settings.yml` is the source of truth for per-prompt model/thinking assignments in this package repo
 - `/sync-models` is the supported way to rewrite prompt frontmatter
 
@@ -68,16 +68,16 @@ Use concise Conventional Commits-style subjects, for example:
 - `fix(models): sync review role mapping`
 - `docs(readme): clarify br execution path`
 
-## Local install testing
+## Install testing
 
-You can test the package locally with:
+The supported shared install path is GitHub:
 
 ```bash
-pi install /absolute/path/to/pi-execflow
+pi install git:github.com/legout/pi-execflow
 ```
 
-or for one-off use:
+For one-off testing without adding it to settings, use:
 
 ```bash
-pi -e /absolute/path/to/pi-execflow
+pi -e git:github.com/legout/pi-execflow
 ```
