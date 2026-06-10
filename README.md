@@ -5,7 +5,7 @@
 It bundles a practical workflow for:
 
 - interactive Superpowers-style brainstorming with design approval gates
-- ExecPlan creation, grilling, and improvement
+- ExecPlan creation and grilling
 - tracker-aware work-item generation for both `tk` and `br`
 - validation-only single-ticket / single-issue execution
 - opt-in review follow-up creation for concrete bugs and delivery gaps
@@ -33,6 +33,18 @@ pi -e git:github.com/legout/pi-execflow
 
 ## Core workflow
 
+The simplified happy path is five commands:
+
+```bash
+/ef-plan <topic>
+/ef-tasks <topic>
+/ef-work <ticket-or-issue-ref>
+/ef-review <ticket-or-issue-ref>
+/ef-sync
+```
+
+These names are the supported public workflow surface. They keep the OpenAI-style ExecPlan as the canonical source of truth while hiding lower-level planning, tracker, execution, validation, and refresh steps. This package does not keep legacy slash commands solely for backward compatibility; lower-level prompts should remain only when they are active internal leaves used by the supported workflow.
+
 ### 1. Initialize a target project
 
 ```bash
@@ -55,68 +67,54 @@ This scaffolds:
 - `.pi/prompts/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
-### 2. Brainstorm and create the plan
+### 2. Plan with an ExecPlan
+
+Recommended public command:
 
 ```bash
-/brainstorm <topic>
-/create-plan <topic>
-/grill-plan <topic>
-/improve-plan <topic>
+/ef-plan <topic>
 ```
 
-`/brainstorm` now follows a stricter design-gated flow: inspect project context, ask one focused question at a time, compare 2-3 approaches, obtain user approval, write `.execflow/plans/<topic-slug>/brainstorm.md`, and self-review the artifact before moving to planning.
+`/ef-plan` is the intended front door for turning an idea into an approved, self-contained ExecPlan. It covers brainstorming, plan creation, and plan grilling while keeping `.execflow/plans/<topic-slug>/execplan.md` as the single canonical plan document.
 
-`/create-plan` writes `.execflow/plans/<topic-slug>/execplan.md` following `.execflow/PLANS.md`.
-
-`/grill-plan` pressure-tests an existing ExecPlan interactively, asks one question at a time with a recommended answer, checks code before asking questions the repository can answer, and updates the ExecPlan as decisions crystallize.
-
-`/improve-plan` runs a code-grounded ExecPlan audit loop and rewrites only when substantive improvements remain.
-
-Optional post-implementation architecture sync:
-
-```bash
-/update-architecture [topic]
-```
+Internal planning leaves currently used by `/ef-plan` include brainstorm, plan creation, and plan grilling behavior. They are implementation details of the public workflow, not a legacy user surface to preserve indefinitely.
 
 ### 3. Convert the plan into tracked work
 
-Tracker-neutral default:
+Recommended public command:
 
 ```bash
-/create-work-items <topic>
+/ef-tasks <topic>
 ```
 
-Tracker-specific alternatives:
+`/ef-tasks` is the intended tracker-neutral command for converting an ExecPlan into dependency-aware work items. It should prefer vertical, independently verifiable slices and keep every created item linked back to the ExecPlan.
 
-```bash
-/create-tickets <topic>
-/create-issues <topic>
-```
+Internal tracker leaves may exist to implement tracker-neutral and tracker-specific item creation. They are implementation details of `/ef-tasks`, not a compatibility surface.
 
 ### 4. Execute and review one work item
 
-```bash
-/ef-implement <ticket-or-issue-ref>
-```
-
-`/ef-implement` is the validation-only implementation path: `/spec` normalizes requirements and validation expectations, `/implement` edits code/tests without executing validation commands, `/validation-fix` owns test/check execution and bounded fixes, and `/finalize` closes/commits only after a strict `Gate: PASS`.
-
-Run an independent review when needed:
+Recommended public commands:
 
 ```bash
+/ef-work <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
 ```
 
-`/ef-review` is read-only by default. Add `--create-followups` when you want linked tracker follow-up work items for concrete `critical`, `major`, and `minor` bug findings.
+`/ef-work` is the intended implementation front door for one tracked work item. It resolves the item, normalizes the acceptance criteria, makes the smallest scoped change, runs validation through the validation/fix loop, and finalizes only after strict evidence. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
 
-For broader review scopes, use:
+`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings.
+
+### 5. Sync package resources
+
+Recommended public command:
 
 ```bash
-/execplan-review <plan-slug-or-path>
-/change-review [--base main] [paths/context...]
+/ef-sync
 ```
 
-`/execplan-review` audits an entire ExecPlan delivery across derived issues/tickets. `/change-review` reviews an arbitrary branch, diff, or path-scoped code change. Both are read-only by default; add `--create-followups` to create tracker work items for material findings.
+`/ef-sync` is the intended maintenance front door for refreshing prompt overlays and synchronizing prompt model frontmatter from `.execflow/settings.yml`.
+
+Internal deterministic sync leaves may exist to implement refresh and model synchronization. They are implementation details of `/ef-sync`, not a compatibility surface.
 
 ## Included resources
 
@@ -126,24 +124,16 @@ Loaded from:
 
 - `prompts/`
 
-Main commands include:
+Supported public commands are:
 
 - `/init-execflow [--tk|--br]`
-- `/sync-models`
-- `/refresh-prompts`
-- `/brainstorm <topic>`
-- `/create-plan <topic>`
-- `/grill-plan <topic>`
-- `/improve-plan <topic>`
-- `/create-work-items <topic>`
-- `/create-tickets <topic>`
-- `/create-issues <topic>`
-- `/ef-implement <ticket-or-issue-ref>`
-- `/validation-fix <ticket-or-issue-ref>`
-- `/ef-review <ticket-or-issue-ref> [--create-followups]`
-- `/execplan-review <plan-slug-or-path> [--create-followups]`
-- `/change-review [--base <ref>] [--create-followups] [paths/context...]`
-- `/update-architecture [topic]`
+- `/ef-plan <topic>`
+- `/ef-tasks <topic>`
+- `/ef-work <ticket-or-issue-ref>`
+- `/ef-review <target> [--create-followups] [context...]`
+- `/ef-sync`
+
+Other prompt files may exist as internal leaves for chains, model-owning implementation steps, or deterministic maintenance. They are not a legacy public command surface and may be removed when no supported wrapper uses them.
 
 ### Skills
 
@@ -153,7 +143,7 @@ Loaded from:
 
 This package includes:
 
-- planning skills: `brainstorm`, `create-plan`, `grill-plan`, `improve-plan`, `update-architecture`
+- planning skills: `brainstorm`, `create-plan`, `grill-plan`
 - execution skills: `resolve`, `specification`, `validation`, `execution`, `finalize`, `review-suite`
 - tracker skills: `work-itemize`
 
@@ -220,7 +210,7 @@ Wrapper prompts that only orchestrate other prompts or run deterministic shell s
 After editing `.execflow/settings.yml`, run:
 
 ```bash
-/sync-models
+/ef-sync
 ```
 
 or from the shell:
@@ -247,17 +237,19 @@ Properties of the sync step:
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/ef-implement`
-- deterministic utility wrappers: `/refresh-prompts`, `/sync-models`
+- chain wrappers: `/ef-plan`, `/ef-work`
+- deterministic utility wrappers: `/ef-sync`
+- internal maintenance leaves when present, such as prompt refresh or model sync helpers
 
 ### Prompt taxonomy
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Chain wrapper | No | `/ef-implement` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
-| Deterministic utility wrapper | No | `/refresh-prompts`, `/sync-models` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
+| Public workflow wrapper | Usually no | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-sync` | Preferred user-facing names; omit from `settings.prompts` when they only orchestrate leaf prompts or deterministic steps |
+| Chain wrapper | No | `/ef-plan`, `/ef-work` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Deterministic utility wrapper | No | `/ef-sync` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
-| Local model-owning leaf | Yes | `/brainstorm`, `/change-review`, `/create-issues`, `/create-plan`, `/create-tickets`, `/create-work-items`, `/ef-review`, `/execplan-review`, `/finalize`, `/fix`, `/grill-plan`, `/implement`, `/improve-plan`, `/merge-summary`, `/resolve`, `/spec`, `/update-architecture`, `/validate`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
+| Local model-owning leaf | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-tasks`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 
@@ -271,11 +263,10 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- `/ef-implement` is shipped by this package as the default validation-only implementation workflow.
-- Delegated `/ef-implement-delegated` and worker prompts are no longer shipped.
-- Dedicated review-followup prompts are no longer shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
-- Optional external delegated `/execflow-queue` execution is not shipped by this package; when available in the environment, it remains a `tk`-oriented path.
-- `br` support is primarily through `create-work-items` / `create-issues`, `/ef-implement`, read-only reviews with optional `--create-followups`, and the focused local prompts.
+- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-review`, and `/ef-sync` after `/init-execflow`.
+- Legacy prompt names are not retained merely for backward compatibility. If a prompt is not part of the public workflow and no supported wrapper needs it as an internal leaf, it should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
+- Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
+- Optional external delegated `/execflow-queue` execution is not shipped by this package.
 - `.pi/todos/` is intentionally not included in this package.
 
 ## Development

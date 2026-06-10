@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0 - 2026-06-10
+
+- Promoted the supported public workflow to five commands: `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-review`, and `/ef-sync`.
+- Added wrapper prompts for the five-command workflow and removed legacy compatibility-only prompt names.
+- Kept ExecPlans as the single canonical planning artifact while adding guidance for domain language, non-goals, observable scenarios, task graphs, TDD strategy, and conservative parallel/worktree metadata.
+- Strengthened work-item creation to prefer ExecPlan task graphs and carry dependency, scope, validation, RED/GREEN, and scheduling evidence into tracker items.
+- Strengthened execution and finalization around RED proof, GREEN proof, regression validation, explicit RED exemptions, and strict `Gate: PASS` closure.
+- Updated review behavior to report separate spec compliance, code quality, and validation evidence judgments before the overall verdict.
+- Adapted generated `.execflow/AGENTS.md` behavior guidance from Andrej Karpathy's concise `CLAUDE.md` principles while keeping it target-project safe.
+- Reduced the shipped prompt surface to 14 active prompt files and retired removed prompt overlays through `scripts/retired-prompts.mjs`.
+
 ## 0.6.0 - 2026-05-24
 
 - Removed npm-install documentation and npm publish metadata; GitHub installation is now the supported shared install path.

@@ -26,11 +26,28 @@ Add an accurate work-item note and close it only when the evidence supports clos
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close only when the latest validation evidence contains the exact line `Gate: PASS` and the acceptance criteria are met, even if an independent review has not been run.
+2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and RED/GREEN evidence or an explicit RED exemption is present.
 3. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
 4. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
 5. Include only claims supported by actual execution or explicit evidence in context.
-6. Do not imply review happened. Use "Review not run" when finalizing from `/ef-implement` without a consolidated review verdict.
+6. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` without a consolidated review verdict.
+
+## RED/GREEN closure requirement
+
+For testable behavior, a final note is closable only when it includes:
+
+- `Gate: PASS`
+- acceptance-criteria evidence
+- `RED proof`: exact pre-implementation failing command/check and expected failure signal
+- `GREEN proof`: the targeted command/check passing after the implementation
+- regression validation status, even if broader validation was not run
+
+For docs-only changes, planning-only changes, exploratory spikes, or untestable work, the note may close with `Gate: PASS` only if it records:
+
+- `RED exemption`: reason RED proof does not apply
+- alternate evidence used for closure, such as reviewed files, generated artifacts, or deterministic validation commands
+
+Do not close when the only evidence is a final passing broad test run and there is no RED proof or exemption. In that case, add a `Gate: REVISE` note requesting the missing RED/GREEN evidence or exemption.
 
 ## Tracker-specific guidance
 
@@ -57,6 +74,8 @@ A final note or close reason should concisely capture:
 - the outcome (`PASS`, `REVISE`, or `BLOCKED`)
 - the core change
 - validation status
+- RED/GREEN evidence or RED exemption
+- regression validation status
 - review status, explicitly `not run` when absent
 - any remaining follow-up, if the ticket stays open
 
@@ -85,4 +104,5 @@ Before finalizing, verify:
 - the outcome is supported by evidence
 - the note text is concise and truthful
 - close only happens on strict `Gate: PASS`
+- close only happens with RED proof plus GREEN proof, or an explicit RED exemption with alternate evidence
 - on PASS: related changes are committed; on REVISE/BLOCKED: nothing is committed

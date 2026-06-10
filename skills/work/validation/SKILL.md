@@ -25,6 +25,17 @@ For `.beads/` / `br` work, do not assume a file-backed work-item path exists.
 4. Manual verification where automation is insufficient
 5. Explicit reporting of gaps
 
+## RED/GREEN evidence classes
+
+Classify validation evidence explicitly:
+
+- `RED proof`: evidence that the selected test/command/assertion/manual check failed before the production change for the expected reason.
+- `GREEN proof`: evidence that the same targeted proof passed after the minimal implementation change.
+- `Regression validation`: broader tests, lint, typecheck, build, smoke checks, or manual checks that show existing behavior still holds.
+- `RED exemption`: explicit reason RED proof is not required, such as docs-only work, planning-only work, exploratory spike, or an untestable environment constraint, plus the alternate evidence used.
+
+For testable behavior, `Gate: PASS` requires RED proof and GREEN proof, not only broad regression validation. If RED proof is missing and no exemption is recorded, the outcome is `Gate: REVISE` even if the final test suite passes.
+
 ## Command discovery order
 
 When choosing validation commands, inspect the project in this order:
@@ -41,12 +52,28 @@ Prefer established project commands over custom one-off commands.
 - Prefer exact commands over generic advice.
 - Distinguish executed validation from recommended validation.
 - Distinguish passing evidence from unverified assumptions.
+- Distinguish RED proof, GREEN proof, regression validation, and RED exemptions.
 - If validation is partial, say so clearly.
 - If a criterion lacks proof, mark it as a gap.
 - Capture exact exit codes and decisive error output when a command fails.
 - After a fix, rerun the most relevant targeted validation first before broadening.
 - Do not modify tests merely to make validation pass unless the evidence shows the test itself is wrong.
 - Only run broader lint/type/build checks that already exist in the project or are clearly required by repo norms.
+- Do not treat a final passing command as RED proof unless the pre-change failing run and expected failure signal are recorded.
+
+## Gate output
+
+When reporting validation for a work item, include a gate line and evidence summary:
+
+```text
+Gate: PASS | REVISE | BLOCKED
+RED proof: <command/check + expected failure, or exemption reason>
+GREEN proof: <same targeted command/check passing, or not applicable with reason>
+Regression validation: <broader commands/checks run, or not run>
+Gaps: <missing evidence, or none>
+```
+
+Use `Gate: PASS` only when all acceptance criteria are proven and either RED/GREEN evidence exists for testable behavior or a RED exemption is explicit and justified.
 
 ## Evidence standards
 
@@ -56,12 +83,14 @@ Good evidence:
 - reproducible
 - specific
 - falsifiable
+- labeled as RED, GREEN, regression, or exemption evidence
 
 Weak evidence:
 
 - generic success claims
 - commands not actually run
 - tests that do not assert the required behavior
+- final passing tests with no recorded RED proof or exemption for testable behavior
 - hand-wavy should-work reasoning
 
 ## Stuck detection

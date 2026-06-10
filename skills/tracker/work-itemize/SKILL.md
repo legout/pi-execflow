@@ -54,13 +54,36 @@ When no explicit tracker flag is provided, determine the tracker conservatively:
 
 ## Shared shaping rules
 
+### Prefer the ExecPlan task graph
+
+If the ExecPlan has a `Task Graph`, use it as the primary source for work-item boundaries and dependencies. Treat the milestone list as supporting context, not the only splitting source.
+
+Extract, when present:
+
+- task ids, titles, and task kinds
+- hard prerequisites and dependency direction
+- related-but-not-blocking links
+- vertical slices and observable behavior per task
+- likely files, shared boundaries, registries, generated files, migrations, or configuration files
+- validation commands and expected proof
+- RED/GREEN expectations or explicit exemptions
+- out-of-scope notes
+
+If the `Task Graph` conflicts with milestone prose, stop and ask for clarification unless the contradiction is obviously a wording issue that can be resolved from nearby plan text. Do not silently choose a dependency direction.
+
 ### Default: one work item per independently verifiable milestone
 
-If a milestone already represents a coherent, independently verifiable slice, make it one tracked work item.
+If no useful `Task Graph` exists, derive work items from independently verifiable milestones. If a milestone already represents a coherent, independently verifiable slice, make it one tracked work item.
+
+An independently verifiable milestone should name the behavior, command, artifact, or documentation state that proves completion. If the milestone lacks observable proof, include a validation clarification in the work item instead of pretending the proof is obvious.
 
 ### Prefer vertical slices when splitting
 
 If a milestone contains multiple end-to-end slices, use cases, workflows, or contract-visible behaviors, split it along those slice boundaries before considering file-count-based splits.
+
+A vertical tracer-bullet work item should prove one behavior through the smallest meaningful path across the system. It is better to create three small end-to-end items than one horizontal item for all prompts, all docs, all tests, or all refactors when those pieces can land independently.
+
+Avoid horizontal work items such as "update all models", "rewrite all tests", or "refactor all commands" unless the plan classifies them as `enabler`, `migration`, `prototype`, or `cleanup` and explains why they cannot be sliced vertically.
 
 ### Merge small adjacent milestones
 
@@ -86,6 +109,7 @@ Prefer `vertical-slice` unless the plan evidence clearly points elsewhere.
 
 Build a dependency DAG, not an automatic chain.
 
+- Preserve explicit `Task Graph` dependency direction first.
 - Use explicit plan prerequisites first.
 - `enabler` work items usually block the vertical slices that rely on them.
 - `cleanup` work items usually depend on all slices that still rely on the old path.
@@ -100,6 +124,56 @@ Track non-blocking relationships separately from hard dependencies.
 - Use `Related to` for work items that share context or are likely to be reviewed together.
 - Use `Conflicts with` for work items that should usually not be implemented concurrently.
 - Do not convert soft links into hard dependencies unless the plan or codebase evidence makes the prerequisite relationship real.
+
+### Conservative parallel and worktree hints
+
+Parallel execution hints are optional scheduling metadata, not permission to run tasks concurrently by default.
+
+Set `Parallel-safe with` only when the ExecPlan or code evidence shows the tasks do not edit the same files, generated outputs, package manifests, schema migrations, central registries, public interfaces, global configuration, or other shared serialization points. If two tasks touch a shared boundary, mark them as `Conflicts with` or add a hard dependency unless the plan names a stable contract that makes parallel edits safe.
+
+Set `Suggested worktree isolation` conservatively:
+
+- `required` when the work is large, risky, or intentionally parallel and must not share a checkout with other edits
+- `recommended` when the task touches several files or shared conventions but can still be done sequentially
+- `optional` for small, low-risk, single-checkout work
+
+When recommending or requiring worktree isolation, include notes that implementers must detect whether they are already isolated, verify a clean baseline before starting, and must not delete or clean up harness-owned or unknown worktrees.
+
+### Required work-item body fields
+
+Each created work item body must include the ExecPlan Reference block and enough local context to execute the item without rereading every sibling item.
+
+After the ExecPlan Reference block, include these sections when the plan provides the information or it can be inferred safely:
+
+```md
+## Acceptance Criteria
+
+- <observable behavior or artifact>
+
+## Implementation Scope
+
+- Likely files: <repo-relative paths or unknown>
+- In scope: <smallest behavior slice>
+- Out of scope: <explicit exclusions from the ExecPlan/task graph>
+
+## Validation
+
+- Commands: <exact commands, manual proof, or "to be determined during specification">
+- RED/GREEN: required | exempt: <reason> | unknown: clarify before implementation
+
+## Scheduling Hints
+
+- Kind: vertical-slice | enabler | migration | cleanup | prototype
+- Depends on: <ids, task names, milestone names, or none>
+- Related to: <ids, task names, milestone names, or none>
+- Conflicts with: <ids, task names, milestone names, or none>
+- Parallel-safe with: <ids, task names, milestone names, or none/unknown>
+- Serialization points: <shared boundary that should not be changed concurrently>
+- Suggested worktree isolation: required | recommended | optional
+- Worktree notes: <existing-isolation check, clean-baseline requirement, cleanup limits, or none>
+```
+
+Use `unknown: clarify before implementation` rather than inventing validation commands, RED/GREEN status, likely files, or parallel safety. For docs-only, planning-only, exploratory, or untestable work, record a RED/GREEN exemption with a reason.
 
 ## ExecPlan Reference Block
 
@@ -117,7 +191,7 @@ Every created work item MUST include this block in its description:
   - "Decision Log" for any decisions already made
 ```
 
-When useful, append this optional block after the ExecPlan Reference block:
+Append the scheduling fields after the ExecPlan Reference block, either as part of `## Scheduling Hints` or the broader required work-item body described above:
 
 ```md
 ## Scheduling Hints
@@ -129,6 +203,7 @@ When useful, append this optional block after the ExecPlan Reference block:
 - Parallel-safe with: <ids, milestone names, or none/unknown>
 - Serialization points: <shared boundary that should not be changed concurrently>
 - Suggested worktree isolation: required | recommended | optional
+- Worktree notes: <existing-isolation check, clean-baseline requirement, cleanup limits, or none>
 ```
 
 ## tk mode behavior
@@ -138,7 +213,7 @@ When the selected tracker is `tk`:
 1. Create work items with `tk create`.
 2. Set hard dependencies with `tk dep <id> <dep-id>`.
 3. Report created ticket IDs and scheduling hints.
-4. Suggest `/ef-implement <ticket-ref>` for the validation-only implementation workflow and `/ef-review <ticket-ref>` for read-only review. Mention `/ef-review <ticket-ref> --create-followups` when tracker follow-ups are desired. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+4. Suggest `/ef-work <ticket-ref>` for the public validation-only implementation workflow and `/ef-review <ticket-ref>` for read-only review. Mention `/ef-review <ticket-ref> --create-followups` when tracker follow-ups are desired. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
 
 ## br mode behavior
 
@@ -157,7 +232,7 @@ When the selected tracker is `br`:
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br sync --flush-only
 
 7. Report created issue IDs and scheduling hints.
-8. Suggest `/ef-implement <issue-ref>` for the validation-only implementation workflow, `/ef-review <issue-ref>` for read-only review, `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired, or focused prompts (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/validate`, `/finalize`) next.
+8. Suggest `/ef-work <issue-ref>` for the public validation-only implementation workflow, `/ef-review <issue-ref>` for read-only review, and `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired.
 
 ## Hard rules
 
@@ -166,5 +241,9 @@ When the selected tracker is `br`:
 - Do not close or mutate unrelated existing work items.
 - Prefer dependency accuracy over mechanical milestone ordering.
 - Do not invent parallel safety when the plan or codebase evidence is unclear.
+- Do not recommend parallel execution for tasks that share files, registries, migrations, generated outputs, public interfaces, manifests, or global config unless a stable contract makes the split safe.
 - Every created work item MUST include an ExecPlan Reference block.
+- Every created work item MUST include acceptance criteria, scope/out-of-scope notes, validation expectations, RED/GREEN status or exemption, and scheduling/conflict hints when that information is available.
+- Prefer `unknown: clarify before implementation` over fabricated likely files, commands, dependencies, or parallel safety.
+- Never tell an implementer to remove, prune, or clean up worktrees unless the work item explicitly created that worktree and can prove it is not harness-owned.
 - If the tracker cannot be resolved confidently, stop and ask rather than guessing.

@@ -31,4 +31,4 @@ Procedure:
 
 Follow the grill-plan skill exactly.
 
-When finished or paused, report the ExecPlan path, decisions resolved, sections updated, unresolved questions, and suggest `/improve-plan $@` next.
+When finished or paused, report the ExecPlan path, decisions resolved, sections updated, and unresolved questions. If the plan is ready for work-item creation, suggest `/ef-tasks $@` next.

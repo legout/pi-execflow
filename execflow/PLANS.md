@@ -26,6 +26,16 @@ Purpose and intent come first. Begin by explaining, in a few sentences, why the 
 
 The agent executing your plan can list files, read files, search, run the project, and run tests. It does not know any prior context and cannot infer what you meant from earlier milestones. Repeat any assumption you rely on. Do not point to external blogs or docs; if knowledge is required, embed it in the plan itself in your own words. If an ExecPlan builds upon a prior ExecPlan and that file is checked in, incorporate it by reference. If it is not, you must include all relevant context from that plan.
 
+## Canonical plan and optional structured aids
+
+The single ExecPlan file is canonical. Do not replace it with separate canonical PRD, design, task, or log files. If a project later generates sidecar files such as a task list, issue export, or tracker mapping, those files are derived aids only; the ExecPlan must still contain enough context, decisions, work sequence, validation, and recovery information for a stateless reader to continue from the plan alone.
+
+For complex work, add short prose sections to the ExecPlan when they make the plan easier to execute safely. Useful sections include `Domain Language`, `Scope and Non-Goals`, `User Stories / Observable Scenarios`, `Task Graph`, `TDD Strategy`, and `Parallelization and Worktree Strategy`. These sections are not a license to turn the plan into rigid forms. Keep the plan readable and prose-first. Use structured blocks only when they clarify dependencies, validation expectations, or scheduling hazards better than prose would.
+
+`Domain Language` defines project-specific words the plan relies on. `Scope and Non-Goals` says what the plan will not do so agents do not add adjacent features. `User Stories / Observable Scenarios` describes who benefits and what behavior they can observe. `Task Graph` names true prerequisites, related non-blocking work, parallel-safe slices, and conflict boundaries. `TDD Strategy` explains which behaviors should be proven by a failing test before implementation and which work is exempt because it is docs-only, exploratory, or not testable in this repository. `Parallelization and Worktree Strategy` explains whether work can proceed in isolated branches or worktrees, which files or registries must not be edited concurrently, and what must be merged sequentially.
+
+Parallel execution is optional and conservative. A plan must never require parallel execution for correctness. If a plan recommends parallel work or worktree isolation, it must first say how an implementer detects whether they are already inside an isolated worktree or harness-managed checkout, how to verify a clean baseline before starting, which files or registries are shared serialization points, and which tasks must merge sequentially after review. Do not describe two tasks as parallel-safe when both edit the same files, generated outputs, package manifests, schema migrations, central registries, public interfaces, or global configuration unless the plan also names the stable contract that prevents conflicts. Cleanup instructions must not delete or prune harness-owned worktrees, unknown checkouts, or directories the plan did not create.
+
 ## Formatting
 
 Format and envelope are simple and strict. Each ExecPlan must be one single fenced code block labeled as `md` that begins and ends with triple backticks. Do not nest additional triple-backtick code fences inside; when you need to show commands, transcripts, diffs, or code, present them as indented blocks within that single fence. Use indentation for clarity rather than code fences inside an ExecPlan to avoid prematurely closing the ExecPlan's code fence. Use two newlines after every heading, use # and ## and so on, and correct syntax for ordered and unordered lists.
@@ -57,6 +67,8 @@ Milestones are narrative, not bureaucracy. If you break the work into milestones
 Each milestone must be independently verifiable and incrementally implement the overall goal of the execution plan.
 
 Prefer milestones that deliver an observable, end-to-end slice of behavior rather than only moving one horizontal layer. When a purely enabling, migration, cleanup, or prototyping milestone is necessary, label it plainly and explain why it must happen before or after later slices. Make dependency relationships explicit in the milestone prose: name true prerequisites, identify related-but-non-blocking milestones, identify milestones that can proceed in parallel, and call out any shared boundary or serialization/conflict point (for example schema migrations, shared public interfaces, central registries, package manifests, or global configuration) that should not be changed concurrently.
+
+When milestones mention parallel work, include the conservative operating rules in prose: start only from a clean baseline, preserve any existing isolation, avoid concurrent edits to shared files unless a stable interface contract already exists, review each branch or worktree independently, and merge one completed slice at a time. Parallel guidance is scheduling metadata, not default automation.
 
 ## Living plans and design decisions
 

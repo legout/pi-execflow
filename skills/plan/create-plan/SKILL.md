@@ -23,6 +23,7 @@ Write plans the way a strong software designer would: not as a task list for rea
 
 - Read `.execflow/PLANS.md` in full before drafting and follow it exactly.
 - If any instruction conflicts with this skill, `.execflow/PLANS.md` wins.
+- The ExecPlan is the canonical planning artifact. Do not create or depend on separate canonical PRD, design, task, or log sidecars; if sidecars are mentioned, describe them only as derived aids.
 
 ## Topic resolution
 
@@ -69,6 +70,18 @@ Author milestones so they convert cleanly into high-quality tickets later.
 - Avoid long layer-by-layer sequences when smaller independently verifiable slices are possible.
 - Keep the plan prose-first and OpenAI-compatible: do not turn milestones into rigid forms or tables just to support ticketization.
 
+## Required planning content
+
+Include these topics in the ExecPlan when the work is more than a trivial edit. Keep them as prose sections or compact bullets, not rigid templates:
+
+- `Domain Language`: define project-specific terms the implementer must use consistently.
+- `Scope and Non-Goals`: state what the work will do and what it intentionally will not do.
+- `User Stories / Observable Scenarios`: describe user-visible or system-visible scenarios that prove the change works.
+- `Task Graph`: name true prerequisites, related non-blocking work, vertical slices, serialization points, shared-file conflicts, and unsafe parallelism.
+- `TDD Strategy`: identify behaviors that should start with RED proof before implementation, and explicitly exempt docs-only, exploratory, or untestable work.
+
+If a brainstorm provides domain terms, non-goals, scenarios, or planning notes, carry them into the ExecPlan or explicitly revise them with rationale in the `Decision Log`.
+
 ## Output location
 
 - Write the ExecPlan to `.execflow/plans/<topic-slug>/execplan.md` in the target repo.
@@ -88,9 +101,11 @@ Author milestones so they convert cleanly into high-quality tickets later.
 5. Inspect the repo to understand the relevant files, current flows, and the complexity being paid today. Ask: what do callers currently need to know, where does sequencing leak, where are concepts duplicated, and where do special cases accumulate.
 6. Decide the plan shape that most reduces system complexity while still satisfying the request. Prefer the path that creates a simpler interface or a deeper owned module, not the one that merely redistributes logic.
 7. Shape the milestones so they are independently verifiable and ticket-ready. Prefer vertical slices; use explicit enabler/migration/cleanup/prototype milestones only when they materially reduce risk or unlock later slices.
-8. Draft the ExecPlan using `.execflow/PLANS.md` exactly. Name the exact files and boundaries involved, explain the current pain, describe the complexity dividend the change is intended to produce, and make dependencies / parallelism constraints / soft links / conflict boundaries explicit in milestone prose.
+8. Draft the ExecPlan using `.execflow/PLANS.md` exactly. Name the exact files and boundaries involved, explain the current pain, define domain terms, make scope exclusions explicit, describe observable scenarios, describe the complexity dividend the change is intended to produce, and make dependencies / parallelism constraints / soft links / conflict boundaries explicit in milestone prose.
 9. Ensure required sections exist and are self-contained, novice-friendly, behavior-focused, and explicit about why the design is simpler after the change.
-10. Save to `.execflow/plans/<topic-slug>/execplan.md`.
+10. Check that the `Task Graph` and milestone prose agree: every hard dependency, parallel-safe slice, unsafe parallelism warning, and serialization point should be represented in both places when relevant.
+11. Check that the `TDD Strategy` names RED/GREEN expectations for testable behavior or records an explicit exemption.
+12. Save to `.execflow/plans/<topic-slug>/execplan.md`.
 
 ## Anti-patterns
 
@@ -100,3 +115,4 @@ Author milestones so they convert cleanly into high-quality tickets later.
 - Do not leave key design choices to the implementer when the repo evidence is strong enough to decide now.
 - Do not leave milestone dependencies, soft links, or conflict boundaries implicit when the plan already knows which steps are true prerequisites, merely related, or unsafe to parallelize.
 - Do not fall back to an embedded or remembered PLANS spec; if `.execflow/PLANS.md` is missing, stop.
+- Do not bury non-goals, domain language, RED/GREEN expectations, or unsafe parallelism in side notes that a later work-item generator would miss.

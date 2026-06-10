@@ -20,6 +20,7 @@ Scope:
 - resolve the work item, tracker system, and optional ExecPlan
 - inspect the implementation and validation evidence
 - check work-item compliance, ExecPlan compliance if present, acceptance criteria completion, accidental scope expansion, missing required behavior, regression risk, and merge readiness
+- produce separate judgments for spec compliance, code quality, and validation evidence before the overall verdict
 
 Follow the `review-suite` skill exactly.
 Default to read-only. Create tracker follow-ups only when the input includes `--create-followups`.

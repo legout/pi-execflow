@@ -60,7 +60,11 @@ Focus on:
 
 - purpose and user-visible outcome
 - stakeholders
+- the core problem in the user's domain language
+- domain terms with project-specific meanings
 - hard constraints and soft preferences
+- explicit non-goals and scope exclusions
+- observable user scenarios that would prove the design works
 - success criteria
 - important edge cases and failure modes
 - compatibility with existing project patterns
@@ -84,10 +88,12 @@ Apply these design principles:
 Present the design in sections scaled to the complexity of the topic. Cover, when relevant:
 
 - user-visible behavior
+- domain language and terms the later ExecPlan must use consistently
 - architecture or module boundaries
 - data flow
 - error handling
 - validation/testing strategy
+- likely vertical slices and any known unsafe parallelism or shared-file conflicts
 - scope exclusions
 
 Ask the user whether each section looks right before moving on. Revise until the user approves the design direction.
@@ -142,6 +148,18 @@ status: in-progress | complete
 ### Soft constraints
 
 - <preferences that could be relaxed>
+
+## Domain Language
+
+- <term>: <project-specific meaning the ExecPlan should preserve>
+
+## Non-Goals
+
+- <work the design intentionally excludes>
+
+## Observable Scenarios
+
+- <user/system scenario that would prove the design works>
 
 ## Ideas Explored
 
@@ -204,6 +222,12 @@ status: in-progress | complete
 
 - <observable outcome that means "done">
 
+## Planning Notes
+
+- Vertical slices: <likely independently verifiable slices, if known>
+- TDD strategy: <behaviors that should start with RED proof, or explicit exemption>
+- Parallelism hazards: <shared files, registries, migrations, or sequencing that make concurrent work unsafe>
+
 ## Self-Review
 
 - Placeholder scan: pass | needs work
@@ -227,6 +251,7 @@ status: in-progress | complete
 7. Obtain user approval before marking the artifact complete.
 8. Self-review the written artifact before asking the user to proceed.
 9. Do not turn the brainstorm into a transcript; capture decisions and design state.
+10. Preserve the future ExecPlan as the canonical artifact; brainstorm notes are context for `/create-plan`, not a parallel source of truth.
 
 ## Ending the session
 

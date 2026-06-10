@@ -1,5 +1,5 @@
 ---
-description: Refresh .pi/prompts from the installed pi-execflow prompt source and resync model frontmatter
+description: Simplified public command for refreshing prompt overlays and syncing model frontmatter
 run: |
   for root in "$PWD" "$PWD/.pi/git/github.com/legout/pi-execflow" "$HOME/.pi/agent/git/github.com/legout/pi-execflow"; do
     if [ -f "$root/scripts/refresh-prompts.mjs" ]; then
@@ -13,4 +13,6 @@ handoff: never
 restore: true
 ---
 
-Refresh `.pi/prompts/` from the resolved installed `@legout/pi-execflow` package root and then resync `model:` / `thinking:` from `.execflow/settings.yml`.
+Refresh `.pi/prompts/` from the resolved installed `@legout/pi-execflow` package root and synchronize prompt `model:` / `thinking:` frontmatter from `.execflow/settings.yml`.
+
+This is the supported public sync command. Internal refresh/model-sync helper prompts are not part of the public workflow.

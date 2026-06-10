@@ -30,6 +30,4 @@ Procedure:
 
 Follow the create-plan skill exactly for the authoring workflow and anti-patterns.
 
-Report the file path and suggest running `/grill-plan $@` to pressure-test the plan interactively, then `/improve-plan $@` to audit it.
-After the plan is solid, suggest `/create-work-items $@` to auto-select the right tracker.
-If the user wants to force the tracker explicitly, mention `/create-tickets $@` for `tk` and `/create-issues $@` for `br`.
+Report the file path. If this prompt is running as part of `/ef-plan`, continue to the next chain step. If it is running directly as an internal leaf, suggest `/ef-plan $@` for the supported planning workflow or `/ef-tasks $@` after the plan is ready.

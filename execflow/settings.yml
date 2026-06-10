@@ -20,79 +20,48 @@ thinking:
   review: &review_thinking medium
 
 prompts:
-  # Plan prompts
-  brainstorm:
+  # Public model-owning prompts
+  ef-tasks:
     model: *plan_model
     thinking: *plan_thinking
-  create-issues:
+  ef-review:
+    model: *review_model
+    thinking: *review_thinking
+
+  # Internal planning leaves used by /ef-plan
+  brainstorm:
     model: *plan_model
     thinking: *plan_thinking
   create-plan:
     model: *plan_model
     thinking: *plan_thinking
-  create-tickets:
-    model: *plan_model
-    thinking: *plan_thinking
-  create-work-items:
-    model: *plan_model
-    thinking: *plan_thinking
   grill-plan:
     model: *plan_model
     thinking: *plan_thinking
-  improve-plan:
-    model: *plan_model
-    thinking: *plan_thinking
+
+  # Internal work leaves used by /ef-work
+  resolve:
+    model: *fast_model
+    thinking: *fast_thinking
   spec:
     model: *implementation_model
     thinking: *implementation_thinking
-
-  # Orchestration prompts
+  implement:
+    model: *implementation_model
+    thinking: *implementation_thinking
+  validation-fix:
+    model: *validation_fix_model
+    thinking: *validation_fix_thinking
   finalize:
     model: *orchestration_model
     thinking: *orchestration_thinking
+
+  # Setup prompt
   init-execflow:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
-  update-architecture:
     model: *orchestration_model
     thinking: *orchestration_thinking
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
-  # do not own model selection. This includes chain wrappers (`ef-implement`) and
-  # deterministic utility wrappers (`refresh-prompts`, `sync-models`). Their leaf
-  # prompts carry the real model/thinking config.
-
-  # Implementation prompts
-  implement:
-    model: *implementation_model
-    thinking: *implementation_thinking
-
-  # Validation prompts
-  fix:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-  validation-fix:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-  validate:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-
-  # Fast prompts
-  merge-summary:
-    model: *fast_model
-    thinking: *fast_thinking
-  resolve:
-    model: *fast_model
-    thinking: *fast_thinking
-
-  # Review prompts
-  ef-review:
-    model: *review_model
-    thinking: *review_thinking
-  execplan-review:
-    model: *plan_model
-    thinking: *plan_thinking
-  change-review:
-    model: *plan_model
-    thinking: *plan_thinking
+  # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`)
+  # and deterministic utility wrappers (`ef-sync`). Their leaf prompts carry the
+  # real model/thinking config.

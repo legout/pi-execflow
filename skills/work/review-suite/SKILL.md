@@ -5,7 +5,7 @@ description: Review work items, ExecPlan delivery, or arbitrary code changes wit
 
 # Review Suite
 
-Use this skill for `/ef-review`, `/execplan-review`, and `/change-review`.
+Use this skill for `/ef-review` across work-item, ExecPlan delivery, branch, diff, and path-scope reviews.
 
 ## Default mutation policy
 
@@ -17,15 +17,25 @@ When `--create-followups` is absent, list candidate follow-ups only. When it is 
 
 ### Work-item review
 
-Review exactly one implemented work item. Resolve the work item and optional ExecPlan first. Check work-item compliance, ExecPlan compliance, acceptance criteria, validation evidence, accidental scope expansion, missing required behavior, regression risk, and merge readiness.
+Review exactly one implemented work item. Resolve the work item and optional ExecPlan first. Check work-item compliance, ExecPlan compliance, acceptance criteria, validation evidence, accidental scope expansion, missing required behavior, regression risk, and merge readiness. Produce separate judgments for spec compliance, code quality, and validation evidence before giving the overall verdict.
 
 ### ExecPlan delivery review
 
-Review whether a whole ExecPlan was delivered coherently across derived issues/tickets. Resolve the plan, find derived work items, inspect status/descriptions/dependencies/comments/validation notes, and sample high-risk changed code only as needed. Focus on milestone coverage, dependency sequencing, plan drift, required docs/architecture updates, and material evidence gaps.
+Review whether a whole ExecPlan was delivered coherently across derived issues/tickets. Resolve the plan, find derived work items, inspect status/descriptions/dependencies/comments/validation notes, and sample high-risk changed code only as needed. Focus on milestone coverage, dependency sequencing, plan drift, required docs/architecture updates, and material evidence gaps. Produce separate judgments for spec compliance, code quality, and validation evidence before giving the overall verdict.
 
 ### Change review
 
-Review an arbitrary branch, diff, or path scope. Determine the target from `--base <ref>`, explicit paths/context, or current uncommitted/current-branch changes. Focus on correctness, regressions, security/data-loss risks, compatibility, validation evidence, maintainability issues that create concrete bugs, and merge readiness.
+Review an arbitrary branch, diff, or path scope. Determine the target from `--base <ref>`, explicit paths/context, or current uncommitted/current-branch changes. Focus on correctness, regressions, security/data-loss risks, compatibility, validation evidence, maintainability issues that create concrete bugs, and merge readiness. Produce separate judgments for spec compliance, code quality, and validation evidence before giving the overall verdict.
+
+## Three-part judgment model
+
+Every review must separate three judgments before the overall verdict:
+
+- `Spec compliance`: whether the implementation satisfies the work item, ExecPlan, acceptance criteria, and stated non-goals without scope creep. This is where missing required behavior, plan drift, wrong dependencies, or extra unrequested behavior belong.
+- `Code quality`: whether the change is simple, maintainable, safe, compatible with local patterns, and free of concrete correctness, regression, security, data-loss, or maintainability bugs. Do not use this section for style preferences that do not create real risk.
+- `Validation evidence`: whether fresh evidence proves the claimed behavior. Check exact commands, outputs, manual proof, RED/GREEN evidence or exemption, regression validation, and gaps. A final passing broad test run is not enough for testable work when RED proof or exemption is missing.
+
+The overall verdict is the minimum safe conclusion across the three judgments. For example, code can be high quality but still `needs-fixes` when spec compliance is incomplete or validation evidence is weak. Conversely, strong validation evidence does not excuse scope creep or concrete code risk.
 
 ## Finding standards
 
@@ -63,6 +73,9 @@ Use exactly these sections for all review prompts:
 - Review mode: work-item / execplan / change
 - Review target:
 - Tracker system: tk / br / other
+- Spec compliance: pass / concerns / fail / not-assessed
+- Code quality: pass / concerns / fail / not-assessed
+- Validation evidence: pass / concerns / fail / not-assessed
 - Verdict: merge-ready / needs-fixes / partial / failed / blocked / informational
 - Confidence: high / medium / low
 - Summary:
@@ -83,8 +96,10 @@ Use exactly these sections for all review prompts:
 
 # Coverage and Evidence
 
-- Acceptance or milestone coverage:
+- Spec compliance evidence:
+- Code quality evidence:
 - Validation evidence reviewed:
+- Acceptance or milestone coverage:
 - Missing or weak evidence:
 - Scope/plan drift:
 

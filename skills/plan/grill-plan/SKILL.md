@@ -58,8 +58,13 @@ Pressure-test at least these areas when relevant:
 - fuzzy or overloaded terminology
 - contradictions between brainstorm, ExecPlan, code, and docs
 - acceptance criteria that are not observable
+- missing or vague non-goals that invite scope creep
+- missing user-visible or system-visible scenarios
 - milestones that are not independently verifiable
+- milestones that are horizontal when a vertical slice would be safer
+- missing RED/GREEN expectations for testable behavior
 - hidden sequencing dependencies
+- unsafe parallelism, shared-file conflicts, or serialization points hidden in prose
 - unsafe assumptions about existing APIs, tests, or commands
 - irreversible decisions that lack rationale
 - edge cases and failure modes
@@ -71,9 +76,25 @@ Pressure-test at least these areas when relevant:
 
 When the plan uses vague language, propose a precise canonical term. If the repository already uses a different term, call out the mismatch immediately and ask which term should win.
 
+When a term is accepted, update the ExecPlan's `Domain Language`, `Context and Orientation`, or relevant milestone prose so later implementers do not need the conversation transcript.
+
+### Enforce scope boundaries
+
+When a proposed improvement could expand the plan, ask whether it belongs in scope or under non-goals. Prefer recording exclusions in `Scope and Non-Goals` rather than leaving them implicit.
+
 ### Discuss concrete scenarios
 
 Use concrete examples to probe domain boundaries and edge cases. Prefer scenarios that would force different implementation choices or validation expectations.
+
+If an important scenario is missing, update `User Stories / Observable Scenarios` or `Validation and Acceptance` so success remains observable.
+
+### Probe task graph, TDD, and parallelism
+
+Challenge whether milestones are vertical, independently verifiable slices. If the plan needs an enabler, migration, prototype, or cleanup milestone, make that classification and rationale explicit.
+
+Ask for RED/GREEN strategy only when testability cannot be inferred from the repo. Record either the failing test or command that should prove RED, or an explicit exemption for docs-only, exploratory, or untestable work.
+
+Call out parallelism hazards such as shared config files, registries, migrations, generated files, and public interfaces. Update the ExecPlan with safe parallel slices and serialization points instead of leaving concurrency assumptions implicit.
 
 ### Update the ExecPlan inline
 
@@ -88,6 +109,12 @@ Update the smallest necessary sections, usually one or more of:
 - `Concrete Steps`
 - `Validation and Acceptance`
 - `Interfaces and Dependencies`
+- `Domain Language`
+- `Scope and Non-Goals`
+- `User Stories / Observable Scenarios`
+- `Task Graph`
+- `TDD Strategy`
+- `Parallelization and Worktree Strategy`
 - milestone prose
 - `Idempotence and Recovery`
 
@@ -119,7 +146,7 @@ When stopping, report:
 - decisions resolved
 - sections updated
 - unresolved questions, if any
-- recommended next command, usually `/improve-plan <topic>`
+- recommended next command, usually `/ef-tasks <topic>` when the plan is ready for work-item creation
 
 ## Hard rules
 

@@ -231,7 +231,7 @@ if (/"publishConfig"/.test(packageJsonText)) {
   addError("package.json must not contain npm publishConfig; GitHub install is the supported distribution path");
 }
 
-for (const promptName of ["init-execflow.md", "refresh-prompts.md", "sync-models.md"]) {
+for (const promptName of ["init-execflow.md", "ef-sync.md"]) {
   const promptText = readFileSync(join(promptsDir, promptName), "utf8");
   if (/\.pi['\", ]+agent['\", ]+npm|node_modules/.test(promptText)) {
     addError(`${promptName} must not search npm/node_modules install locations; GitHub install is the supported distribution path`);
