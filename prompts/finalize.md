@@ -1,5 +1,5 @@
 ---
-description: Add a final work-item note and close it when validation proves acceptance criteria
+description: Add a final work-item note and close it when validation and review evidence prove acceptance criteria
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5-turbo
 thinking: medium
@@ -8,7 +8,7 @@ skill: finalize
 restore: true
 ---
 
-You are finalizing exactly one work item after implementation and validation.
+You are finalizing exactly one work item after implementation, validation, and optional review.
 
 ## Inputs
 
@@ -21,32 +21,44 @@ You are finalizing exactly one work item after implementation and validation.
 2. Inspect the current ticket state with:
    - `tk show <ticket>` for `tk` tickets
    - `RUST_LOG=error br show <ticket> --json` for `br` tickets
-3. Find the most recent validation gate from `/validation-fix` or explicit user-provided validation evidence. The safe automatic close path requires the exact line `Gate: PASS` plus evidence that acceptance criteria were met. Review evidence is optional and must not be implied when absent.
-4. Decide whether the outcome is:
-   - `PASS` only if the latest validation evidence contains `Gate: PASS` and supports the acceptance criteria
-   - `REVISE` if evidence contains `Gate: REVISE`, is partial, stale, ambiguous, or missing
-   - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized
-5. **On strict PASS only**: commit the related code changes before closing the tracker item.
+3. Find the latest implementation/validation evidence from either:
+   - `/validation-fix` in the TDD path, or
+   - `/ef-work` in the quick path.
+4. Find the latest review evidence when the current chain or user context includes it. `/ef-ship` runs `/ef-review-with-followups` before this step, so review evidence is required there.
+5. Decide whether the outcome is:
+   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, and any required review evidence is merge-ready / pass with no unresolved material findings.
+   - `REVISE` if validation evidence contains `Gate: REVISE`, review says `needs-fixes`, evidence is partial/stale/ambiguous/missing, or material follow-up remains before closure.
+   - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized.
+6. **On strict PASS only**: commit the related code changes before closing the tracker item.
    - Run `git status` and `git diff --stat` to see what changed.
    - Stage only files belonging to this work item (no unrelated changes).
    - Commit with a Conventional Commits message: `<type>(<scope>): <summary>` — summary ≤ 72 chars, imperative mood, no trailing period.
    - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf). Omit scope if unclear.
    - If nothing changed in code, skip the commit and note "No code changes to commit."
    - Do **not** push. Do **not** add sign-offs.
-6. Write one concise final tracker note:
+7. Write one concise final tracker note:
    - `tk add-note <ticket> "..."` for `tk`
    - `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br comments add --actor "$ACTOR" <ticket> --message "..." --json` for `br`
-7. Close the ticket only on strict `PASS` after the commit step succeeds or is skipped because there are no code changes:
+8. Close the ticket only on strict `PASS` after the commit step succeeds or is skipped because there are no code changes:
    - `tk close <ticket>` for `tk`
    - `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br close --actor "$ACTOR" <ticket> --reason "..." --json` for `br`
-8. If the ticket is managed by neither `tk` nor `br`, do not invent a close command. Report the exact manual follow-up instead.
-9. **On REVISE or BLOCKED**: do **not** commit. Leave changes in the working tree.
+9. If the ticket is managed by neither `tk` nor `br`, do not invent a close command. Report the exact manual follow-up instead.
+10. **On REVISE or BLOCKED**: do **not** commit. Leave changes in the working tree.
+
+## Closure evidence policy
+
+There are two supported validation sources:
+
+- TDD path evidence from `/validation-fix`: requires `Gate: PASS` plus acceptance-criteria evidence. When RED/GREEN proof or an explicit RED exemption is required by the ticket/spec, it must be present.
+- Quick path evidence from `/ef-work`: requires `Gate: PASS`, acceptance-criteria evidence, quick validation or explicit inspection evidence, the standard quick-path RED exemption, and a clean self-review.
+
+Review evidence is optional only when finalizing after `/ef-work` or `/ef-work-tdd` directly. When review evidence is present, do not close if the latest review verdict is `needs-fixes`, `failed`, `blocked`, or includes unresolved critical/major material findings. For `/ef-ship` and `/ef-ship-tdd`, review evidence is part of the chain and must support closure.
 
 ## Rules
 
-- Be conservative: do not close unless the latest validation gate is exactly `Gate: PASS` and the evidence maps to the acceptance criteria.
+- Be conservative: do not close unless the latest evidence supports closure.
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
-- Do not claim review was run or clean unless the final review verdict is merge-ready / pass with no unresolved material issues.
+- Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues.
 - Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` note prefixes.
 - Keep the note short, factual, and specific.
 - For `br`, use `br comments add` as the note/comment equivalent; there is no `br notes` subcommand in the installed CLI.
@@ -58,7 +70,7 @@ Use this style for tracker comments / notes:
 
 - PASS without review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review not run.`
 - PASS with clean review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review clean.`
-- REVISE: `Gate: REVISE — <short summary>. Validation still needs follow-up: <brief reason>.`
+- REVISE: `Gate: REVISE — <short summary>. Validation/review still needs follow-up: <brief reason>.`
 - BLOCKED: `Gate: BLOCKED — <short summary>. Cannot finalize safely: <brief reason>.`
 
 For `tk`, write that text with `tk add-note`.
@@ -92,6 +104,7 @@ Use exactly these sections:
 
 # Evidence Summary
 
+- Validation source: /ef-work / /validation-fix / explicit user evidence / missing
 - Validation status:
 - Review status:
 - Remaining follow-up:

@@ -12,7 +12,7 @@ restore: true
 
 You are running one iteration of a validation/fix loop for exactly one work item.
 
-This is the only step in `/ef-work` that should execute validation commands. The earlier `/implement` step may edit code and tests, but it should not run tests, lint, type checks, builds, or manual verification.
+This is the validation/fix loop used by the TDD-oriented `/ef-work-tdd` and `/ef-ship-tdd` chains. The earlier `/implement` step may edit code and tests, but it should not run tests, lint, type checks, builds, or manual verification.
 
 The prompt-template loop stops on convergence when an iteration makes no file changes. Therefore:
 

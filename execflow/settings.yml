@@ -30,6 +30,9 @@ prompts:
   ef-review-with-followups:
     model: *review_model
     thinking: *review_thinking
+  ef-work:
+    model: *implementation_model
+    thinking: *implementation_thinking
 
   # Internal planning leaves used by /ef-plan
   brainstorm:
@@ -42,7 +45,7 @@ prompts:
     model: *plan_model
     thinking: *plan_thinking
 
-  # Internal work leaves used by /ef-work
+  # Internal work leaves used by /ef-work-tdd and /ef-ship-tdd
   resolve:
     model: *fast_model
     thinking: *fast_thinking

@@ -2,7 +2,10 @@
 
 ## 1.1.0 - 2026-06-11
 
-- Added `/ef-ship` to run the full work-item execution chain and then review the finalized item with follow-up creation enabled.
+- Changed `/ef-work` into a quick work-item path for simple tickets with lightweight validation and self-review.
+- Added `/ef-work-tdd` to preserve the previous specification, implementation, validation/fix loop, and finalization chain.
+- Changed `/ef-ship` to run quick work, review with follow-up creation enabled, and conservative finalization.
+- Added `/ef-ship-tdd` for the TDD-oriented ship path with specification, validation/fix looping, review follow-ups, and finalization.
 - Added `/ef-review-with-followups` as a focused work-item review wrapper that always creates tracker follow-ups for concrete findings.
 
 ## 1.0.0 - 2026-06-10

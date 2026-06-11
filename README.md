@@ -7,7 +7,7 @@ It bundles a practical workflow for:
 - interactive Superpowers-style brainstorming with design approval gates
 - ExecPlan creation and grilling
 - tracker-aware work-item generation for both `tk` and `br`
-- validation-only single-ticket / single-issue execution
+- quick single-ticket / single-issue execution plus TDD-oriented execution when needed
 - opt-in review follow-up creation for concrete bugs and delivery gaps
 - model and thinking configuration via `.execflow/settings.yml`
 
@@ -39,9 +39,11 @@ The simplified happy path is these commands:
 /ef-plan <topic>
 /ef-tasks <topic>
 /ef-work <ticket-or-issue-ref>
+/ef-work-tdd <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
 /ef-review-with-followups <ticket-or-issue-ref>
 /ef-ship <ticket-or-issue-ref>
+/ef-ship-tdd <ticket-or-issue-ref>
 /ef-sync
 ```
 
@@ -104,7 +106,7 @@ Recommended public commands:
 /ef-ship <ticket-or-issue-ref>
 ```
 
-`/ef-work` is the intended implementation front door for one tracked work item. It resolves the item, normalizes the acceptance criteria, makes the smallest scoped change, runs validation through the validation/fix loop, and finalizes only after strict evidence. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
+`/ef-work` is the quick implementation front door for one simple tracked work item. It resolves the item, makes the smallest scoped change, runs a quick targeted validation or records inspection evidence, performs a short self-review, and leaves finalization to `/finalize` or `/ef-ship`. Use `/ef-work-tdd` when the item needs explicit specification, RED/GREEN discipline, validation/fix looping, and immediate finalization. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
 
 For fresh implementation context, prefer running work in a subagent and then reviewing in the reviewer subagent:
 
@@ -113,9 +115,9 @@ For fresh implementation context, prefer running work in a subagent and then rev
 /ef-review <ticket-or-issue-ref>
 ```
 
-`/ef-review` and `/ef-review-with-followups` are configured to run through the `reviewer` subagent when `pi-subagents` is installed. If you use `/ef-ship`, start it from a new Pi conversation (`/new`) when you want to avoid session-history leakage; `/new` is an interactive Pi command, not a prompt template step that can be inserted into the `/ef-ship` or `/ef-work` chain.
+`/ef-review` and `/ef-review-with-followups` are configured to run through the `reviewer` subagent when `pi-subagents` is installed. If you use `/ef-ship`, start it from a new Pi conversation (`/new`) when you want to avoid session-history leakage; `/new` is an interactive Pi command, not a prompt template step that can be inserted into the `/ef-ship` chain.
 
-`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs the full `/ef-work` chain and then reviews the finalized work item with follow-up creation enabled.
+`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization.
 
 ### 5. Sync package resources
 
@@ -143,9 +145,11 @@ Supported public commands are:
 - `/ef-plan <topic>`
 - `/ef-tasks <topic>`
 - `/ef-work <ticket-or-issue-ref>`
+- `/ef-work-tdd <ticket-or-issue-ref>`
 - `/ef-review <target> [--create-followups] [context...]`
 - `/ef-review-with-followups <ticket-or-issue-ref> [context...]`
 - `/ef-ship <ticket-or-issue-ref> [context...]`
+- `/ef-ship-tdd <ticket-or-issue-ref> [context...]`
 - `/ef-sync`
 
 Other prompt files may exist as internal leaves for chains, model-owning implementation steps, or deterministic maintenance. They are not a legacy public command surface and may be removed when no supported wrapper uses them.
@@ -252,7 +256,7 @@ Properties of the sync step:
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/ef-plan`, `/ef-work`
+- chain wrappers: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`
 - deterministic utility wrappers: `/ef-sync`
 - internal maintenance leaves when present, such as prompt refresh or model sync helpers
 
@@ -260,11 +264,11 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Public workflow wrapper | Usually no | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-sync` | Preferred user-facing names; omit from `settings.prompts` when they only orchestrate leaf prompts or deterministic steps |
-| Chain wrapper | No | `/ef-plan`, `/ef-work` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Public workflow prompt | Mixed | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-sync` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
+| Chain wrapper | No | `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Deterministic utility wrapper | No | `/ef-sync` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
-| Local model-owning leaf | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-tasks`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
+| Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 
@@ -278,7 +282,7 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-review`, and `/ef-sync` after `/init-execflow`.
+- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, and `/ef-sync` after `/init-execflow`.
 - Legacy prompt names are not retained merely for backward compatibility. If a prompt is not part of the public workflow and no supported wrapper needs it as an internal leaf, it should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
 - Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
 - Optional external delegated `/execflow-queue` execution is not shipped by this package.

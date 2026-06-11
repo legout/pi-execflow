@@ -1,11 +1,11 @@
 ---
 name: finalize
-description: Update a work item with a concise execution note and close it only when validation proves the acceptance criteria. Use for prompts that finalize work-item status after manual execution chains.
+description: Update a work item with a concise execution note and close it only when validation and review evidence prove the acceptance criteria. Use for prompts that finalize work-item status after manual execution chains.
 ---
 
 # Finalization
 
-Use this skill when preparing the final work-item update after implementation and validation. Review evidence is optional and must be reported honestly when present or absent.
+Use this skill when preparing the final work-item update after implementation and validation. Review evidence is required when the execution chain includes review, and optional otherwise.
 
 ## Purpose
 
@@ -26,28 +26,33 @@ Add an accurate work-item note and close it only when the evidence supports clos
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and RED/GREEN evidence or an explicit RED exemption is present.
-3. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
-4. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
-5. Include only claims supported by actual execution or explicit evidence in context.
-6. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` without a consolidated review verdict.
+2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and required review evidence is clean.
+3. Accept two validation sources:
+   - `/validation-fix` evidence from the TDD path.
+   - `/ef-work` evidence from the quick path.
+4. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
+5. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
+6. Include only claims supported by actual execution or explicit evidence in context.
+7. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` or `/ef-work-tdd` without a consolidated review verdict.
 
-## RED/GREEN closure requirement
+## Closure evidence requirements
 
-For testable behavior, a final note is closable only when it includes:
+For the TDD path, closure requires:
 
-- `Gate: PASS`
+- `Gate: PASS` from `/validation-fix`
 - acceptance-criteria evidence
-- `RED proof`: exact pre-implementation failing command/check and expected failure signal
-- `GREEN proof`: the targeted command/check passing after the implementation
+- RED/GREEN proof when required by the spec or ticket, or an explicit RED exemption
 - regression validation status, even if broader validation was not run
 
-For docs-only changes, planning-only changes, exploratory spikes, or untestable work, the note may close with `Gate: PASS` only if it records:
+For the quick path, closure requires:
 
-- `RED exemption`: reason RED proof does not apply
-- alternate evidence used for closure, such as reviewed files, generated artifacts, or deterministic validation commands
+- `Gate: PASS` from `/ef-work`
+- acceptance-criteria evidence
+- quick validation command output or explicit inspection evidence
+- the quick-path RED exemption
+- a self-review with no material scope, regression, or cleanup concern
 
-Do not close when the only evidence is a final passing broad test run and there is no RED proof or exemption. In that case, add a `Gate: REVISE` note requesting the missing RED/GREEN evidence or exemption.
+Review evidence is optional only when the user directly runs `/finalize` after `/ef-work` or `/ef-work-tdd`. When a chain includes review, such as `/ef-ship` or `/ef-ship-tdd`, closure also requires the latest review evidence to be merge-ready/pass with no unresolved material findings. Do not close on `needs-fixes`, `failed`, `blocked`, unresolved critical/major findings, or missing required review evidence.
 
 ## Tracker-specific guidance
 
@@ -74,7 +79,7 @@ A final note or close reason should concisely capture:
 - the outcome (`PASS`, `REVISE`, or `BLOCKED`)
 - the core change
 - validation status
-- RED/GREEN evidence or RED exemption
+- quick-path exemption or TDD RED/GREEN evidence when available
 - regression validation status
 - review status, explicitly `not run` when absent
 - any remaining follow-up, if the ticket stays open
@@ -104,5 +109,6 @@ Before finalizing, verify:
 - the outcome is supported by evidence
 - the note text is concise and truthful
 - close only happens on strict `Gate: PASS`
-- close only happens with RED proof plus GREEN proof, or an explicit RED exemption with alternate evidence
+- close only happens with valid quick-path evidence or valid TDD validation evidence
+- when review is part of the chain, review evidence supports closure
 - on PASS: related changes are committed; on REVISE/BLOCKED: nothing is committed

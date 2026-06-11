@@ -213,7 +213,7 @@ When the selected tracker is `tk`:
 1. Create work items with `tk create`.
 2. Set hard dependencies with `tk dep <id> <dep-id>`.
 3. Report created ticket IDs and scheduling hints.
-4. Suggest `/ef-work <ticket-ref>` for the public validation-only implementation workflow and `/ef-review <ticket-ref>` for read-only review. Mention `/ef-review <ticket-ref> --create-followups` when tracker follow-ups are desired. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
+4. Suggest `/ef-work <ticket-ref>` for the quick implementation workflow, `/ef-work-tdd <ticket-ref>` when TDD/spec validation is warranted, and `/ef-review <ticket-ref>` for read-only review. Mention `/ef-review <ticket-ref> --create-followups` when tracker follow-ups are desired. Mention optional external `/execflow-queue` only if that delegated `tk` workflow is available.
 
 ## br mode behavior
 
@@ -232,7 +232,7 @@ When the selected tracker is `br`:
        ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br sync --flush-only
 
 7. Report created issue IDs and scheduling hints.
-8. Suggest `/ef-work <issue-ref>` for the public validation-only implementation workflow, `/ef-review <issue-ref>` for read-only review, and `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired.
+8. Suggest `/ef-work <issue-ref>` for the quick implementation workflow, `/ef-work-tdd <issue-ref>` when TDD/spec validation is warranted, `/ef-review <issue-ref>` for read-only review, and `/ef-review <issue-ref> --create-followups` when tracker follow-ups are desired.
 
 ## Hard rules
 

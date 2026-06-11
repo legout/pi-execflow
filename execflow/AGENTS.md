@@ -15,10 +15,12 @@ Use the simplified public command path for normal work:
 
 - `/ef-plan <topic>` creates the canonical ExecPlan. It is the public front door for brainstorming, plan creation, and plan grilling.
 - `/ef-tasks <topic>` converts the ExecPlan into dependency-aware tracked work items. It is the public front door for tracker item creation.
-- `/ef-work <ticket-or-issue-ref>` executes one tracked work item through resolution, specification, scoped implementation, validation/fix looping, and finalization.
+- `/ef-work <ticket-or-issue-ref>` quickly executes one simple tracked work item with scoped implementation, quick validation or inspection evidence, and self-review; it does not finalize.
+- `/ef-work-tdd <ticket-or-issue-ref>` executes one tracked work item through resolution, specification, scoped implementation, validation/fix looping, and finalization.
 - `/ef-review <target>` reviews a work item, ExecPlan delivery, branch, diff, or path scope. Reviews are read-only by default and create follow-ups only with `--create-followups`.
 - `/ef-review-with-followups <ticket-or-issue-ref>` reviews one implemented work item and always creates tracker follow-ups for concrete findings.
-- `/ef-ship <ticket-or-issue-ref>` runs the full work-item execution chain, then reviews the finalized item with follow-up creation enabled.
+- `/ef-ship <ticket-or-issue-ref>` runs quick work, review with follow-up creation enabled, and conservative finalization.
+- `/ef-ship-tdd <ticket-or-issue-ref>` runs the TDD-oriented work-item execution chain, review with follow-up creation enabled, and conservative finalization.
 - `/ef-sync` refreshes package prompt overlays and synchronizes prompt model frontmatter from `.execflow/settings.yml`.
 
 The lower-level prompts are internal implementation leaves, not a legacy public surface. Do not keep old command names solely for backward compatibility; remove prompt files that are no longer used by the supported workflow and retire their overlays through `scripts/retired-prompts.mjs`.
@@ -27,11 +29,11 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 
 - Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
 - Use `/ef-sync` after editing `.execflow/settings.yml` to refresh prompt overlays and sync `.pi/prompts/` frontmatter.
-- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning leaf prompts only. Wrapper prompts such as `/ef-plan`, `/ef-work`, `/ef-ship`, and `/ef-sync` are intentionally omitted. `/ef-tasks` is configured because it directly owns the work-itemization LLM pass.
+- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning prompts only. Wrapper prompts such as `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, and `/ef-sync` are intentionally omitted. `/ef-work` and `/ef-tasks` are configured because they directly own LLM passes.
 - Prompt taxonomy:
-  - public workflow wrappers: `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-ship`, `/ef-sync`
-  - wrappers without model ownership: `/ef-plan`, `/ef-work`, `/ef-ship`, `/ef-sync`
-  - local model-owning leaves: `/brainstorm`, `/create-plan`, `/grill-plan`, `/ef-tasks`, `/resolve`, `/spec`, `/implement`, `/validation-fix`, `/finalize`, `/ef-review`, `/ef-review-with-followups`
+  - public workflow prompts: `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-sync`
+  - wrappers without model ownership: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-sync`
+  - local model-owning prompts: `/brainstorm`, `/create-plan`, `/grill-plan`, `/ef-tasks`, `/ef-work`, `/resolve`, `/spec`, `/implement`, `/validation-fix`, `/finalize`, `/ef-review`, `/ef-review-with-followups`
   - deterministic + LLM setup leaf: `/init-execflow`
 - Brainstorming, plan creation, and plan grilling are internal phases behind `/ef-plan`; keep only the prompt leaves still needed by that wrapper.
 - Update architecture documentation after implementation when architecture docs need to reflect what was built.
@@ -45,12 +47,14 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 - Use `br` for issue tracking.
 - Use `/ef-tasks <topic>` as the public tracker-neutral command.
 - Keep tracker-specific prompt leaves only when `/ef-tasks` still needs them internally.
-- Use `/ef-work <issue-ref>` as the public implementation path.
-- Use `/ef-ship <issue-ref>` when you want implementation, finalization, and a follow-up-creating review in one chain.
+- Use `/ef-work <issue-ref>` as the quick public implementation path for simple work.
+- Use `/ef-work-tdd <issue-ref>` when you want specification, RED/GREEN discipline, validation/fix looping, and finalization.
+- Use `/ef-ship <issue-ref>` when you want quick implementation, a follow-up-creating review, and finalization in one chain.
+- Use `/ef-ship-tdd <issue-ref>` when you want the TDD-oriented ship path.
 - Use `/ef-review <issue-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up issues for concrete bug findings.
 - Use `/ef-review-with-followups <issue-ref>` when follow-up issue creation should always be enabled.
 - Use `/ef-review <target>` for work-item, ExecPlan delivery, branch, diff, or path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for material findings.
-- Keep focused local prompt leaves (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/finalize`) only when `/ef-work` still needs them internally.
+- Keep focused local prompt leaves (`/resolve`, `/spec`, `/implement`, `/validation-fix`, `/finalize`) only when `/ef-work-tdd` or `/ef-ship-tdd` still needs them internally.
 - Optional external delegated `/execflow-queue` commands, when available in the environment, are `tk`-oriented and should not be treated as the primary `br` execution path.
 
 ### tk mode
@@ -58,8 +62,10 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 - Use `tk` for ticket tracking when the repository explicitly chooses it.
 - Use `/ef-tasks <topic>` as the public tracker-neutral command.
 - Keep tracker-specific prompt leaves only when `/ef-tasks` still needs them internally.
-- Use `/ef-work <ticket-ref>` as the public implementation path.
-- Use `/ef-ship <ticket-ref>` when you want implementation, finalization, and a follow-up-creating review in one chain.
+- Use `/ef-work <ticket-ref>` as the quick public implementation path for simple work.
+- Use `/ef-work-tdd <ticket-ref>` when you want specification, RED/GREEN discipline, validation/fix looping, and finalization.
+- Use `/ef-ship <ticket-ref>` when you want quick implementation, a follow-up-creating review, and finalization in one chain.
+- Use `/ef-ship-tdd <ticket-ref>` when you want the TDD-oriented ship path.
 - Use `/ef-review <ticket-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up tickets for concrete bug findings.
 - Use `/ef-review-with-followups <ticket-ref>` when follow-up ticket creation should always be enabled.
 - Use `/ef-review <target>` for work-item, ExecPlan delivery, branch, diff, or path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for material findings.
@@ -88,7 +94,8 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 ## Work-item guidance
 
 - If a ticket or issue contains an `ExecPlan Reference` block, read the referenced ExecPlan before implementing or reviewing.
-- `/ef-work` closure requires strict `Gate: PASS` validation evidence and means acceptance criteria were met; it does not imply independent review.
+- `/ef-work` emits quick `Gate: PASS` / `Gate: REVISE` / `Gate: BLOCKED` evidence but does not close by itself.
+- `/ef-work-tdd` closure requires strict `Gate: PASS` validation evidence and means acceptance criteria were met; it does not imply independent review.
 - Reviews are read-only by default. They create linked follow-up work items only when invoked with `--create-followups`.
 - Keep ExecPlans and architecture documentation aligned with reality as work progresses.
 
