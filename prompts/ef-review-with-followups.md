@@ -3,6 +3,7 @@ description: Review exactly one work-item implementation and always create track
 argument-hint: "<work-item-ref> [context...]"
 model: openai-codex/gpt-5.5
 thinking: medium
+subagent: reviewer
 fresh: true
 skill: review-suite
 restore: true
