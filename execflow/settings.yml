@@ -27,6 +27,9 @@ prompts:
   ef-review:
     model: *review_model
     thinking: *review_thinking
+  ef-review-with-followups:
+    model: *review_model
+    thinking: *review_thinking
 
   # Internal planning leaves used by /ef-plan
   brainstorm:
@@ -62,6 +65,6 @@ prompts:
     thinking: *orchestration_thinking
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
-  # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`)
-  # and deterministic utility wrappers (`ef-sync`). Their leaf prompts carry the
-  # real model/thinking config.
+  # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`,
+  # `ef-ship`) and deterministic utility wrappers (`ef-sync`). Their leaf prompts
+  # carry the real model/thinking config.

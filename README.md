@@ -33,13 +33,15 @@ pi -e git:github.com/legout/pi-execflow
 
 ## Core workflow
 
-The simplified happy path is five commands:
+The simplified happy path is these commands:
 
 ```bash
 /ef-plan <topic>
 /ef-tasks <topic>
 /ef-work <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
+/ef-review-with-followups <ticket-or-issue-ref>
+/ef-ship <ticket-or-issue-ref>
 /ef-sync
 ```
 
@@ -98,11 +100,13 @@ Recommended public commands:
 ```bash
 /ef-work <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
+/ef-review-with-followups <ticket-or-issue-ref>
+/ef-ship <ticket-or-issue-ref>
 ```
 
 `/ef-work` is the intended implementation front door for one tracked work item. It resolves the item, normalizes the acceptance criteria, makes the smallest scoped change, runs validation through the validation/fix loop, and finalizes only after strict evidence. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
 
-`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings.
+`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs the full `/ef-work` chain and then reviews the finalized work item with follow-up creation enabled.
 
 ### 5. Sync package resources
 
@@ -131,6 +135,8 @@ Supported public commands are:
 - `/ef-tasks <topic>`
 - `/ef-work <ticket-or-issue-ref>`
 - `/ef-review <target> [--create-followups] [context...]`
+- `/ef-review-with-followups <ticket-or-issue-ref> [context...]`
+- `/ef-ship <ticket-or-issue-ref> [context...]`
 - `/ef-sync`
 
 Other prompt files may exist as internal leaves for chains, model-owning implementation steps, or deterministic maintenance. They are not a legacy public command surface and may be removed when no supported wrapper uses them.

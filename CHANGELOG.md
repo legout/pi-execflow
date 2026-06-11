@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2026-06-11
+
+- Added `/ef-ship` to run the full work-item execution chain and then review the finalized item with follow-up creation enabled.
+- Added `/ef-review-with-followups` as a focused work-item review wrapper that always creates tracker follow-ups for concrete findings.
+
 ## 1.0.0 - 2026-06-10
 
 - Promoted the supported public workflow to five commands: `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-review`, and `/ef-sync`.
