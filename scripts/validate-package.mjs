@@ -196,6 +196,24 @@ for (const promptFile of promptFiles) {
     }
   }
 
+  if (promptFile === "ef-autoship.md") {
+    if (promptSkill !== "autoship") {
+      addError(`Prompt ${promptFile} must reference skill: autoship`);
+    }
+    if (getFrontmatterField(extracted.frontmatter, "loop") !== "unlimited") {
+      addError(`Prompt ${promptFile} must use loop: unlimited`);
+    }
+    if (getFrontmatterField(extracted.frontmatter, "fresh") !== "true") {
+      addError(`Prompt ${promptFile} must use fresh: true`);
+    }
+    if (getFrontmatterField(extracted.frontmatter, "converge") !== "true") {
+      addError(`Prompt ${promptFile} must use converge: true`);
+    }
+    if (getFrontmatterField(extracted.frontmatter, "chain") !== null) {
+      addError(`Prompt ${promptFile} must not use chain:`);
+    }
+  }
+
 }
 
 for (const configuredKey of Object.keys(configuredPrompts)) {
@@ -234,7 +252,7 @@ if (/"publishConfig"/.test(packageJsonText)) {
 
 for (const promptName of ["init-execflow.md", "ef-sync.md"]) {
   const promptText = readFileSync(join(promptsDir, promptName), "utf8");
-  if (/\.pi['\", ]+agent['\", ]+npm|node_modules/.test(promptText)) {
+  if (/\.pi['", ]+agent['", ]+npm|node_modules/.test(promptText)) {
     addError(`${promptName} must not search npm/node_modules install locations; GitHub install is the supported distribution path`);
   }
   if (!/git\/github\.com\/legout\/pi-execflow/.test(promptText)) {

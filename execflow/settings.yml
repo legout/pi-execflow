@@ -33,6 +33,9 @@ prompts:
   ef-work:
     model: *implementation_model
     thinking: *implementation_thinking
+  ef-autoship:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
 
   # Internal planning leaves used by /ef-plan
   brainstorm:
