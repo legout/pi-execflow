@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { retiredPromptFiles } from "./retired-prompts.mjs";
@@ -272,6 +273,18 @@ for (const filePath of repoFiles.filter((filePath) => filePath !== validateScrip
     if (!/(date:|mtime|modification time)/i.test(line)) {
       addError(`Most recent brainstorm reference must define date/mtime selection in ${filePath.replace(`${repoRoot}/`, "")}:${lineNumber}`);
     }
+  }
+}
+
+const autoshipStatePath = join(scriptsDir, "autoship-state.mjs");
+if (!existsSync(autoshipStatePath)) {
+  addError("Missing scripts/autoship-state.mjs");
+} else {
+  try {
+    execSync("node scripts/autoship-state.mjs --self-test", { cwd: repoRoot, stdio: "pipe" });
+  } catch (err) {
+    const detail = err.stderr?.toString() || err.stdout?.toString() || err.message;
+    addError(`autoship-state self-test failed:\n${detail}`);
   }
 }
 
