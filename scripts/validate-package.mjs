@@ -250,6 +250,11 @@ for (const promptFile of promptFiles) {
 			promptFile === "ef-autoship.md"
 				? "ship-resolve -> ef-work -> ef-review-with-followups -> finalize"
 				: "ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize";
+		const expectedResolve =
+			promptFile === "ef-autoship.md" ? "ship-resolve" : "ship-tdd-resolve";
+		const expectedMode = promptFile === "ef-autoship.md" ? "ship" : "ship-tdd";
+		const forbiddenResolve =
+			promptFile === "ef-autoship.md" ? "ship-tdd-resolve" : "ship-resolve";
 
 		if (promptSkill) {
 			addError(`Prompt ${promptFile} must be a chain wrapper without a skill:`);
@@ -263,8 +268,19 @@ for (const promptFile of promptFiles) {
 		if (getFrontmatterField(extracted.frontmatter, "converge") !== "true") {
 			addError(`Prompt ${promptFile} must use converge: true`);
 		}
-		if (getFrontmatterField(extracted.frontmatter, "chain") !== expectedChain) {
+		const chainValue = getFrontmatterField(extracted.frontmatter, "chain");
+		if (chainValue !== expectedChain) {
 			addError(`Prompt ${promptFile} must use chain: ${expectedChain}`);
+		}
+		if (chainValue && !chainValue.startsWith(`${expectedResolve} ->`)) {
+			addError(
+				`Prompt ${promptFile} must dispatch through ${expectedResolve} (autoship-state --mode ${expectedMode})`,
+			);
+		}
+		if (extracted.body.includes(forbiddenResolve)) {
+			addError(
+				`Prompt ${promptFile} must not reference ${forbiddenResolve} in fallback body`,
+			);
 		}
 		if (/run-prompt/.test(extracted.body)) {
 			addError(`Prompt ${promptFile} must not dispatch through run-prompt`);
