@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - 2026-06-14
+
+- Fixed package validation for autoship prompt guardrails so missing `chain` frontmatter reports validation errors instead of throwing a `TypeError`.
+- Added explicit validation coverage for `/ef-autoship` versus `/ef-autoship-tdd` dispatch wiring so TDD autoship cannot accidentally route through the non-TDD ship path.
+
 ## 1.3.0 - 2026-06-14
 
 - Changed `/ef-autoship` and `/ef-autoship-tdd` from nested `run-prompt` orchestration prompts into chain-loop wrappers that no longer require `/prompt-tool on`.
