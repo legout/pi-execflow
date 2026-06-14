@@ -246,12 +246,13 @@ for (const promptFile of promptFiles) {
 	}
 
 	if (["ef-autoship.md", "ef-autoship-tdd.md"].includes(promptFile)) {
-		const expectedMode = promptFile === "ef-autoship.md" ? "ship" : "ship-tdd";
-		const expectedPrefix =
-			promptFile === "ef-autoship.md" ? "ef-ship " : "ef-ship-tdd ";
+		const expectedChain =
+			promptFile === "ef-autoship.md"
+				? "ship-resolve -> ef-work -> ef-review-with-followups -> finalize"
+				: "ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize";
 
-		if (promptSkill !== "autoship") {
-			addError(`Prompt ${promptFile} must reference skill: autoship`);
+		if (promptSkill) {
+			addError(`Prompt ${promptFile} must be a chain wrapper without a skill:`);
 		}
 		if (getFrontmatterField(extracted.frontmatter, "loop") !== "unlimited") {
 			addError(`Prompt ${promptFile} must use loop: unlimited`);
@@ -262,9 +263,16 @@ for (const promptFile of promptFiles) {
 		if (getFrontmatterField(extracted.frontmatter, "converge") !== "true") {
 			addError(`Prompt ${promptFile} must use converge: true`);
 		}
-		if (getFrontmatterField(extracted.frontmatter, "chain") !== null) {
-			addError(`Prompt ${promptFile} must not use chain:`);
+		if (getFrontmatterField(extracted.frontmatter, "chain") !== expectedChain) {
+			addError(`Prompt ${promptFile} must use chain: ${expectedChain}`);
 		}
+		if (/run-prompt/.test(extracted.body)) {
+			addError(`Prompt ${promptFile} must not dispatch through run-prompt`);
+		}
+	}
+
+	if (["ship-resolve.md", "ship-tdd-resolve.md"].includes(promptFile)) {
+		const expectedMode = promptFile === "ship-resolve.md" ? "ship" : "ship-tdd";
 		const helperCommandLines = linesContaining(
 			extracted.body,
 			/autoship-state\.mjs\s+next\b/,
@@ -272,6 +280,9 @@ for (const promptFile of promptFiles) {
 		const helperModePattern = new RegExp(
 			`autoship-state\\.mjs\\s+next\\s+--mode\\s+${expectedMode}(?=\\s|$)`,
 		);
+		if (promptSkill !== "resolve") {
+			addError(`Prompt ${promptFile} must reference skill: resolve`);
+		}
 		if (helperCommandLines.length === 0) {
 			addError(
 				`Prompt ${promptFile} must call autoship-state.mjs next with --mode ${expectedMode}`,
@@ -281,20 +292,6 @@ for (const promptFile of promptFiles) {
 			if (!helperModePattern.test(line)) {
 				addError(
 					`Prompt ${promptFile} helper invocation at line ${lineNumber} must pass exact --mode ${expectedMode}`,
-				);
-			}
-		}
-		if (!extracted.body.includes(expectedPrefix)) {
-			addError(
-				`Prompt ${promptFile} must only dispatch commands beginning with "${expectedPrefix}"`,
-			);
-		}
-		if (extracted.body.includes("run-prompt")) {
-			const otherAutoshipPrefix =
-				expectedPrefix === "ef-ship " ? "ef-ship-tdd " : "ef-ship ";
-			if (extracted.body.includes(otherAutoshipPrefix)) {
-				addError(
-					`Prompt ${promptFile} must not reference dispatch prefix "${otherAutoshipPrefix}"`,
 				);
 			}
 		}

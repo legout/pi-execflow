@@ -6,8 +6,8 @@ tracker:
 models:
   plan: &plan_model openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
   orchestration: &orchestration_model zai/glm-5-turbo
-  implementation: &implementation_model kimi-coding/kimi-for-coding, openai-codex/gpt-5.4-mini
-  validation_fix: &validation_fix_model zai/glm-5.1
+  implementation: &implementation_model kimi-coding/k2p7, openai-codex/gpt-5.4-mini
+  validation_fix: &validation_fix_model zai/glm-5.2
   fast: &fast_model zai/glm-5-turbo
   review: &review_model openai-codex/gpt-5.5
 
@@ -33,9 +33,6 @@ prompts:
   ef-work:
     model: *implementation_model
     thinking: *implementation_thinking
-  ef-autoship:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
 
   # Internal planning leaves used by /ef-plan
   brainstorm:
@@ -48,8 +45,14 @@ prompts:
     model: *plan_model
     thinking: *plan_thinking
 
-  # Internal work leaves used by /ef-work-tdd and /ef-ship-tdd
+  # Internal work leaves used by /ef-work-tdd, /ef-ship, and /ef-ship-tdd
   resolve:
+    model: *fast_model
+    thinking: *fast_thinking
+  ship-resolve:
+    model: *fast_model
+    thinking: *fast_thinking
+  ship-tdd-resolve:
     model: *fast_model
     thinking: *fast_thinking
   spec:
@@ -72,5 +75,6 @@ prompts:
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
   # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`,
-  # `ef-ship`) and deterministic utility wrappers (`ef-sync`). Their leaf prompts
-  # carry the real model/thinking config.
+  # `ef-work-tdd`, `ef-ship`, `ef-ship-tdd`, `ef-autoship`, `ef-autoship-tdd`)
+  # and deterministic utility wrappers (`ef-sync`). Their leaf prompts carry the
+  # real model/thinking config.

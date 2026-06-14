@@ -1,89 +1,57 @@
 ---
 name: autoship
-description: Sequentially dispatch existing pi-execflow ship commands for br or tk ready work, with retry limits, progress state, and lessons learned.
+description: Sequentially drain ready br issues or tk tickets through the existing ship chains with retry limits and progress state.
 ---
 
 # Autoship
 
-Use this skill when running `/ef-autoship` or `/ef-autoship-tdd`.
+Use this skill when working on `/ef-autoship` or `/ef-autoship-tdd` behavior.
 
-Autoship is an orchestration loop, not a work-implementation loop. It selects the next eligible ready `br` issue or `tk` ticket, records progress in `.execflow/autoship-progress.json`, and dispatches the existing `ef-ship <issue>` or `ef-ship-tdd <issue>` command through the `run-prompt` tool. It must never inline implementation, validation, review, commit, or tracker-close logic.
+Autoship is implemented as a prompt chain loop, not as a nested `run-prompt` orchestrator. The chain selects one ready item, ships it through the normal work/review/finalize path, then repeats until the selector reports no eligible ready work or all ready work is exhausted by retry limits.
 
-## Mode
+## Commands
 
-- `/ef-autoship` runs in `ship` mode and must pass `--mode ship` to the state helper.
-- `/ef-autoship-tdd` runs in `ship-tdd` mode and must pass `--mode ship-tdd` to the state helper.
+- `/ef-autoship [--max-retries N]` runs the quick chain:
+  `ship-resolve -> ef-work -> ef-review-with-followups -> finalize`
+- `/ef-autoship-tdd [--max-retries N]` runs the TDD chain:
+  `ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize`
+- `/ef-ship [<work-item-ref>|--next] [--max-retries N]` uses the same quick chain.
+- `/ef-ship-tdd [<work-item-ref>|--next] [--max-retries N]` uses the same TDD chain.
 
-## Inputs
+## Selection
 
-Parse the slash-command arguments. The only supported flag is `--max-retries N`.
+`ship-resolve` and `ship-tdd-resolve` own ready-work selection.
 
-- If omitted, default to `--max-retries 2`.
-- Reject non-integer, negative, or values greater than 20 with an actionable error.
-- `--max-retries 2` means up to three total attempts per issue in one autoship run (one initial attempt plus two retries).
+- Explicit work-item reference → resolve that item directly.
+- Empty input, `--next`, or autoship options → call `scripts/autoship-state.mjs next`.
+- Quick mode must pass `--mode ship`.
+- TDD mode must pass `--mode ship-tdd`.
+- Parse only `--max-retries N`; default is `2`; reject non-integer, negative, or values greater than `20`.
 
-## Fail-closed setup check
+The helper records attempts in `.execflow/autoship-progress.json` and ensures `.execflow/lessons-learned.md` exists. `--max-retries 2` means up to three total attempts per issue in one autoship run: one initial attempt plus two retries.
 
-Before doing anything else, verify the `run-prompt` tool is available.
+## Stop behavior
 
-- If it is unavailable or disabled, stop immediately.
-- Do not inline the `/ef-ship` or `/ef-ship-tdd` workflow.
-- Tell the user to run `/prompt-tool on` and then retry autoship.
+When the selector returns `status: stop`, it must emit a no-work `# Ship Selection` result. Downstream chain steps must treat that as a clean no-op:
 
-## Locate the package script
+- no edits
+- no validation/review commands
+- no commits
+- no tracker notes/comments
+- no tracker closure
 
-Find the installed `@legout/pi-execflow` package root using the same search order used by `/ef-sync`:
-
-1. `$PWD`
-2. `$PWD/.pi/git/github.com/legout/pi-execflow`
-3. `$HOME/.pi/agent/git/github.com/legout/pi-execflow`
-
-Use the first root that contains `scripts/autoship-state.mjs`.
-
-## Select the next issue
-
-Run the state helper:
-
-```text
-node <package-root>/scripts/autoship-state.mjs next --mode <ship|ship-tdd> --max-retries <N>
-```
-
-The helper auto-detects the active tracker from `.execflow/settings.yml` when possible, falls back from uninitialized `br` to `tk`, and prints a single JSON object to stdout. Parse it conservatively; treat non-JSON output as an error.
-
-## Dispatch policy
-
-Only the exact command returned by the state helper may be queued. Verify the prefix before calling `run-prompt`:
-
-- In `ship` mode, the command must begin with `ef-ship `.
-- In `ship-tdd` mode, the command must begin with `ef-ship-tdd `.
-
-If the helper returns `{"status": "dispatch", "command": ...}`, call `run-prompt` with exactly that command string and no extra arguments.
-
-If the helper returns `{"status": "stop", ...}`, do not call `run-prompt`. Report the stop reason (`no-ready-issues` or `all-ready-issues-exhausted`), the exhausted issue ids when provided, and end the iteration.
+This no-op iteration lets the chain loop converge without relying on nested prompt dispatch.
 
 ## What autoship must not do
 
-- Do not implement, edit, validate, review, plan, or mutate tracker state from this orchestrator.
-- Do not commit, push, or close issues.
-- Do not dispatch any command that does not match the helper output.
-- Do not dispatch commands that do not begin with the correct `ef-ship` or `ef-ship-tdd` prefix for the current mode.
+- Do not call `run-prompt` from inside autoship.
+- Do not inline a separate `/ef-ship` or `/ef-ship-tdd` command.
+- Do not bypass the normal work/review/finalize chain.
+- Do not mutate tracker state from selector prompts except through the existing progress file created by `autoship-state.mjs`.
+- Do not append routine status updates, raw transcripts, or duplicates to `.execflow/lessons-learned.md`.
 
 ## Lessons learned
 
-At the start of each loop iteration, read `.execflow/lessons-learned.md` if it exists.
+At the start of each selected work iteration, downstream steps may read `.execflow/lessons-learned.md` if it exists.
 
-- Append only durable, non-obvious lessons discovered from prior ship output.
-- Do not append routine status updates, raw transcripts, or duplicate entries.
-- Before appending, scan existing entries and skip the new entry if a substantively identical lesson is already recorded.
-
-## Output format
-
-Report the result of each iteration using these fields:
-
-- Selected tracker (`br` or `tk`)
-- Selected issue or ticket id
-- Attempt number and max attempts
-- Queued command (only when `status` is `dispatch`)
-- Progress file path (`.execflow/autoship-progress.json`)
-- Lessons file path (`.execflow/lessons-learned.md`)
-- Stop reason (only when `status` is `stop`)
+Append only durable, non-obvious lessons discovered from ship output. Before appending, scan existing entries and skip substantively identical lessons.

@@ -1,11 +1,24 @@
 # Changelog
 
-## 1.1.0 - 2026-06-11
+## 1.3.0 - 2026-06-14
+
+- Changed `/ef-autoship` and `/ef-autoship-tdd` from nested `run-prompt` orchestration prompts into chain-loop wrappers that no longer require `/prompt-tool on`.
+- Added `ship-resolve` and `ship-tdd-resolve` selector prompts so `/ef-ship`, `/ef-ship-tdd`, and autoship wrappers can select ready `br` issues or `tk` tickets directly.
+- Added no-target and `--next` ready-work draining to `/ef-ship` and `/ef-ship-tdd`, with retry tracking through `.execflow/autoship-progress.json`.
+- Added `tk ready` support to the autoship state helper while preserving configured tracker preference and ready order.
+- Tightened review/finalize guidance so work-item review findings can be captured as follow-up work before conservative finalization closes the original item.
+
+## 1.2.0 - 2026-06-11
 
 - Changed `/ef-work` into a quick work-item path for simple tickets with lightweight validation and self-review.
 - Added `/ef-work-tdd` to preserve the previous specification, implementation, validation/fix loop, and finalization chain.
 - Changed `/ef-ship` to run quick work, review with follow-up creation enabled, and conservative finalization.
 - Added `/ef-ship-tdd` for the TDD-oriented ship path with specification, validation/fix looping, review follow-ups, and finalization.
+- Added `/ef-review-with-followups` as a focused work-item review wrapper that always creates tracker follow-ups for concrete findings.
+
+## 1.1.0 - 2026-06-11
+
+- Added `/ef-ship` to run the full work-item execution chain and then review the finalized item with follow-up creation enabled.
 - Added `/ef-review-with-followups` as a focused work-item review wrapper that always creates tracker follow-ups for concrete findings.
 
 ## 1.0.0 - 2026-06-10

@@ -16,6 +16,14 @@ Inputs:
 - Work item: `$1`
 - Flags/context: `${@:2}`
 
+Auto-selection context:
+
+When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use the immediately preceding `# Ship Selection` chain output as the target source:
+
+- If it contains `Autoship selection: DISPATCH` or `Autoship selection: EXPLICIT_TARGET`, use `Selected work item` as the review target.
+- If it contains `Autoship selection: NO_READY`, `Autoship selection: ALL_READY_EXHAUSTED`, or `Autoship selection: ALREADY_CLOSED`, stop immediately: do not inspect diffs, create follow-ups, add comments, or run commands; output only `No ready work item selected; review skipped.`
+- If there is no preceding `# Ship Selection` output and `$1` is not an explicit work-item reference, stop and report the missing target.
+
 Scope:
 
 - resolve the work item, tracker system, and optional ExecPlan

@@ -1,5 +1,5 @@
 ---
-description: Add a final work-item note and close it when validation and review evidence prove acceptance criteria
+description: Add a final work-item note and close it when validation passes and review is clean or follow-ups capture findings
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5-turbo
 thinking: medium
@@ -15,6 +15,14 @@ You are finalizing exactly one work item after implementation, validation, and o
 - Target work-item reference or path: `$1`
 - Optional context: `${@:2}`
 
+## Auto-selection context
+
+When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use the immediately preceding `# Ship Selection` chain output as the target source:
+
+- If it contains `Autoship selection: DISPATCH` or `Autoship selection: EXPLICIT_TARGET`, use `Selected work item` as the finalization target.
+- If it contains `Autoship selection: NO_READY`, `Autoship selection: ALL_READY_EXHAUSTED`, or `Autoship selection: ALREADY_CLOSED`, stop immediately: do not commit, add tracker notes/comments, close tracker items, or run commands; output only `No ready work item selected; finalization skipped.`
+- If there is no preceding `# Ship Selection` output and `$1` is not an explicit work-item reference, stop and report `Gate: BLOCKED`.
+
 ## Your tasks
 
 1. Resolve the work item and determine whether it is a `.tickets/` / `tk` item, a `.beads/` / `br` item, or some other tracker-backed work item.
@@ -26,8 +34,8 @@ You are finalizing exactly one work item after implementation, validation, and o
    - `/ef-work` in the quick path.
 4. Find the latest review evidence when the current chain or user context includes it. `/ef-ship` runs `/ef-review-with-followups` before this step, so review evidence is required there.
 5. Decide whether the outcome is:
-   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, and any required review evidence is merge-ready / pass with no unresolved material findings.
-   - `REVISE` if validation evidence contains `Gate: REVISE`, review says `needs-fixes`, evidence is partial/stale/ambiguous/missing, or material follow-up remains before closure.
+   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, and any required review evidence is either clean or has captured every material finding as tracker follow-up work.
+   - `REVISE` if validation evidence contains `Gate: REVISE`, evidence is partial/stale/ambiguous/missing, review follow-up creation/commenting failed, or material review findings remain uncaptured before closure.
    - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized.
 6. **On strict PASS only**: commit the related code changes before closing the tracker item.
    - Run `git status` and `git diff --stat` to see what changed.
@@ -52,13 +60,18 @@ There are two supported validation sources:
 - TDD path evidence from `/validation-fix`: requires `Gate: PASS` plus acceptance-criteria evidence. When RED/GREEN proof or an explicit RED exemption is required by the ticket/spec, it must be present.
 - Quick path evidence from `/ef-work`: requires `Gate: PASS`, acceptance-criteria evidence, quick validation or explicit inspection evidence, the standard quick-path RED exemption, and a clean self-review.
 
-Review evidence is optional only when finalizing after `/ef-work` or `/ef-work-tdd` directly. When review evidence is present, do not close if the latest review verdict is `needs-fixes`, `failed`, `blocked`, or includes unresolved critical/major material findings. For `/ef-ship` and `/ef-ship-tdd`, review evidence is part of the chain and must support closure.
+Review evidence is optional only when finalizing after `/ef-work` or `/ef-work-tdd` directly. For `/ef-ship` and `/ef-ship-tdd`, review evidence is part of the chain and must support closure. Review supports closure when either:
+
+- the latest review verdict is merge-ready / pass with no unresolved material issues; or
+- the latest review ran with follow-up creation enabled, every material finding became a created follow-up or was explicitly skipped as a duplicate of an existing follow-up, and a note/comment was added to the original work item.
+
+Do not close if the latest review is `failed` or `blocked`, required review evidence is missing, follow-up creation/commenting failed, or any material finding remains uncaptured.
 
 ## Rules
 
 - Be conservative: do not close unless the latest evidence supports closure.
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
-- Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues.
+- Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues. If review found issues that were converted into follow-ups, say that explicitly instead of calling the review clean.
 - Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` note prefixes.
 - Keep the note short, factual, and specific.
 - For `br`, use `br comments add` as the note/comment equivalent; there is no `br notes` subcommand in the installed CLI.
@@ -70,6 +83,7 @@ Use this style for tracker comments / notes:
 
 - PASS without review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review not run.`
 - PASS with clean review: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review clean.`
+- PASS with review follow-ups: `Gate: PASS — <short summary>. Validation passed; acceptance criteria met. Review findings delegated to follow-ups: <ids>.`
 - REVISE: `Gate: REVISE — <short summary>. Validation/review still needs follow-up: <brief reason>.`
 - BLOCKED: `Gate: BLOCKED — <short summary>. Cannot finalize safely: <brief reason>.`
 

@@ -11,7 +11,7 @@ Use this skill for `/ef-review` across work-item, ExecPlan delivery, branch, dif
 
 Reviews are read-only by default. Do not add tracker comments, close/reopen items, create issues/tickets, edit code, or mutate repo-root workflow artifacts unless the prompt input includes `--create-followups`.
 
-When `--create-followups` is absent, list candidate follow-ups only. When it is present, create follow-ups only for concrete, actionable findings after checking for obvious duplicates. For `br`, prefer `ACTOR="${BR_ACTOR:-assistant}"` and `RUST_LOG=error br ... --json`, then run `RUST_LOG=error br sync --flush-only` after mutation.
+When `--create-followups` is absent, list candidate follow-ups only. When it is present, create follow-ups only for concrete, actionable findings after checking for obvious duplicates. For work-item reviews, add a concise note/comment to the original work item summarizing the review findings and the created or duplicate follow-up IDs. Do not close the original work item from the review step; the downstream finalization step closes it when validation evidence is PASS and every material review finding is represented by a follow-up. For `tk`, use `tk add-note <item> "..."`. For `br`, prefer `ACTOR="${BR_ACTOR:-assistant}"` and `RUST_LOG=error br ... --json`, then run `RUST_LOG=error br sync --flush-only` after mutation.
 
 ## Review modes
 

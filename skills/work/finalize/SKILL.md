@@ -26,7 +26,7 @@ Add an accurate work-item note and close it only when the evidence supports clos
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and required review evidence is clean.
+2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and required review evidence either is clean or has converted every material finding into tracker follow-ups.
 3. Accept two validation sources:
    - `/validation-fix` evidence from the TDD path.
    - `/ef-work` evidence from the quick path.
@@ -52,7 +52,12 @@ For the quick path, closure requires:
 - the quick-path RED exemption
 - a self-review with no material scope, regression, or cleanup concern
 
-Review evidence is optional only when the user directly runs `/finalize` after `/ef-work` or `/ef-work-tdd`. When a chain includes review, such as `/ef-ship` or `/ef-ship-tdd`, closure also requires the latest review evidence to be merge-ready/pass with no unresolved material findings. Do not close on `needs-fixes`, `failed`, `blocked`, unresolved critical/major findings, or missing required review evidence.
+Review evidence is optional only when the user directly runs `/finalize` after `/ef-work` or `/ef-work-tdd`. When a chain includes review, such as `/ef-ship` or `/ef-ship-tdd`, closure also requires the latest review evidence to support one of these outcomes:
+
+- clean review: merge-ready/pass with no unresolved material findings
+- follow-up review: findings were found, `--create-followups` was enabled, every material finding was converted into a created follow-up or explicitly skipped as a duplicate of an existing follow-up, and a note/comment was added to the original work item
+
+Do not close on `failed`, `blocked`, missing required review evidence, or review findings that were not captured as follow-up work. If review found issues but follow-up creation or original-item commenting failed, add a REVISE note and leave the item open.
 
 ## Tracker-specific guidance
 
@@ -82,6 +87,7 @@ A final note or close reason should concisely capture:
 - quick-path exemption or TDD RED/GREEN evidence when available
 - regression validation status
 - review status, explicitly `not run` when absent
+- created or duplicate follow-up IDs when review findings were delegated
 - any remaining follow-up, if the ticket stays open
 
 ## Git commit policy
@@ -110,5 +116,5 @@ Before finalizing, verify:
 - the note text is concise and truthful
 - close only happens on strict `Gate: PASS`
 - close only happens with valid quick-path evidence or valid TDD validation evidence
-- when review is part of the chain, review evidence supports closure
+- when review is part of the chain, review evidence is clean or all material findings were captured as follow-ups with an original-item note/comment
 - on PASS: related changes are committed; on REVISE/BLOCKED: nothing is committed

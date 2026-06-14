@@ -42,8 +42,8 @@ The simplified happy path is these commands:
 /ef-work-tdd <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
 /ef-review-with-followups <ticket-or-issue-ref>
-/ef-ship <ticket-or-issue-ref>
-/ef-ship-tdd <ticket-or-issue-ref>
+/ef-ship [<ticket-or-issue-ref>|--next] [--max-retries N]
+/ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N]
 /ef-autoship [--max-retries N]
 /ef-autoship-tdd [--max-retries N]
 /ef-sync
@@ -105,7 +105,7 @@ Recommended public commands:
 /ef-work <ticket-or-issue-ref>
 /ef-review <ticket-or-issue-ref>
 /ef-review-with-followups <ticket-or-issue-ref>
-/ef-ship <ticket-or-issue-ref>
+/ef-ship [<ticket-or-issue-ref>|--next] [--max-retries N]
 ```
 
 `/ef-work` is the quick implementation front door for one simple tracked work item. It resolves the item, makes the smallest scoped change, runs a quick targeted validation or records inspection evidence, performs a short self-review, and leaves finalization to `/finalize` or `/ef-ship`. Use `/ef-work-tdd` when the item needs explicit specification, RED/GREEN discipline, validation/fix looping, and immediate finalization. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
@@ -119,14 +119,13 @@ For fresh implementation context, prefer running work in a subagent and then rev
 
 `/ef-review` and `/ef-review-with-followups` are configured to run through the `reviewer` subagent when `pi-subagents` is installed. If you use `/ef-ship`, start it from a new Pi conversation (`/new`) when you want to avoid session-history leakage; `/new` is an interactive Pi command, not a prompt template step that can be inserted into the `/ef-ship` chain.
 
-`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization.
+`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization; with no explicit work item or with `--next`, it selects ready work and loops until no eligible ready work remains. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization, with the same no-arg/`--next` ready-work selection behavior.
 
 ### Autoship (sequential ready-work queue)
 
 To drain multiple ready `br` issues or `tk` tickets one at a time, use the autoship commands:
 
 ```bash
-/prompt-tool on
 /ef-autoship
 /ef-autoship --max-retries 0
 /ef-autoship-tdd --max-retries 2
@@ -134,10 +133,10 @@ To drain multiple ready `br` issues or `tk` tickets one at a time, use the autos
 
 Requirements and behavior:
 
-- Enable the external `run-prompt` tool first with `/prompt-tool on`. Autoship cannot queue ship commands without it.
+- Autoship is a chain-loop wrapper, not a nested prompt dispatch. It does not require `/prompt-tool on`.
 - `--max-retries N` defaults to `2`, meaning one initial attempt plus two retries, or three total attempts per issue in one autoship run.
 - Autoship auto-detects the active tracker from `.execflow/settings.yml` when possible. It reads `br ready --json` for `br` repositories and `tk ready` for `tk` repositories, preserving the tracker ready order.
-- `/ef-autoship` dispatches `ef-ship <issue-or-ticket>`; `/ef-autoship-tdd` dispatches `ef-ship-tdd <issue-or-ticket>`.
+- `/ef-autoship` runs the quick ship chain for each selected issue or ticket; `/ef-autoship-tdd` runs the TDD ship chain.
 - Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
 - The MVP is intentionally sequential; parallel autoship is not supported.
 
@@ -170,8 +169,8 @@ Supported public commands are:
 - `/ef-work-tdd <ticket-or-issue-ref>`
 - `/ef-review <target> [--create-followups] [context...]`
 - `/ef-review-with-followups <ticket-or-issue-ref> [context...]`
-- `/ef-ship <ticket-or-issue-ref> [context...]`
-- `/ef-ship-tdd <ticket-or-issue-ref> [context...]`
+- `/ef-ship [<ticket-or-issue-ref>|--next] [--max-retries N] [context...]`
+- `/ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N] [context...]`
 - `/ef-autoship [--max-retries N] [context...]`
 - `/ef-autoship-tdd [--max-retries N] [context...]`
 - `/ef-sync`
@@ -286,7 +285,7 @@ Properties of the sync step:
 
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
-- chain wrappers: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`
+- chain wrappers: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`
 - deterministic utility wrappers: `/ef-sync`
 - internal maintenance leaves when present, such as prompt refresh or model sync helpers
 
@@ -295,11 +294,11 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
 | Public workflow prompt | Mixed | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-sync` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
-| Chain wrapper | No | `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
-| Autoship orchestration leaf | Yes | `/ef-autoship`, `/ef-autoship-tdd` | Uses `loop: unlimited`, `fresh: true`, `converge: true`; dispatches `ef-ship`/`ef-ship-tdd` through `run-prompt` |
+| Chain wrapper | No | `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Autoship selector leaf | Yes | `/ship-resolve`, `/ship-tdd-resolve` | Selects ready work with `autoship-state.mjs next` and records retry progress |
 | Deterministic utility wrapper | No | `/ef-sync` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
-| Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/ef-autoship`, `/ef-autoship-tdd`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
+| Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/ship-resolve`, `/ship-tdd-resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 

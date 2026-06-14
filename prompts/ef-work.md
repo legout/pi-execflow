@@ -1,7 +1,7 @@
 ---
 description: Quick work-item implementation with lightweight validation and self-review
 argument-hint: "<work-item-ref> [context...]"
-model: kimi-coding/kimi-for-coding, openai-codex/gpt-5.4-mini
+model: kimi-coding/k2p7, openai-codex/gpt-5.4-mini
 thinking: medium
 skill: execution
 restore: true
@@ -15,6 +15,14 @@ Use this prompt when TDD/spec ceremony would be disproportionate. For complex, r
 
 - Target work-item reference or path: `$1`
 - Optional context: `${@:2}`
+
+## Auto-selection context
+
+When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use the immediately preceding `# Ship Selection` chain output as the target source:
+
+- If it contains `Autoship selection: DISPATCH` or `Autoship selection: EXPLICIT_TARGET`, use `Selected work item` as the target work item.
+- If it contains `Autoship selection: NO_READY`, `Autoship selection: ALL_READY_EXHAUSTED`, or `Autoship selection: ALREADY_CLOSED`, stop immediately: make no edits, run no commands, and output only `No ready work item selected; quick work skipped.`
+- If there is no preceding `# Ship Selection` output and `$1` is not an explicit work-item reference, stop and report `Gate: BLOCKED`.
 
 ## Required workflow
 
