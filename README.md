@@ -44,6 +44,8 @@ The simplified happy path is these commands:
 /ef-review-with-followups <ticket-or-issue-ref>
 /ef-ship <ticket-or-issue-ref>
 /ef-ship-tdd <ticket-or-issue-ref>
+/ef-autoship [--max-retries N]
+/ef-autoship-tdd [--max-retries N]
 /ef-sync
 ```
 
@@ -119,6 +121,26 @@ For fresh implementation context, prefer running work in a subagent and then rev
 
 `/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization.
 
+### Autoship (sequential ready-work queue)
+
+To drain multiple ready `br` issues or `tk` tickets one at a time, use the autoship commands:
+
+```bash
+/prompt-tool on
+/ef-autoship
+/ef-autoship --max-retries 0
+/ef-autoship-tdd --max-retries 2
+```
+
+Requirements and behavior:
+
+- Enable the external `run-prompt` tool first with `/prompt-tool on`. Autoship cannot queue ship commands without it.
+- `--max-retries N` defaults to `2`, meaning one initial attempt plus two retries, or three total attempts per issue in one autoship run.
+- Autoship auto-detects the active tracker from `.execflow/settings.yml` when possible. It reads `br ready --json` for `br` repositories and `tk ready` for `tk` repositories, preserving the tracker ready order.
+- `/ef-autoship` dispatches `ef-ship <issue-or-ticket>`; `/ef-autoship-tdd` dispatches `ef-ship-tdd <issue-or-ticket>`.
+- Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
+- The MVP is intentionally sequential; parallel autoship is not supported.
+
 ### 5. Sync package resources
 
 Recommended public command:
@@ -150,6 +172,8 @@ Supported public commands are:
 - `/ef-review-with-followups <ticket-or-issue-ref> [context...]`
 - `/ef-ship <ticket-or-issue-ref> [context...]`
 - `/ef-ship-tdd <ticket-or-issue-ref> [context...]`
+- `/ef-autoship [--max-retries N] [context...]`
+- `/ef-autoship-tdd [--max-retries N] [context...]`
 - `/ef-sync`
 
 Other prompt files may exist as internal leaves for chains, model-owning implementation steps, or deterministic maintenance. They are not a legacy public command surface and may be removed when no supported wrapper uses them.
@@ -163,7 +187,7 @@ Loaded from:
 This package includes:
 
 - planning skills: `brainstorm`, `create-plan`, `grill-plan`
-- execution skills: `resolve`, `specification`, `validation`, `execution`, `finalize`, `review-suite`
+- execution skills: `resolve`, `specification`, `validation`, `execution`, `finalize`, `review-suite`, `autoship`
 - tracker skills: `work-itemize`
 
 ## Model configuration
@@ -218,6 +242,12 @@ prompts:
   ef-review:
     model: *review_model
     thinking: *review_thinking
+  ef-autoship:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
+  ef-autoship-tdd:
+    model: *orchestration_model
+    thinking: *orchestration_thinking
 ```
 
 Keep `prompts:` entries aligned with project prompt files in `.pi/prompts/`. When developing this package itself, the same names correspond to the checked-in source prompts under `prompts/`.
@@ -264,11 +294,12 @@ Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Public workflow prompt | Mixed | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-sync` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
+| Public workflow prompt | Mixed | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-sync` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
 | Chain wrapper | No | `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
+| Autoship orchestration leaf | Yes | `/ef-autoship`, `/ef-autoship-tdd` | Uses `loop: unlimited`, `fresh: true`, `converge: true`; dispatches `ef-ship`/`ef-ship-tdd` through `run-prompt` |
 | Deterministic utility wrapper | No | `/ef-sync` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
 | Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
-| Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
+| Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/ef-autoship`, `/ef-autoship-tdd`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
 
@@ -282,7 +313,7 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, and `/ef-sync` after `/init-execflow`.
+- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-sync` after `/init-execflow`.
 - Legacy prompt names are not retained merely for backward compatibility. If a prompt is not part of the public workflow and no supported wrapper needs it as an internal leaf, it should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
 - Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
 - Optional external delegated `/execflow-queue` execution is not shipped by this package.

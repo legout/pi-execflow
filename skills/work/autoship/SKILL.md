@@ -1,13 +1,13 @@
 ---
 name: autoship
-description: Sequentially dispatch existing pi-execflow ship commands for br ready issues, with retry limits, progress state, and lessons learned.
+description: Sequentially dispatch existing pi-execflow ship commands for br or tk ready work, with retry limits, progress state, and lessons learned.
 ---
 
 # Autoship
 
 Use this skill when running `/ef-autoship` or `/ef-autoship-tdd`.
 
-Autoship is an orchestration loop, not a work-implementation loop. It selects the next eligible ready `br` issue, records progress in `.execflow/autoship-progress.json`, and dispatches the existing `ef-ship <issue>` or `ef-ship-tdd <issue>` command through the `run-prompt` tool. It must never inline implementation, validation, review, commit, or tracker-close logic.
+Autoship is an orchestration loop, not a work-implementation loop. It selects the next eligible ready `br` issue or `tk` ticket, records progress in `.execflow/autoship-progress.json`, and dispatches the existing `ef-ship <issue>` or `ef-ship-tdd <issue>` command through the `run-prompt` tool. It must never inline implementation, validation, review, commit, or tracker-close logic.
 
 ## Mode
 
@@ -48,7 +48,7 @@ Run the state helper:
 node <package-root>/scripts/autoship-state.mjs next --mode <ship|ship-tdd> --max-retries <N>
 ```
 
-The helper prints a single JSON object to stdout. Parse it conservatively; treat non-JSON output as an error.
+The helper auto-detects the active tracker from `.execflow/settings.yml` when possible, falls back from uninitialized `br` to `tk`, and prints a single JSON object to stdout. Parse it conservatively; treat non-JSON output as an error.
 
 ## Dispatch policy
 
@@ -80,7 +80,8 @@ At the start of each loop iteration, read `.execflow/lessons-learned.md` if it e
 
 Report the result of each iteration using these fields:
 
-- Selected issue id
+- Selected tracker (`br` or `tk`)
+- Selected issue or ticket id
 - Attempt number and max attempts
 - Queued command (only when `status` is `dispatch`)
 - Progress file path (`.execflow/autoship-progress.json`)
