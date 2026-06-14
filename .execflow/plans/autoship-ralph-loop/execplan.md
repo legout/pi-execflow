@@ -26,7 +26,7 @@ The simplest boundary is a deterministic state helper plus one autoship skill. T
 - [x] (2026-06-12) Checked for `ARCHITECTURE.md`; it is not present in this repository.
 - [x] (2026-06-12) Inspected relevant prompt, skill, script, README, settings, and validation flows.
 - [x] (2026-06-12) Authored this initial ExecPlan.
-- [x] (2026-06-12) Implemented the deterministic autoship state helper and validation coverage for retry selection and invalid retry handling.
+- [x] (2026-06-14) Completed Milestone 1: deterministic autoship state helper implemented and validated via `node scripts/autoship-state.mjs --self-test` wired into `npm run validate-package`.
 - [ ] Add the shared autoship skill that defines orchestration, retry, progress, and lessons policy.
 - [ ] Add `/ef-autoship` as the quick sequential autoship command.
 - [ ] Add `/ef-autoship-tdd` as the TDD sequential autoship command.
@@ -185,7 +185,7 @@ The special cases that disappear from the user's mental model are: remembering h
 
 ## Task Graph
 
-Milestone 1 is an enabler and true prerequisite for the public autoship commands. It adds the deterministic state helper and validation coverage for retry selection. It touches `scripts/autoship-state.mjs`, `scripts/validate-package.mjs`, and possibly small helper code inside the validation script. Because it creates the boundary used by both public commands, it should be implemented before Milestones 2 and 3.
+Milestone 1 is completed (2026-06-14). It is an enabler and true prerequisite for the public autoship commands, and it added the deterministic state helper and validation coverage for retry selection. It touches `scripts/autoship-state.mjs`, `scripts/validate-package.mjs`, and possibly small helper code inside the validation script. Because it creates the boundary used by both public commands, it should be implemented before Milestones 2 and 3.
 
 Milestone 2 is the first vertical slice: quick autoship through `/ef-autoship`. It depends on Milestone 1. It adds the shared `autoship` skill if that was not already added in Milestone 1, adds `prompts/ef-autoship.md`, adds the prompt to `execflow/settings.yml`, and updates package validation enough to recognize the new public command. It is related to Milestone 3 but not conceptually blocked by TDD autoship.
 
