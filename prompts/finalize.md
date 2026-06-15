@@ -1,7 +1,7 @@
 ---
 description: Add a final work-item note and close it when validation passes and review is clean or follow-ups capture findings
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5-turbo
+model: zai/glm-5.2
 thinking: medium
 fresh: true
 skill: finalize
@@ -9,6 +9,18 @@ restore: true
 ---
 
 You are finalizing exactly one work item after implementation, validation, and optional review.
+
+## Non-editing boundary
+
+Finalization is a tracker and git bookkeeping step, not an implementation or repair step.
+
+Allowed mutations are limited to:
+
+- staging and committing already-existing related work-item changes on strict `PASS`
+- adding one final tracker note/comment
+- closing the tracker item on strict `PASS`
+
+Do **not** edit source files, tests, docs, prompts, generated files, configs, or tracker work-item content except for the final note/close commands listed below. Do **not** run formatters, code generators, auto-fix commands, or any command whose purpose is to change repository files. Do **not** fix review findings during finalization. If review findings were created as follow-up work items, treat those follow-ups as closure evidence for the original item, not as tasks to perform here. If material findings were not captured as follow-ups, return `REVISE` and leave the original item open.
 
 ## Inputs
 
@@ -44,6 +56,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf). Omit scope if unclear.
    - If nothing changed in code, skip the commit and note "No code changes to commit."
    - Do **not** push. Do **not** add sign-offs.
+   - Do **not** modify files before staging. If files need changes, output `REVISE` instead of making them.
 7. Write one concise final tracker note:
    - `tk add-note <ticket> "..."` for `tk`
    - `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br comments add --actor "$ACTOR" <ticket> --message "..." --json` for `br`
@@ -52,6 +65,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br close --actor "$ACTOR" <ticket> --reason "..." --json` for `br`
 9. If the ticket is managed by neither `tk` nor `br`, do not invent a close command. Report the exact manual follow-up instead.
 10. **On REVISE or BLOCKED**: do **not** commit. Leave changes in the working tree.
+11. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
 
 ## Closure evidence policy
 
@@ -65,11 +79,12 @@ Review evidence is optional only when finalizing after `/ef-work` or `/ef-work-t
 - the latest review verdict is merge-ready / pass with no unresolved material issues; or
 - the latest review ran with follow-up creation enabled, every material finding became a created follow-up or was explicitly skipped as a duplicate of an existing follow-up, and a note/comment was added to the original work item.
 
-Do not close if the latest review is `failed` or `blocked`, required review evidence is missing, follow-up creation/commenting failed, or any material finding remains uncaptured.
+Do not close if the latest review is `failed` or `blocked`, required review evidence is missing, follow-up creation/commenting failed, or any material finding remains uncaptured. Do not attempt to resolve those findings here; leave the item open with a concise `REVISE` note.
 
 ## Rules
 
 - Be conservative: do not close unless the latest evidence supports closure.
+- Do not edit repository files, run auto-fix commands, or repair review findings. Finalization may inspect files and commit already-existing related changes, but must not create new code/content changes.
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
 - Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues. If review found issues that were converted into follow-ups, say that explicitly instead of calling the review clean.
 - Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` note prefixes.
@@ -111,6 +126,7 @@ Use exactly these sections:
 
 # Git Commit
 
+- Repository files modified during finalization: no
 - Changes staged: (list files or "none")
 - Commit message:
 - Committed: yes / no / skipped (no changes)

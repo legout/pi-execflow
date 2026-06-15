@@ -2,7 +2,7 @@
 description: Validate and apply minimal fixes until acceptance criteria pass or progress stops
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.2
-thinking: medium
+thinking: high
 loop: 5
 converge: true
 fresh: true

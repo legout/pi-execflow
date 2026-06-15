@@ -1,7 +1,7 @@
 ---
 description: Initialize pi-execflow planning + tracker scaffolding (.execflow/, .pi/prompts/, AGENTS.md, and optional tk/br tracker setup)
 argument-hint: "[--tk|--br]"
-model: zai/glm-5-turbo
+model: zai/glm-5.2
 thinking: medium
 run: |
   for root in "$PWD" "$PWD/.pi/git/github.com/legout/pi-execflow" "$HOME/.pi/agent/git/github.com/legout/pi-execflow"; do

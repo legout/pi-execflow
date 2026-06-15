@@ -2,7 +2,7 @@
 description: Review exactly one work-item implementation; create bug follow-ups only with --create-followups
 argument-hint: "<work-item-ref> [--create-followups] [context...]"
 model: openai-codex/gpt-5.5
-thinking: medium
+thinking: high
 subagent: reviewer
 fresh: true
 skill: review-suite

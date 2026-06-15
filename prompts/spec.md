@@ -1,7 +1,7 @@
 ---
 description: Normalize a work item and optional ExecPlan into an implementation-ready spec
 argument-hint: "<work-item-ref> [context...]"
-model: kimi-coding/k2p7, openai-codex/gpt-5.4-mini
+model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: medium
 fresh: true
 skill: specification

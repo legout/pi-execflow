@@ -23,6 +23,18 @@ Read these sibling skills for deeper detail when needed:
 
 Add an accurate work-item note and close it only when the evidence supports closure.
 
+## Non-editing boundary
+
+Finalization is a tracker and git bookkeeping step, not an implementation or repair step.
+
+Allowed mutations are limited to:
+
+- staging and committing already-existing related work-item changes on strict `PASS`
+- adding one final tracker note/comment
+- closing the tracker item on strict `PASS`
+
+Do **not** edit source files, tests, docs, prompts, generated files, configs, or tracker work-item content except for the final note/close commands listed below. Do **not** run formatters, code generators, auto-fix commands, or any command whose purpose is to change repository files. Do **not** fix review findings during finalization. If review findings were created as follow-up work items, treat those follow-ups as closure evidence for the original item, not as tasks to perform here. If material findings were not captured as follow-ups, return `REVISE` and leave the original item open.
+
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
@@ -34,6 +46,7 @@ Add an accurate work-item note and close it only when the evidence supports clos
 5. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
 6. Include only claims supported by actual execution or explicit evidence in context.
 7. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` or `/ef-work-tdd` without a consolidated review verdict.
+8. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
 
 ## Closure evidence requirements
 
@@ -57,7 +70,7 @@ Review evidence is optional only when the user directly runs `/finalize` after `
 - clean review: merge-ready/pass with no unresolved material findings
 - follow-up review: findings were found, `--create-followups` was enabled, every material finding was converted into a created follow-up or explicitly skipped as a duplicate of an existing follow-up, and a note/comment was added to the original work item
 
-Do not close on `failed`, `blocked`, missing required review evidence, or review findings that were not captured as follow-up work. If review found issues but follow-up creation or original-item commenting failed, add a REVISE note and leave the item open.
+Do not close on `failed`, `blocked`, missing required review evidence, or review findings that were not captured as follow-up work. If review found issues but follow-up creation or original-item commenting failed, add a REVISE note and leave the item open. Do not attempt to resolve those findings here.
 
 ## Tracker-specific guidance
 
@@ -92,7 +105,7 @@ A final note or close reason should concisely capture:
 
 ## Git commit policy
 
-On a strict `Gate: PASS` outcome, commit all related changes before closing the tracker item:
+On a strict `Gate: PASS` outcome, commit already-existing related changes before closing the tracker item. Do not modify files before staging; if files need changes, output `REVISE` instead of making them.
 
 1. Run `git status` and `git diff --stat` to confirm what changed.
 2. Stage only the files that belong to the work item. Do not stage unrelated changes.
@@ -106,6 +119,7 @@ On a strict `Gate: PASS` outcome, commit all related changes before closing the 
 6. Do **not** push.
 7. Do **not** add sign-offs.
 8. On REVISE or BLOCKED, do **not** commit. Leave changes in the working tree for the next iteration.
+9. Do **not** edit files, run auto-fix commands, or repair review findings as part of committing.
 
 ## Completion checklist
 
@@ -117,4 +131,6 @@ Before finalizing, verify:
 - close only happens on strict `Gate: PASS`
 - close only happens with valid quick-path evidence or valid TDD validation evidence
 - when review is part of the chain, review evidence is clean or all material findings were captured as follow-ups with an original-item note/comment
-- on PASS: related changes are committed; on REVISE/BLOCKED: nothing is committed
+- review follow-ups are treated as delegated future work, not work to perform during finalization
+- no repository files were modified during finalization
+- on PASS: already-existing related changes are committed; on REVISE/BLOCKED: nothing is committed
