@@ -17,6 +17,6 @@ ship-resolve -> ef-work -> ef-review-with-followups -> finalize
 ```
 
 If you see this message, the project-local `.pi/prompts/ef-autoship.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/ef-sync` or `/init-execflow`, then retry `/ef-autoship [--max-retries N]`.
+Run `/ef-update` or `/ef-init`, then retry `/ef-autoship [--max-retries N]`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

@@ -1,5 +1,5 @@
 ---
-description: Initialize planning + tracker scaffolding (.execflow/, .pi/prompts/, AGENTS.md, and optional tk/br tracker setup)
+description: Initialize pi-execflow planning + tracker scaffolding (.execflow/, .pi/prompts/, AGENTS.md, and optional tk/br tracker setup)
 argument-hint: "[--tk|--br]"
 model: zai/glm-5-turbo
 thinking: medium
@@ -16,7 +16,11 @@ handoff: always
 restore: true
 ---
 
-Initialize `pi-execflow` in the current project.
+Initialize `pi-execflow` in the current project. This is the public init command; `/init-execflow` is a deprecated compatibility alias.
+
+Invocation arguments supplied to this template: `$@`
+
+Use the invocation arguments above to decide whether `--tk` or `--br` is present; the `argument-hint` frontmatter is only an autocomplete hint.
 
 Accepted tracker flags:
 
@@ -63,7 +67,7 @@ Rules:
   - If the file was created by the deterministic copy step, keep the copied content as the base.
   - If the file already exists and contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, refresh only that generated block using the canonical source file from the resolved installed package root as the base.
   - If the file exists but does **not** contain those markers, leave it untouched and report that manual review may be needed because the file appears user-customized.
-  - In the generated block, ensure `Primary tracker selected during init-execflow:` matches the selected tracker mode.
+  - In the generated block, ensure `Primary tracker selected during ef-init:` matches the selected tracker mode.
 - For `.execflow/PLANS.md`:
   - If the file was copied by the deterministic step, keep that copied content.
   - If it already existed before this run, leave it untouched.
@@ -103,7 +107,7 @@ Read that file before using `pi-execflow`, `tk`, `br`, `bv`, or ExecPlans in thi
 <!-- /execflow -->
 ```
 
-The marker-based blocks enable safe, idempotent re-runs of `/init-execflow`: only the content between the markers is touched.
+The marker-based blocks enable safe, idempotent re-runs of `/ef-init`: only the content between the markers is touched.
 
 When finished:
 - report which tracker mode was selected

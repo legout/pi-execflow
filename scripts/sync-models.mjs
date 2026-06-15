@@ -251,7 +251,7 @@ function syncPromptFile(filePath, settings, fallbackSettings) {
 }
 
 if (!existsSync(settingsPath)) {
-  fail(`Missing ${settingsPath}. Run /init-execflow first or create the settings file.`);
+  fail(`Missing ${settingsPath}. Run /ef-init first or create the settings file.`);
 }
 
 const promptDir = existsSync(targetSettingsPath)
@@ -260,7 +260,7 @@ const promptDir = existsSync(targetSettingsPath)
 
 if (!existsSync(promptDir)) {
   if (existsSync(targetSettingsPath)) {
-    fail(`Missing ${promptDir}. Run /init-execflow first to scaffold .pi/prompts/.`);
+    fail(`Missing ${promptDir}. Run /ef-init first to scaffold .pi/prompts/.`);
   }
   fail(`Missing ${promptDir}. Nothing to sync.`);
 }

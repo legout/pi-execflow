@@ -1,4 +1,6 @@
 export const retiredPromptFiles = [
+  "init-execflow.md",
+  "ef-sync.md",
   "derive-tests.md",
   "impl-plan.md",
   "implementation-plan.md",

@@ -20,7 +20,7 @@ Use `$@` as the primary topic selector. If `$@` is empty, auto-detect from exist
 Procedure:
 
 1. Determine the topic using topic resolution from the grill-plan skill.
-2. Read `.execflow/PLANS.md` in full. If it is missing, stop and tell the user to run `/init-execflow` first.
+2. Read `.execflow/PLANS.md` in full. If it is missing, stop and tell the user to run `/ef-init` first.
 3. Read `.execflow/plans/<topic-slug>/execplan.md` in full.
 4. Read `.execflow/plans/<topic-slug>/brainstorm.md` if it exists.
 5. Inspect referenced files, adjacent code, tests, docs, and commands before asking the user anything.

@@ -69,12 +69,12 @@ prompts:
     thinking: *orchestration_thinking
 
   # Setup prompt
-  init-execflow:
+  ef-init:
     model: *orchestration_model
     thinking: *orchestration_thinking
 
   # Wrapper-only prompts are intentionally omitted from settings.prompts because they
   # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`,
   # `ef-work-tdd`, `ef-ship`, `ef-ship-tdd`, `ef-autoship`, `ef-autoship-tdd`)
-  # and deterministic utility wrappers (`ef-sync`). Their leaf prompts carry the
+  # and deterministic utility wrappers (`ef-update`). Their leaf prompts carry the
   # real model/thinking config.

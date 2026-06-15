@@ -17,6 +17,6 @@ ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-follow
 ```
 
 If you see this message, the project-local `.pi/prompts/ef-ship-tdd.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/ef-sync` or `/init-execflow`, then retry `/ef-ship-tdd [<work-item-ref>|--next]`.
+Run `/ef-update` or `/ef-init`, then retry `/ef-ship-tdd [<work-item-ref>|--next]`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

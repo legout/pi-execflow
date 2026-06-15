@@ -13,7 +13,7 @@ It bundles a practical workflow for:
 
 ## What it is
 
-`pi-execflow` packages prompt templates, skills, and checked-in `execflow/` template files that `/init-execflow` materializes into `.execflow/` inside target repositories.
+`pi-execflow` packages prompt templates, skills, and checked-in `execflow/` template files that `/ef-init` materializes into `.execflow/` inside target repositories.
 
 The result is a Pi-installable extension package you can use in other repositories.
 
@@ -36,6 +36,7 @@ pi -e git:github.com/legout/pi-execflow
 The simplified happy path is these commands:
 
 ```bash
+/ef-init [--tk|--br]
 /ef-plan <topic>
 /ef-tasks <topic>
 /ef-work <ticket-or-issue-ref>
@@ -46,24 +47,24 @@ The simplified happy path is these commands:
 /ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N]
 /ef-autoship [--max-retries N]
 /ef-autoship-tdd [--max-retries N]
-/ef-sync
+/ef-update
 ```
 
-These names are the supported public workflow surface. They keep the OpenAI-style ExecPlan as the canonical source of truth while hiding lower-level planning, tracker, execution, validation, and refresh steps. This package does not keep legacy slash commands solely for backward compatibility; lower-level prompts should remain only when they are active internal leaves used by the supported workflow.
+These names are the supported public workflow surface. They keep the OpenAI-style ExecPlan as the canonical source of truth while hiding lower-level planning, tracker, execution, validation, and refresh steps. Legacy aliases are retired and cleaned up by `/ef-update`; new documentation and usage should use the `ef-*` public commands.
 
 ### 1. Initialize a target project
 
 ```bash
-/init-execflow
+/ef-init
 ```
 
 or:
 
 ```bash
-/init-execflow --br
+/ef-init --br
 ```
 
-`/init-execflow` defaults to `br` when no tracker flag or existing tracker workspace determines the choice.
+`/ef-init` defaults to `br` when no tracker flag or existing tracker workspace determines the choice.
 
 This scaffolds:
 
@@ -142,17 +143,17 @@ Requirements and behavior:
 - Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
 - The MVP is intentionally sequential; parallel autoship is not supported.
 
-### 5. Sync package resources
+### 5. Update package resources
 
 Recommended public command:
 
 ```bash
-/ef-sync
+/ef-update
 ```
 
-`/ef-sync` is the intended maintenance front door for refreshing prompt overlays and synchronizing prompt model frontmatter from `.execflow/settings.yml`.
+`/ef-update` is the intended maintenance front door for refreshing prompt overlays, removing retired prompt overlays, refreshing marker-managed execflow instruction blocks, preserving user-customized settings/plans, synchronizing prompt model frontmatter from `.execflow/settings.yml`, and updating native `br`/`bv` root `AGENTS.md` instructions in `br` projects.
 
-Internal deterministic sync leaves may exist to implement refresh and model synchronization. They are implementation details of `/ef-sync`, not a compatibility surface.
+Internal deterministic update/sync leaves may exist to implement refresh, model synchronization, and scaffolding updates. They are implementation details of `/ef-update`, not a compatibility surface.
 
 ## Included resources
 
@@ -164,7 +165,7 @@ Loaded from:
 
 Supported public commands are:
 
-- `/init-execflow [--tk|--br]`
+- `/ef-init [--tk|--br]`
 - `/ef-plan <topic>`
 - `/ef-tasks <topic>`
 - `/ef-work <ticket-or-issue-ref>`
@@ -175,7 +176,7 @@ Supported public commands are:
 - `/ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N] [context...]`
 - `/ef-autoship [--max-retries N] [context...]`
 - `/ef-autoship-tdd [--max-retries N] [context...]`
-- `/ef-sync`
+- `/ef-update`
 
 Other prompt files may exist as internal leaves for chains, model-owning implementation steps, or deterministic maintenance. They are not a legacy public command surface and may be removed when no supported wrapper uses them.
 
@@ -257,10 +258,10 @@ Wrapper prompts that only orchestrate other prompts or run deterministic shell s
 
 ### Sync workflow
 
-After editing `.execflow/settings.yml`, run:
+After editing `.execflow/settings.yml`, or after updating the installed `@legout/pi-execflow` package, run:
 
 ```bash
-/ef-sync
+/ef-update
 ```
 
 or from the shell:
@@ -269,7 +270,7 @@ or from the shell:
 npm run setup-models
 ```
 
-This deterministically rewrites `model:` and `thinking:` frontmatter in `.pi/prompts/*.md` for initialized projects using the per-prompt entries in `prompts:`. When run inside the package repo, it falls back to rewriting the checked-in source prompts under `prompts/`.
+This refreshes prompt overlays, removes retired prompt overlays, refreshes marker-managed execflow instruction blocks, and deterministically rewrites `model:` and `thinking:` frontmatter in `.pi/prompts/*.md` for initialized projects using the per-prompt entries in `prompts:`. When run inside the package repo, it falls back to rewriting the checked-in source prompts under `prompts/`.
 
 Properties of the sync step:
 
@@ -288,18 +289,18 @@ Properties of the sync step:
 Prompts intentionally omitted from `execflow/settings.yml` `prompts:`:
 
 - chain wrappers: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`
-- deterministic utility wrappers: `/ef-sync`
+- deterministic utility wrappers: `/ef-update`
 - internal maintenance leaves when present, such as prompt refresh or model sync helpers
 
 ### Prompt taxonomy
 
 | Class | Model owner? | Prompts | Notes |
 |---|---|---|---|
-| Public workflow prompt | Mixed | `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-sync` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
+| Public workflow prompt | Mixed | `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update` | Preferred user-facing names; configure only model-owning prompts in `settings.prompts` |
 | Chain wrapper | No | `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd` | `chain:` only; keep fail-closed body; leaf prompts own model/thinking |
 | Autoship selector leaf | Yes | `/ship-resolve`, `/ship-tdd-resolve` | Selects ready work with `autoship-state.mjs next` and records retry progress |
-| Deterministic utility wrapper | No | `/ef-sync` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
-| Deterministic + LLM orchestration leaf | Yes | `/init-execflow` | Uses `run:` plus `handoff: always` |
+| Deterministic utility wrapper | No | `/ef-update` | Shell-first maintenance commands; intentionally omitted from `settings.prompts` |
+| Deterministic + LLM orchestration leaf | Yes | `/ef-init` | Uses `run:` plus `handoff: always` |
 | Local model-owning prompt | Yes | `/brainstorm`, `/create-plan`, `/ef-review`, `/ef-review-with-followups`, `/ef-tasks`, `/ef-work`, `/finalize`, `/grill-plan`, `/implement`, `/resolve`, `/ship-resolve`, `/ship-tdd-resolve`, `/spec`, `/validation-fix` | Configure these in `.execflow/settings.yml` |
 
 ## Included artifact templates
@@ -310,13 +311,13 @@ The package ships these checked-in templates under `execflow/`:
 - `execflow/PLANS.md`
 - `execflow/settings.yml`
 
-`/init-execflow` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from the resolved installed `@legout/pi-execflow` package root into `.pi/prompts/`.
+`/ef-init` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from the resolved installed `@legout/pi-execflow` package root into `.pi/prompts/`.
 
 ## Scope notes
 
-- The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-sync` after `/init-execflow`.
+- The supported public workflow is `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-update`.
 - In `br` mode, root `AGENTS.md` may contain native blocks managed by `br agents --add|--update` and `bv --agents-add|--agents-update`; do not duplicate those generated tool instructions in `.execflow/AGENTS.md`.
-- Legacy prompt names are not retained merely for backward compatibility. If a prompt is not part of the public workflow and no supported wrapper needs it as an internal leaf, it should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
+- Supported documentation and usage should prefer the `ef-*` public workflow. Prompt files that are neither public commands nor active internal leaves should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
 - Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
 - Optional external delegated `/execflow-queue` execution is not shipped by this package.
 - `.pi/todos/` is intentionally not included in this package.

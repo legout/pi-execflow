@@ -328,7 +328,7 @@ for (const configuredKey of Object.keys(configuredPrompts)) {
 const settingsTracker = settings.tracker?.primary;
 const agentsText = readFileSync(agentsPath, "utf8");
 const trackerMatch = agentsText.match(
-	/Primary tracker selected during init-execflow: `([^`]+)`/,
+	/Primary tracker selected during ef-init: `([^`]+)`/,
 );
 const agentsTracker = trackerMatch?.[1] ?? null;
 const readmeText = readFileSync(readmePath, "utf8");
@@ -346,7 +346,7 @@ if (settingsTracker !== "br") {
 }
 
 if (!/defaults to `br`/.test(readmeText)) {
-	addError("README.md must document that /init-execflow defaults to br");
+	addError("README.md must document that /ef-init defaults to br");
 }
 
 if (/pi install npm:|From npm/i.test(readmeText)) {
@@ -362,7 +362,7 @@ if (/"publishConfig"/.test(packageJsonText)) {
 	);
 }
 
-for (const promptName of ["init-execflow.md", "ef-sync.md"]) {
+for (const promptName of ["ef-init.md", "ef-update.md"]) {
 	const promptText = readFileSync(join(promptsDir, promptName), "utf8");
 	if (/\.pi['", ]+agent['", ]+npm|node_modules/.test(promptText)) {
 		addError(

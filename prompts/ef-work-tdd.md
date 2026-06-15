@@ -14,6 +14,6 @@ resolve -> spec -> implement -> validation-fix -> finalize
 ```
 
 If you see this message, the project-local `.pi/prompts/ef-work-tdd.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.
-Run `/ef-sync` or `/init-execflow`, then retry `/ef-work-tdd <work-item-ref>`.
+Run `/ef-update` or `/ef-init`, then retry `/ef-work-tdd <work-item-ref>`.
 
 Do not implement, edit files, validate, review, plan, or mutate tracker state from this fallback prompt body.

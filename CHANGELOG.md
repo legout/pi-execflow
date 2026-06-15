@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0 - 2026-06-15
+
+- Added `/ef-init` as the canonical project initialization command and retired the legacy `/init-execflow` prompt overlay.
+- Added `/ef-update` as the canonical project update command, replacing `/ef-sync` with full prompt overlay refresh, retired overlay cleanup, marker-managed execflow instruction refresh, model frontmatter sync, and `br`/`bv` root `AGENTS.md` refresh for `br` projects.
+- Removed legacy prompt aliases from the shipped prompt set and added them to retired overlay cleanup so existing projects drop stale `/init-execflow` and `/ef-sync` files during `/ef-update`.
+- Fixed init argument propagation and deterministic tracker reporting so `/ef-init --tk` and `/ef-init --br` are visible to both the pre-step and the LLM handoff.
+
 ## 1.4.0 - 2026-06-15
 
 - Added deterministic tracker-tool preflight to `/init-execflow` so `br` and `tk` modes fail before scaffolding when their required CLI is missing.

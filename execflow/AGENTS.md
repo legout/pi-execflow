@@ -3,7 +3,7 @@
 
 Use this repository's execflow workflow for planning and ticket execution.
 
-Primary tracker selected during init-execflow: `br`
+Primary tracker selected during ef-init: `br`
 
 ## ExecPlans
 
@@ -23,21 +23,21 @@ Use the simplified public command path for normal work:
 - `/ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N]` runs the TDD-oriented work-item execution chain, review with follow-up creation enabled, and conservative finalization. With no explicit target or with `--next`, it drains ready work until none is eligible.
 - `/ef-autoship [--max-retries N]` drains ready `br` issues or `tk` tickets one at a time through the quick ship chain. It does not require `/prompt-tool on`. Defaults to `--max-retries 2` (three total attempts per work item).
 - `/ef-autoship-tdd [--max-retries N]` drains ready `br` issues or `tk` tickets one at a time through the TDD ship chain. It does not require `/prompt-tool on`. Defaults to `--max-retries 2`.
-- `/ef-sync` refreshes package prompt overlays and synchronizes prompt model frontmatter from `.execflow/settings.yml`.
+- `/ef-update` refreshes package prompt overlays, removes retired overlays, refreshes marker-managed execflow instructions, synchronizes prompt model frontmatter from `.execflow/settings.yml`, and refreshes native `br`/`bv` root `AGENTS.md` blocks in `br` projects.
 
-The lower-level prompts are internal implementation leaves, not a legacy public surface. Do not keep old command names solely for backward compatibility; remove prompt files that are no longer used by the supported workflow and retire their overlays through `scripts/retired-prompts.mjs`.
+The lower-level prompts are internal implementation leaves, not a legacy public surface. Remove prompt files that are neither public commands nor active internal leaves and retire their overlays through `scripts/retired-prompts.mjs`.
 
 ## Planning workflow
 
-- Use `/init-execflow [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
-- Use `/ef-sync` after editing `.execflow/settings.yml` to refresh prompt overlays and sync `.pi/prompts/` frontmatter.
-- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning prompts only. Wrapper prompts such as `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-sync` are intentionally omitted. `/ef-work` and `/ef-tasks` are configured because they directly own LLM passes.
+- Use `/ef-init [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
+- Use `/ef-update` after editing `.execflow/settings.yml` or updating the installed package to refresh prompt overlays, marker-managed execflow instructions, native `br`/`bv` root `AGENTS.md` blocks in `br` projects, and `.pi/prompts/` frontmatter.
+- Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning prompts only. Wrapper prompts such as `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update` are intentionally omitted. `/ef-work` and `/ef-tasks` are configured because they directly own LLM passes.
 - Prompt taxonomy:
-  - public workflow prompts: `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-sync`
-  - wrappers without model ownership: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-sync`
+  - public workflow prompts: `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update`
+  - wrappers without model ownership: `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update`
   - autoship selector leaves: `/ship-resolve`, `/ship-tdd-resolve`
   - local model-owning prompts: `/brainstorm`, `/create-plan`, `/grill-plan`, `/ef-tasks`, `/ef-work`, `/resolve`, `/ship-resolve`, `/ship-tdd-resolve`, `/spec`, `/implement`, `/validation-fix`, `/finalize`, `/ef-review`, `/ef-review-with-followups`
-  - deterministic + LLM setup leaf: `/init-execflow`
+  - deterministic + LLM setup leaf: `/ef-init`
 - Brainstorming, plan creation, and plan grilling are internal phases behind `/ef-plan`; keep only the prompt leaves still needed by that wrapper.
 - Update architecture documentation after implementation when architecture docs need to reflect what was built.
 - ExecPlans live at `.execflow/plans/<topic-slug>/execplan.md`.
