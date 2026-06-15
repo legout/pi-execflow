@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.2 - 2026-06-15
+
+- Fixed `/ef-ship*` and `/ef-autoship*` chain loops so they do not use prompt-template fresh branch navigation between ready-work iterations, preventing missing-template failures after `/ef-update` or other pre-loop commands.
+
 ## 1.7.1 - 2026-06-15
 
 - Fixed `/ef-ship*` and `/ef-autoship*` ready-work draining so productive next-ready dispatch iterations write a local convergence marker, while no-ready stop iterations remain no-op and converge cleanly.

@@ -53,7 +53,7 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 - `ef-reviewer` handles fresh-context review and may create tracker follow-ups only when `/ef-review --create-followups` or `/ef-review-with-followups` enables that explicitly.
 - `ef-finalizer` handles fresh-context evidence checks, dirty-tree classification, final notes, commits, and safe tracker closure for `/finalize`.
 
-Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inline orchestration wrappers; put subagent boundaries on their leaf steps, not on the wrappers.
+Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inline orchestration wrappers; put subagent boundaries on their leaf steps, not on the wrappers. These chain-loop wrappers intentionally use `fresh: false` so prompt-template does not navigate branches between ready-work iterations; the side-effecting leaves still run in fresh subagent contexts.
 
 ## Tracker workflow
 

@@ -296,8 +296,8 @@ for (const promptFile of promptFiles) {
 		if (getFrontmatterField(extracted.frontmatter, "loop") !== "unlimited") {
 			addError(`Prompt ${promptFile} must use loop: unlimited`);
 		}
-		if (getFrontmatterField(extracted.frontmatter, "fresh") !== "true") {
-			addError(`Prompt ${promptFile} must use fresh: true`);
+		if (getFrontmatterField(extracted.frontmatter, "fresh") !== "false") {
+			addError(`Prompt ${promptFile} must use fresh: false to avoid branch-navigation failures between autoship iterations`);
 		}
 		if (getFrontmatterField(extracted.frontmatter, "converge") !== "true") {
 			addError(`Prompt ${promptFile} must use converge: true`);

@@ -4,7 +4,7 @@ argument-hint: "[--max-retries N] [context...]"
 chain: ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize
 chainContext: summary
 loop: unlimited
-fresh: true
+fresh: false
 converge: true
 restore: true
 ---

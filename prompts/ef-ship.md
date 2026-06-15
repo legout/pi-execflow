@@ -4,7 +4,7 @@ argument-hint: "[<work-item-ref>|--next] [--max-retries N] [context...]"
 chain: ship-resolve -> ef-work -> ef-review-with-followups -> finalize
 chainContext: summary
 loop: unlimited
-fresh: true
+fresh: false
 converge: true
 restore: true
 ---

@@ -134,6 +134,7 @@ Requirements and behavior:
 - Autoship auto-detects the active tracker from `.execflow/settings.yml` when possible. It reads `br ready --json` for `br` repositories and `tk ready` for `tk` repositories, preserving the tracker ready order.
 - `/ef-autoship` runs the quick ship chain for each selected issue or ticket; `/ef-autoship-tdd` runs the TDD ship chain.
 - Autoship writes a local `.pi/execflow-autoship-loop-marker.json` marker on productive ready-work dispatches so prompt-template convergence continues to the next item; no marker is written on no-ready stop iterations, so the loop converges cleanly.
+- Ship/autoship chain wrappers keep prompt-template `fresh` collapse disabled to avoid branch-navigation failures between iterations; implementation, validation, review, and finalization leaves still run in fresh subagent contexts.
 - Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
 - The MVP is intentionally sequential; parallel autoship is not supported.
 
