@@ -1,80 +1,80 @@
 version: 1
 
 tracker:
-  primary: br
+    primary: br
 
 models:
-  plan: &plan_model openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
-  orchestration: &orchestration_model zai/glm-5-turbo
-  implementation: &implementation_model kimi-coding/k2p7, openai-codex/gpt-5.4-mini
-  validation_fix: &validation_fix_model zai/glm-5.2
-  fast: &fast_model zai/glm-5-turbo
-  review: &review_model openai-codex/gpt-5.5
+    plan: &plan_model openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
+    orchestration: &orchestration_model zai/glm-5.2
+    implementation: &implementation_model kimi-coding/k2p7, openai-codex/gpt-5.4-mini
+    validation_fix: &validation_fix_model zai/glm-5.2
+    fast: &fast_model zai/glm-5-turbo
+    review: &review_model openai-codex/gpt-5.5
 
 thinking:
-  plan: &plan_thinking high
-  orchestration: &orchestration_thinking medium
-  implementation: &implementation_thinking medium
-  validation_fix: &validation_fix_thinking medium
-  fast: &fast_thinking low
-  review: &review_thinking medium
+    plan: &plan_thinking high
+    orchestration: &orchestration_thinking medium
+    implementation: &implementation_thinking medium
+    validation_fix: &validation_fix_thinking high
+    fast: &fast_thinking low
+    review: &review_thinking high
 
 prompts:
-  # Public model-owning prompts
-  ef-tasks:
-    model: *plan_model
-    thinking: *plan_thinking
-  ef-review:
-    model: *review_model
-    thinking: *review_thinking
-  ef-review-with-followups:
-    model: *review_model
-    thinking: *review_thinking
-  ef-work:
-    model: *implementation_model
-    thinking: *implementation_thinking
+    # Public model-owning prompts
+    ef-tasks:
+        model: *plan_model
+        thinking: *plan_thinking
+    ef-review:
+        model: *review_model
+        thinking: *review_thinking
+    ef-review-with-followups:
+        model: *review_model
+        thinking: *review_thinking
+    ef-work:
+        model: *implementation_model
+        thinking: *implementation_thinking
 
-  # Internal planning leaves used by /ef-plan
-  brainstorm:
-    model: *plan_model
-    thinking: *plan_thinking
-  create-plan:
-    model: *plan_model
-    thinking: *plan_thinking
-  grill-plan:
-    model: *plan_model
-    thinking: *plan_thinking
+    # Internal planning leaves used by /ef-plan
+    brainstorm:
+        model: *plan_model
+        thinking: *plan_thinking
+    create-plan:
+        model: *plan_model
+        thinking: *plan_thinking
+    grill-plan:
+        model: *plan_model
+        thinking: *plan_thinking
 
-  # Internal work leaves used by /ef-work-tdd, /ef-ship, and /ef-ship-tdd
-  resolve:
-    model: *fast_model
-    thinking: *fast_thinking
-  ship-resolve:
-    model: *fast_model
-    thinking: *fast_thinking
-  ship-tdd-resolve:
-    model: *fast_model
-    thinking: *fast_thinking
-  spec:
-    model: *implementation_model
-    thinking: *implementation_thinking
-  implement:
-    model: *implementation_model
-    thinking: *implementation_thinking
-  validation-fix:
-    model: *validation_fix_model
-    thinking: *validation_fix_thinking
-  finalize:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
+    # Internal work leaves used by /ef-work-tdd, /ef-ship, and /ef-ship-tdd
+    resolve:
+        model: *fast_model
+        thinking: *fast_thinking
+    ship-resolve:
+        model: *fast_model
+        thinking: *fast_thinking
+    ship-tdd-resolve:
+        model: *fast_model
+        thinking: *fast_thinking
+    spec:
+        model: *implementation_model
+        thinking: *implementation_thinking
+    implement:
+        model: *implementation_model
+        thinking: *implementation_thinking
+    validation-fix:
+        model: *validation_fix_model
+        thinking: *validation_fix_thinking
+    finalize:
+        model: *orchestration_model
+        thinking: *orchestration_thinking
 
-  # Setup prompt
-  ef-init:
-    model: *orchestration_model
-    thinking: *orchestration_thinking
+    # Setup prompt
+    ef-init:
+        model: *orchestration_model
+        thinking: *orchestration_thinking
 
-  # Wrapper-only prompts are intentionally omitted from settings.prompts because they
-  # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`,
-  # `ef-work-tdd`, `ef-ship`, `ef-ship-tdd`, `ef-autoship`, `ef-autoship-tdd`)
-  # and deterministic utility wrappers (`ef-update`). Their leaf prompts carry the
-  # real model/thinking config.
+    # Wrapper-only prompts are intentionally omitted from settings.prompts because they
+    # do not own model selection. This includes chain wrappers (`ef-plan`, `ef-work`,
+    # `ef-work-tdd`, `ef-ship`, `ef-ship-tdd`, `ef-autoship`, `ef-autoship-tdd`)
+    # and deterministic utility wrappers (`ef-update`). Their leaf prompts carry the
+    # real model/thinking config.
