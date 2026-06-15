@@ -128,6 +128,7 @@ const settingsPath = join(repoRoot, "execflow", "settings.yml");
 const agentsPath = join(repoRoot, "execflow", "AGENTS.md");
 const readmePath = join(repoRoot, "README.md");
 const promptsDir = join(repoRoot, "prompts");
+const agentTemplatesDir = join(repoRoot, "agents");
 const skillsDir = join(repoRoot, "skills");
 const scriptsDir = join(repoRoot, "scripts");
 const validateScriptPath = join(repoRoot, "scripts", "validate-package.mjs");
@@ -139,6 +140,24 @@ const promptFiles = readdirSync(promptsDir)
 const skillFiles = readdirSync(skillsDir, { recursive: true })
 	.map((entry) => join(skillsDir, entry.toString()))
 	.filter((filePath) => filePath.endsWith("SKILL.md") && existsSync(filePath));
+const agentFiles = existsSync(agentTemplatesDir)
+	? readdirSync(agentTemplatesDir)
+			.filter((name) => name.endsWith(".md"))
+			.sort()
+	: [];
+const agentNames = new Set();
+for (const agentFile of agentFiles) {
+	const agentPath = join(agentTemplatesDir, agentFile);
+	const extracted = extractFrontmatter(readFileSync(agentPath, "utf8"), agentPath);
+	if (!extracted) continue;
+	const name = getFrontmatterField(extracted.frontmatter, "name");
+	if (name) agentNames.add(name);
+}
+for (const expectedAgent of ["ef-worker", "ef-validation-fix", "ef-reviewer"]) {
+	if (!agentNames.has(expectedAgent)) {
+		addError(`Missing package agent template: ${expectedAgent}`);
+	}
+}
 const skillNames = new Set();
 for (const skillPath of skillFiles) {
 	const extracted = extractFrontmatter(
@@ -211,6 +230,11 @@ for (const promptFile of promptFiles) {
 				`Prompt ${promptFile} thinking frontmatter is out of sync with settings.prompts.${promptKey}.thinking`,
 			);
 		}
+	}
+
+	const promptSubagent = getFrontmatterField(extracted.frontmatter, "subagent");
+	if (promptSubagent && !agentNames.has(promptSubagent)) {
+		addError(`Prompt ${promptFile} references missing package agent: ${promptSubagent}`);
 	}
 
 	const promptSkill = getFrontmatterField(extracted.frontmatter, "skill");
@@ -377,6 +401,7 @@ for (const promptName of ["ef-init.md", "ef-update.md"]) {
 const repoFiles = [readmePath];
 for (const dir of [
 	promptsDir,
+	agentTemplatesDir,
 	join(repoRoot, "execflow"),
 	skillsDir,
 	scriptsDir,

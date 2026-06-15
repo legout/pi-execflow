@@ -13,7 +13,7 @@ It bundles a practical workflow for:
 
 ## What it is
 
-`pi-execflow` packages prompt templates, skills, and checked-in `execflow/` template files that `/ef-init` materializes into `.execflow/` inside target repositories.
+`pi-execflow` packages prompt templates, subagent templates, skills, and checked-in `execflow/` template files that `/ef-init` materializes into `.execflow/` inside target repositories.
 
 The result is a Pi-installable extension package you can use in other repositories.
 
@@ -71,7 +71,7 @@ This scaffolds:
 - `.execflow/AGENTS.md`
 - `.execflow/PLANS.md`
 - `.execflow/settings.yml`
-- `.pi/prompts/*.md` copied from the resolved installed `@legout/pi-execflow` package root
+- `.pi/prompts/*.md` and `.pi/agents/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
 In `br` mode, `br` is required. If it is missing, init stops and points to https://github.com/Dicklesworthstone/beads_rust. If `bv` is missing, init recommends installing it but continues. Native `br` and `bv` workflow instructions are managed in the project-root `AGENTS.md` by their own commands; `.execflow/AGENTS.md` stays focused on pi-execflow policy.
@@ -113,14 +113,7 @@ Recommended public commands:
 
 `/ef-work` is the quick implementation front door for one simple tracked work item. It resolves the item, makes the smallest scoped change, runs a quick targeted validation or records inspection evidence, performs a short self-review, and leaves finalization to `/finalize` or `/ef-ship`. Use `/ef-work-tdd` when the item needs explicit specification, RED/GREEN discipline, validation/fix looping, and immediate finalization. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
 
-For fresh implementation context, prefer running work in a subagent and then reviewing in the reviewer subagent:
-
-```bash
-/ef-work <ticket-or-issue-ref> --subagent=worker
-/ef-review <ticket-or-issue-ref>
-```
-
-`/ef-review` and `/ef-review-with-followups` are configured to run through the `reviewer` subagent when `pi-subagents` is installed. If you use `/ef-ship`, start it from a new Pi conversation (`/new`) when you want to avoid session-history leakage; `/new` is an interactive Pi command, not a prompt template step that can be inserted into the `/ef-ship` chain.
+`/ef-work`, `/implement`, `/validation-fix`, `/ef-review`, and `/ef-review-with-followups` are configured to use pi-execflow-owned project subagents scaffolded into `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`. The orchestration wrappers (`/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`) stay inline while their implementation, validation-fix, and review leaves run in fresh subagent context.
 
 `/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization; with no explicit work item or with `--next`, it selects ready work and loops until no eligible ready work remains. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization, with the same no-arg/`--next` ready-work selection behavior.
 
@@ -151,7 +144,7 @@ Recommended public command:
 /ef-update
 ```
 
-`/ef-update` is the intended maintenance front door for refreshing prompt overlays, removing retired prompt overlays, refreshing marker-managed execflow instruction blocks, preserving user-customized settings/plans, synchronizing prompt model frontmatter from `.execflow/settings.yml`, and updating native `br`/`bv` root `AGENTS.md` instructions in `br` projects.
+`/ef-update` is the intended maintenance front door for refreshing prompt and subagent overlays, removing retired prompt overlays, refreshing marker-managed execflow instruction blocks, preserving user-customized settings/plans, synchronizing prompt model frontmatter from `.execflow/settings.yml`, and updating native `br`/`bv` root `AGENTS.md` instructions in `br` projects.
 
 Internal deterministic update/sync leaves may exist to implement refresh, model synchronization, and scaffolding updates. They are implementation details of `/ef-update`, not a compatibility surface.
 
@@ -191,6 +184,14 @@ This package includes:
 - planning skills: `brainstorm`, `create-plan`, `grill-plan`
 - execution skills: `resolve`, `specification`, `validation`, `execution`, `finalize`, `review-suite`, `autoship`
 - tracker skills: `work-itemize`
+
+### Subagent templates
+
+Copied into initialized projects under `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`:
+
+- `ef-worker` — scoped implementation for `/ef-work` and `/implement`
+- `ef-validation-fix` — fresh-context validation/repair loop for `/validation-fix`
+- `ef-reviewer` — fresh-context review and optional tracker follow-up creation for `/ef-review*`
 
 ## Model configuration
 
@@ -311,7 +312,7 @@ The package ships these checked-in templates under `execflow/`:
 - `execflow/PLANS.md`
 - `execflow/settings.yml`
 
-`/ef-init` materializes their target-project counterparts under `.execflow/` and copies prompt overlays from the resolved installed `@legout/pi-execflow` package root into `.pi/prompts/`.
+`/ef-init` materializes their target-project counterparts under `.execflow/` and copies prompt and subagent overlays from the resolved installed `@legout/pi-execflow` package root into `.pi/prompts/` and `.pi/agents/`.
 
 ## Scope notes
 

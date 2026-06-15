@@ -17,6 +17,8 @@ const cwd = process.cwd();
 const packageRoot = currentPackageRoot();
 const promptSrcDir = join(packageRoot, "prompts");
 const promptDstDir = join(cwd, ".pi", "prompts");
+const agentSrcDir = join(packageRoot, "agents");
+const agentDstDir = join(cwd, ".pi", "agents");
 const execflowSrcDir = join(packageRoot, "execflow");
 const execflowDstDir = join(cwd, ".execflow");
 const rootAgentsPath = join(cwd, "AGENTS.md");
@@ -105,6 +107,17 @@ function copyPromptOverlays() {
 		if (!existsSync(retiredPath)) continue;
 		rmSync(retiredPath);
 		console.log(`removed retired prompt overlay ${relative(cwd, retiredPath)}`);
+	}
+}
+
+function refreshAgentOverlays() {
+	if (!existsSync(agentSrcDir))
+		fail(`Canonical agent source not found: ${agentSrcDir}`);
+	mkdirSync(agentDstDir, { recursive: true });
+	for (const entry of readdirSync(agentSrcDir, { withFileTypes: true })) {
+		if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+		copyFileSync(join(agentSrcDir, entry.name), join(agentDstDir, entry.name));
+		console.log(`refreshed ${relative(cwd, join(agentDstDir, entry.name))}`);
 	}
 }
 
@@ -251,6 +264,7 @@ const trackerMode = detectTrackerMode();
 console.log(`ef-update-tracker ${trackerMode ?? "ambiguous"}`);
 
 copyPromptOverlays();
+refreshAgentOverlays();
 ensureExecflowTemplates(trackerMode);
 updateRootAgentsBlock();
 if (trackerMode === "br") {

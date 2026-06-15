@@ -30,6 +30,7 @@ Accepted tracker flags:
 Canonical scaffold sources:
 
 - prompts: `<resolved @legout/pi-execflow package root>/prompts/`
+- subagents: `<resolved @legout/pi-execflow package root>/agents/`
 - execflow templates: `<resolved @legout/pi-execflow package root>/execflow/`
 
 Tracker selection rules:
@@ -43,7 +44,7 @@ Tracker selection rules:
 5. If no flag is present and neither workspace exists, default to `br`.
 
 Goals:
-1. Scaffold `.pi/prompts/` by copying missing prompt overlays from the canonical prompt source.
+1. Scaffold `.pi/prompts/` and `.pi/agents/` by copying missing prompt and subagent overlays from the canonical package source.
 2. Scaffold `.execflow/AGENTS.md`, `.execflow/PLANS.md`, and `.execflow/settings.yml` by copying missing files from the canonical `execflow/` source.
 3. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
 4. Initialize the selected tracker tool safely:
@@ -75,9 +76,9 @@ Rules:
   - If the file was copied by the deterministic step, keep the copied content as the base.
   - If it already existed before this run, leave it untouched unless the user explicitly asks to regenerate it.
   - When the file is managed by this init run, ensure `tracker.primary` matches the selected tracker mode.
-- For `.pi/prompts/`:
-  - Missing prompt files have already been copied from the canonical prompt source.
-  - Leave existing prompt files untouched unless the user explicitly asks to regenerate prompt overlays.
+- For `.pi/prompts/` and `.pi/agents/`:
+  - Missing prompt and subagent files have already been copied from the canonical package source.
+  - Leave existing prompt and subagent files untouched unless the user explicitly asks to regenerate overlays.
 - For tracker setup:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
   - In `br` mode, verify `br` is installed. If `br` is missing, stop and print installation instructions for https://github.com/Dicklesworthstone/beads_rust. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.

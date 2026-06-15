@@ -3,6 +3,7 @@ description: Validate and apply minimal fixes until acceptance criteria pass or 
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.2
 thinking: high
+subagent: ef-validation-fix
 loop: 5
 converge: true
 fresh: true

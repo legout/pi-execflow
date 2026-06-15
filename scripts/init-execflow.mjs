@@ -16,6 +16,8 @@ const args = process.argv.slice(2);
 const packageRoot = currentPackageRoot();
 const promptSrcDir = join(packageRoot, "prompts");
 const promptDstDir = join(cwd, ".pi", "prompts");
+const agentSrcDir = join(packageRoot, "agents");
+const agentDstDir = join(cwd, ".pi", "agents");
 const execflowSrcDir = join(packageRoot, "execflow");
 const execflowDstDir = join(cwd, ".execflow");
 
@@ -144,8 +146,13 @@ if (!existsSync(execflowSrcDir)) {
 	console.error(`Canonical execflow source not found: ${execflowSrcDir}`);
 	process.exit(1);
 }
+if (!existsSync(agentSrcDir)) {
+	console.error(`Canonical agent source not found: ${agentSrcDir}`);
+	process.exit(1);
+}
 
 mkdirSync(promptDstDir, { recursive: true });
+mkdirSync(agentDstDir, { recursive: true });
 mkdirSync(execflowDstDir, { recursive: true });
 
 copyMissingTree(promptSrcDir, promptDstDir, (name) => name.endsWith(".md"));
@@ -155,6 +162,7 @@ for (const fileName of retiredPromptFiles) {
 	rmSync(retiredPath);
 	console.log(`removed retired prompt overlay ${relative(cwd, retiredPath)}`);
 }
+copyMissingTree(agentSrcDir, agentDstDir, (name) => name.endsWith(".md"));
 copyMissingTree(execflowSrcDir, execflowDstDir);
 refreshNativeBrAgentsIfReady(trackerMode);
 

@@ -23,14 +23,14 @@ Use the simplified public command path for normal work:
 - `/ef-ship-tdd [<ticket-or-issue-ref>|--next] [--max-retries N]` runs the TDD-oriented work-item execution chain, review with follow-up creation enabled, and conservative finalization. With no explicit target or with `--next`, it drains ready work until none is eligible.
 - `/ef-autoship [--max-retries N]` drains ready `br` issues or `tk` tickets one at a time through the quick ship chain. It does not require `/prompt-tool on`. Defaults to `--max-retries 2` (three total attempts per work item).
 - `/ef-autoship-tdd [--max-retries N]` drains ready `br` issues or `tk` tickets one at a time through the TDD ship chain. It does not require `/prompt-tool on`. Defaults to `--max-retries 2`.
-- `/ef-update` refreshes package prompt overlays, removes retired overlays, refreshes marker-managed execflow instructions, synchronizes prompt model frontmatter from `.execflow/settings.yml`, and refreshes native `br`/`bv` root `AGENTS.md` blocks in `br` projects.
+- `/ef-update` refreshes package prompt and subagent overlays, removes retired prompt overlays, refreshes marker-managed execflow instructions, synchronizes prompt model frontmatter from `.execflow/settings.yml`, and refreshes native `br`/`bv` root `AGENTS.md` blocks in `br` projects.
 
 The lower-level prompts are internal implementation leaves, not a legacy public surface. Remove prompt files that are neither public commands nor active internal leaves and retire their overlays through `scripts/retired-prompts.mjs`.
 
 ## Planning workflow
 
 - Use `/ef-init [--tk|--br]` to scaffold planning files and initialize the chosen tracker.
-- Use `/ef-update` after editing `.execflow/settings.yml` or updating the installed package to refresh prompt overlays, marker-managed execflow instructions, native `br`/`bv` root `AGENTS.md` blocks in `br` projects, and `.pi/prompts/` frontmatter.
+- Use `/ef-update` after editing `.execflow/settings.yml` or updating the installed package to refresh prompt and subagent overlays, marker-managed execflow instructions, native `br`/`bv` root `AGENTS.md` blocks in `br` projects, and `.pi/prompts/` frontmatter.
 - Treat `.execflow/settings.yml` `prompts:` as the source of truth for model-owning prompts only. Wrapper prompts such as `/ef-plan`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update` are intentionally omitted. `/ef-work` and `/ef-tasks` are configured because they directly own LLM passes.
 - Prompt taxonomy:
   - public workflow prompts: `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/ef-update`
@@ -42,6 +42,17 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 - Update architecture documentation after implementation when architecture docs need to reflect what was built.
 - ExecPlans live at `.execflow/plans/<topic-slug>/execplan.md`.
 - Brainstorms live at `.execflow/plans/<topic-slug>/brainstorm.md`.
+
+
+## Subagent roles
+
+`/ef-init` scaffolds and `/ef-update` refreshes pi-execflow-owned agents under `.pi/agents/`:
+
+- `ef-worker` handles fresh-context implementation for `/ef-work` and `/implement`.
+- `ef-validation-fix` handles fresh-context validation and minimal scoped repair for `/validation-fix`.
+- `ef-reviewer` handles fresh-context review and may create tracker follow-ups only when `/ef-review --create-followups` or `/ef-review-with-followups` enables that explicitly.
+
+Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inline orchestration wrappers; put subagent boundaries on their leaf steps, not on the wrappers.
 
 ## Tracker workflow
 

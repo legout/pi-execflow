@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.0 - 2026-06-15
+
+- Added pi-execflow-owned subagent templates (`ef-worker`, `ef-validation-fix`, `ef-reviewer`) shipped under `agents/` and scaffolded into `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`.
+- Wired `/ef-work` and `/implement` to run in the `ef-worker` subagent with fresh context for scoped implementation.
+- Wired `/validation-fix` to run in the `ef-validation-fix` subagent with fresh context for independent validation and minimal repair.
+- Wired `/ef-review` and `/ef-review-with-followups` to the `ef-reviewer` subagent, which can create tracker follow-ups when explicitly enabled while remaining read-only for source code.
+- Kept `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inline orchestration wrappers; subagent boundaries are on leaf steps only.
+- Added package validation for shipped agent templates and prompt `subagent:` references.
+
 ## 1.5.1 - 2026-06-15
 
 - Fixed `/finalize` so it never edits source files, runs auto-fix commands, or repairs review findings during finalization. Review follow-ups are now treated as closure evidence for the original item, not work to perform.
