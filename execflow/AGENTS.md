@@ -51,6 +51,7 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 - `ef-worker` handles fresh-context implementation for `/ef-work` and `/implement`.
 - `ef-validation-fix` handles fresh-context validation and minimal scoped repair for `/validation-fix`.
 - `ef-reviewer` handles fresh-context review and may create tracker follow-ups only when `/ef-review --create-followups` or `/ef-review-with-followups` enables that explicitly.
+- `ef-finalizer` handles fresh-context evidence checks, dirty-tree classification, final notes, commits, and safe tracker closure for `/finalize`.
 
 Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inline orchestration wrappers; put subagent boundaries on their leaf steps, not on the wrappers.
 
@@ -117,7 +118,7 @@ Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inlin
 - If a ticket or issue contains an `ExecPlan Reference` block, read the referenced ExecPlan before implementing or reviewing.
 - `/ef-work` emits quick `Gate: PASS` / `Gate: REVISE` / `Gate: BLOCKED` evidence but does not close by itself.
 - `/ef-work-tdd` closure requires strict `Gate: PASS` validation evidence and means acceptance criteria were met; it does not imply independent review.
-- Reviews are read-only by default. They create linked follow-up work items only when invoked with `--create-followups`.
+- Reviews are read-only by default. They create linked follow-up work items only when invoked with `--create-followups`, and emit a `# Finalization Handoff` block for downstream closure decisions.
 - Keep ExecPlans and architecture documentation aligned with reality as work progresses.
 
 ## Coding behavior guidelines

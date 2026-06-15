@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 - 2026-06-15
+
+- Added the `ef-finalizer` subagent for fresh-context evidence checks, dirty-tree classification, final notes, commits, and safe tracker closure.
+- Wired `/finalize` to the `ef-finalizer` subagent so mixed delegated/direct ship chains end on finalization output instead of replaying stale review output after closure.
+- Hardened finalization policy around explicit evidence, review handoff parsing, dirty-tree classification, and related-file-only commits before tracker closure.
+- Added a machine-readable review `# Finalization Handoff` block so downstream finalization can distinguish clean closure, delegated follow-ups, and unresolved review findings.
+- Added package validation for the `ef-finalizer` agent template.
+
 ## 1.6.0 - 2026-06-15
 
 - Added pi-execflow-owned subagent templates (`ef-worker`, `ef-validation-fix`, `ef-reviewer`) shipped under `agents/` and scaffolded into `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`.

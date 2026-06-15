@@ -13,6 +13,8 @@ Reviews are read-only by default. Do not add tracker comments, close/reopen item
 
 When `--create-followups` is absent, list candidate follow-ups only. When it is present, create follow-ups only for concrete, actionable findings after checking for obvious duplicates. For work-item reviews, add a concise note/comment to the original work item summarizing the review findings and the created or duplicate follow-up IDs. Do not close the original work item from the review step; the downstream finalization step closes it when validation evidence is PASS and every material review finding is represented by a follow-up. For `tk`, use `tk add-note <item> "..."`. For `br`, prefer `ACTOR="${BR_ACTOR:-assistant}"` and `RUST_LOG=error br ... --json`, then run `RUST_LOG=error br sync --flush-only` after mutation.
 
+Every review must end with a machine-readable `# Finalization Handoff` section. Set `Original item may close: yes` only when the verdict is merge-ready/pass and either there are no material findings or every material finding has a created follow-up or an explicitly identified duplicate plus an original-item note/comment. Set it to `no` for needs-fixes, failed, blocked, missing validation evidence, disabled/incomplete follow-up creation, or failed original-item commenting.
+
 ## Review modes
 
 ### Work-item review
@@ -111,6 +113,16 @@ Use exactly these sections for all review prompts:
 - Duplicates skipped:
 - Notes/comments added:
 - Sync run:
+
+# Finalization Handoff
+
+- Closure supported: yes / no
+- Review verdict:
+- Material findings: none / list findings
+- Follow-up coverage: not-needed / all-created / duplicates-skipped / incomplete / disabled
+- Original item comment: added <id> / added / not-needed / failed / not-attempted
+- Original item may close: yes / no
+- Reason:
 
 # Recommended Next Actions
 

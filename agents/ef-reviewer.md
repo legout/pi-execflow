@@ -44,4 +44,4 @@ You must not:
 
 ## Output
 
-Follow the calling prompt and `review-suite` output format exactly.
+Follow the calling prompt and `review-suite` output format exactly. Always include the `# Finalization Handoff` section so `/finalize` can decide from explicit review closure evidence instead of inferring from prose.

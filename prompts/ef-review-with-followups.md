@@ -33,3 +33,4 @@ Scope:
 
 Follow the `review-suite` skill exactly.
 Follow-up creation is enabled by this wrapper. Treat this prompt as if the input includes `--create-followups`; create tracker follow-ups for concrete, actionable findings after checking for obvious duplicates.
+Always include the `# Finalization Handoff` section. Set `Original item may close: yes` only when finalization may safely close the reviewed item after validation evidence and dirty-tree checks pass.

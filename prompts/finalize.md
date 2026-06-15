@@ -3,6 +3,7 @@ description: Add a final work-item note and close it when validation passes and 
 argument-hint: "<work-item-ref> [context...]"
 model: zai/glm-5.2
 thinking: medium
+subagent: ef-finalizer
 fresh: true
 skill: finalize
 restore: true
@@ -46,15 +47,17 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - `/ef-work` in the quick path.
 4. Find the latest review evidence when the current chain or user context includes it. `/ef-ship` runs `/ef-review-with-followups` before this step, so review evidence is required there.
 5. Decide whether the outcome is:
-   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, and any required review evidence is either clean or has captured every material finding as tracker follow-up work.
-   - `REVISE` if validation evidence contains `Gate: REVISE`, evidence is partial/stale/ambiguous/missing, review follow-up creation/commenting failed, or material review findings remain uncaptured before closure.
+   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, any required review evidence is either clean or has captured every material finding as tracker follow-up work, and the git dirty tree can be separated safely.
+   - `REVISE` if validation evidence contains `Gate: REVISE`, evidence is partial/stale/ambiguous/missing, review follow-up creation/commenting failed, material review findings remain uncaptured before closure, or unrelated dirty-tree changes cannot be separated from the work item.
    - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized.
 6. **On strict PASS only**: commit the related code changes before closing the tracker item.
-   - Run `git status` and `git diff --stat` to see what changed.
-   - Stage only files belonging to this work item (no unrelated changes).
+   - Run `git status --short` and `git diff --stat` to see what changed.
+   - Classify every changed/untracked file as `related`, `unrelated`, or `ambiguous` before staging.
+   - Stage only `related` files belonging to this work item (no unrelated or ambiguous changes).
+   - If any tracked or untracked file is `ambiguous`, output `REVISE` instead of committing or closing.
    - Commit with a Conventional Commits message: `<type>(<scope>): <summary>` — summary ≤ 72 chars, imperative mood, no trailing period.
    - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf). Omit scope if unclear.
-   - If nothing changed in code, skip the commit and note "No code changes to commit."
+   - If nothing changed in code, skip the commit only when `git status --short` is clean or every dirty path is clearly unrelated to the work item and no related code changes are expected; otherwise output `REVISE`.
    - Do **not** push. Do **not** add sign-offs.
    - Do **not** modify files before staging. If files need changes, output `REVISE` instead of making them.
 7. Write one concise final tracker note:
@@ -66,6 +69,29 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
 9. If the ticket is managed by neither `tk` nor `br`, do not invent a close command. Report the exact manual follow-up instead.
 10. **On REVISE or BLOCKED**: do **not** commit. Leave changes in the working tree.
 11. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
+
+## Evidence and dirty-tree policy
+
+Before any `PASS`, write down an internal checklist from real artifacts:
+
+- selected ticket id and current tracker status
+- validation source, exact `Gate: PASS`, and acceptance-criteria evidence
+- latest review verdict when review is part of the chain
+- review handoff, when present: `Original item may close: yes`
+- dirty-tree classification: related, unrelated, and ambiguous paths
+- commit result or explicit no-code-change reason
+
+If the latest review output contains a `# Finalization Handoff` section, treat `Original item may close: yes` as the preferred closure signal. If that section says `no`, is internally inconsistent, or reports failed follow-up/comment creation, return `REVISE`. If the section is missing in an older context, fall back to the review verdict and follow-up evidence below, but be explicit that the handoff was missing.
+
+Dirty-tree rules are strict:
+
+- A dirty tree is not automatically a blocker, but every dirty path must be classified before staging.
+- Related paths are files whose changes directly implement, validate, or document the selected work item.
+- Unrelated paths are files clearly tied to other work and must not be staged.
+- Ambiguous paths are any files whose relationship cannot be proven from the work item, spec, implementation summary, validation evidence, or review evidence.
+- On `PASS`, stage and commit only related paths. If there are related changes plus ambiguous changes, do not commit or close; return `REVISE`.
+- If there are no related code changes, skip the commit only when this is expected (for example tracker-only work or all related changes were already committed) and the remaining dirty paths are clearly unrelated.
+- Never close a work item after a failed commit, a skipped commit with unexplained related changes, or an ambiguous dirty tree.
 
 ## Closure evidence policy
 
@@ -127,6 +153,7 @@ Use exactly these sections:
 # Git Commit
 
 - Repository files modified during finalization: no
+- Dirty tree classification: related / unrelated / ambiguous paths, or "clean"
 - Changes staged: (list files or "none")
 - Commit message:
 - Committed: yes / no / skipped (no changes)
@@ -137,4 +164,5 @@ Use exactly these sections:
 - Validation source: /ef-work / /validation-fix / explicit user evidence / missing
 - Validation status:
 - Review status:
+- Finalization handoff: original item may close yes / no / missing / n/a
 - Remaining follow-up:

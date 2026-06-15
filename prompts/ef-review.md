@@ -33,3 +33,4 @@ Scope:
 
 Follow the `review-suite` skill exactly.
 Default to read-only. Create tracker follow-ups only when the input includes `--create-followups`.
+Always include the `# Finalization Handoff` section. Set `Original item may close: yes` only when finalization may safely close the reviewed item after validation evidence and dirty-tree checks pass.

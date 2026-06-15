@@ -38,7 +38,7 @@ Do **not** edit source files, tests, docs, prompts, generated files, configs, or
 ## Finalization policy
 
 1. Be conservative: do not close on assumptions.
-2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, and required review evidence either is clean or has converted every material finding into tracker follow-ups.
+2. Close only when the latest validation evidence contains the exact line `Gate: PASS`, the acceptance criteria are met, required review evidence either is clean or has converted every material finding into tracker follow-ups, and the git dirty tree can be separated safely.
 3. Accept two validation sources:
    - `/validation-fix` evidence from the TDD path.
    - `/ef-work` evidence from the quick path.
@@ -47,6 +47,15 @@ Do **not** edit source files, tests, docs, prompts, generated files, configs, or
 6. Include only claims supported by actual execution or explicit evidence in context.
 7. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` or `/ef-work-tdd` without a consolidated review verdict.
 8. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
+9. Treat an ambiguous dirty tree as `REVISE`, not as a reason to stage broadly or close without a commit.
+
+## Review handoff requirements
+
+When the latest review output contains a `# Finalization Handoff` section, prefer it over inference:
+
+- `Original item may close: yes` supports closure only when validation and dirty-tree requirements also pass.
+- `Original item may close: no`, missing follow-up coverage, or failed original-item commenting requires `REVISE`.
+- If a ship chain includes review but no handoff section is present, fall back to the review verdict and follow-up evidence, but mention `Finalization handoff: missing` in the final output.
 
 ## Closure evidence requirements
 
@@ -107,19 +116,25 @@ A final note or close reason should concisely capture:
 
 On a strict `Gate: PASS` outcome, commit already-existing related changes before closing the tracker item. Do not modify files before staging; if files need changes, output `REVISE` instead of making them.
 
-1. Run `git status` and `git diff --stat` to confirm what changed.
-2. Stage only the files that belong to the work item. Do not stage unrelated changes.
-3. Commit with a Conventional Commits message:
+1. Run `git status --short` and `git diff --stat` to confirm what changed.
+2. Classify every dirty path before staging:
+   - `related`: directly implements, validates, or documents the selected work item.
+   - `unrelated`: clearly belongs to other work and must not be staged.
+   - `ambiguous`: cannot be proven related or unrelated from the work item/spec/evidence.
+3. Stage only `related` files. Do not stage unrelated or ambiguous changes.
+4. If any dirty path is ambiguous, return `REVISE` and leave the item open.
+5. If there are no related code changes, skip the commit only when this is expected and all remaining dirty paths are clearly unrelated.
+6. Commit with a Conventional Commits message:
    - `<type>(<scope>): <summary>` where summary is ≤ 72 chars, imperative mood, no trailing period.
    - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf).
    - Derive `scope` from the area/module if clear, otherwise omit.
    - If the work-item title is short enough, it can be adapted into the subject line.
-4. If there are no changes to commit (e.g., the work was tracker-only), skip the commit and report "No code changes to commit."
-5. Close the tracker item only after the commit succeeds or is skipped because there are no code changes.
-6. Do **not** push.
-7. Do **not** add sign-offs.
-8. On REVISE or BLOCKED, do **not** commit. Leave changes in the working tree for the next iteration.
-9. Do **not** edit files, run auto-fix commands, or repair review findings as part of committing.
+7. If there are no changes to commit (e.g., the work was tracker-only), skip the commit and report "No code changes to commit."
+8. Close the tracker item only after the commit succeeds or is skipped because there are no related code changes.
+9. Do **not** push.
+10. Do **not** add sign-offs.
+11. On REVISE or BLOCKED, do **not** commit. Leave changes in the working tree for the next iteration.
+12. Do **not** edit files, run auto-fix commands, or repair review findings as part of committing.
 
 ## Completion checklist
 

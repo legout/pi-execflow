@@ -153,7 +153,12 @@ for (const agentFile of agentFiles) {
 	const name = getFrontmatterField(extracted.frontmatter, "name");
 	if (name) agentNames.add(name);
 }
-for (const expectedAgent of ["ef-worker", "ef-validation-fix", "ef-reviewer"]) {
+for (const expectedAgent of [
+	"ef-worker",
+	"ef-validation-fix",
+	"ef-reviewer",
+	"ef-finalizer",
+]) {
 	if (!agentNames.has(expectedAgent)) {
 		addError(`Missing package agent template: ${expectedAgent}`);
 	}

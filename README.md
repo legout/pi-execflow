@@ -113,9 +113,9 @@ Recommended public commands:
 
 `/ef-work` is the quick implementation front door for one simple tracked work item. It resolves the item, makes the smallest scoped change, runs a quick targeted validation or records inspection evidence, performs a short self-review, and leaves finalization to `/finalize` or `/ef-ship`. Use `/ef-work-tdd` when the item needs explicit specification, RED/GREEN discipline, validation/fix looping, and immediate finalization. `/ef-review` is the independent review front door and remains read-only unless `--create-followups` is provided.
 
-`/ef-work`, `/implement`, `/validation-fix`, `/ef-review`, and `/ef-review-with-followups` are configured to use pi-execflow-owned project subagents scaffolded into `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`. The orchestration wrappers (`/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`) stay inline while their implementation, validation-fix, and review leaves run in fresh subagent context.
+`/ef-work`, `/implement`, `/validation-fix`, `/ef-review`, `/ef-review-with-followups`, and `/finalize` are configured to use pi-execflow-owned project subagents scaffolded into `.pi/agents/` by `/ef-init` and refreshed by `/ef-update`. The orchestration wrappers (`/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`) stay inline while their implementation, validation-fix, review, and finalization leaves run in fresh subagent context.
 
-`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization; with no explicit work item or with `--next`, it selects ready work and loops until no eligible ready work remains. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization, with the same no-arg/`--next` ready-work selection behavior.
+`/ef-review` is the public review entrypoint. It can review a work item, ExecPlan delivery, branch, diff, or path scope depending on the target and context. It is read-only by default; add `--create-followups` to create tracker work items for material findings. `/ef-review-with-followups` is the focused work-item review wrapper that always enables follow-up creation. Reviews emit a `# Finalization Handoff` block so `/finalize` can rely on explicit closure support instead of inferring from prose. `/ef-ship` runs quick work, review with follow-ups, and conservative finalization; with no explicit work item or with `--next`, it selects ready work and loops until no eligible ready work remains. `/ef-ship-tdd` preserves the TDD-oriented ship path with specification, validation/fix looping, review with follow-ups, and finalization, with the same no-arg/`--next` ready-work selection behavior.
 
 ### Autoship (sequential ready-work queue)
 
@@ -135,6 +135,19 @@ Requirements and behavior:
 - `/ef-autoship` runs the quick ship chain for each selected issue or ticket; `/ef-autoship-tdd` runs the TDD ship chain.
 - Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
 - The MVP is intentionally sequential; parallel autoship is not supported.
+
+### Finalization and review handoff
+
+`/finalize` is a delegated leaf that runs in the `ef-finalizer` subagent with fresh context. Ship chains (`/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`) end on finalization output instead of replaying review output after closure.
+
+Finalization is conservative and evidence-driven:
+
+- It requires an exact `Gate: PASS` validation line and acceptance-criteria evidence.
+- When review is part of the chain, it honors a machine-readable `# Finalization Handoff` block emitted by the reviewer and treats `Original item may close: yes` as the preferred closure signal.
+- It classifies every dirty-tree path as `related`, `unrelated`, or `ambiguous`, stages only `related` files, and returns `REVISE` instead of closing when the dirty tree cannot be separated safely.
+- It never edits source files, fixes review findings, creates follow-ups, or pushes commits.
+
+Reviews always emit a `# Finalization Handoff` section so downstream finalization can distinguish clean closure, delegated follow-ups, and unresolved review findings.
 
 ### 5. Update package resources
 
@@ -192,6 +205,7 @@ Copied into initialized projects under `.pi/agents/` by `/ef-init` and refreshed
 - `ef-worker` — scoped implementation for `/ef-work` and `/implement`
 - `ef-validation-fix` — fresh-context validation/repair loop for `/validation-fix`
 - `ef-reviewer` — fresh-context review and optional tracker follow-up creation for `/ef-review*`
+- `ef-finalizer` — fresh-context evidence checks, dirty-tree classification, final notes, commits, and safe tracker closure for `/finalize`
 
 ## Model configuration
 
@@ -316,7 +330,7 @@ The package ships these checked-in templates under `execflow/`:
 
 ## Scope notes
 
-- The supported public workflow is `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-update`.
+- The supported public workflow is `/ef-init`, `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-review-with-followups`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, `/finalize`, and `/ef-update`.
 - In `br` mode, root `AGENTS.md` may contain native blocks managed by `br agents --add|--update` and `bv --agents-add|--agents-update`; do not duplicate those generated tool instructions in `.execflow/AGENTS.md`.
 - Supported documentation and usage should prefer the `ef-*` public workflow. Prompt files that are neither public commands nor active internal leaves should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
 - Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
