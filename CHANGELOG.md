@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1 - 2026-06-15
+
+- Fixed `/finalize` so it never edits source files, runs auto-fix commands, or repairs review findings during finalization. Review follow-ups are now treated as closure evidence for the original item, not work to perform.
+- Refined `execflow/settings.yml` model and thinking assignments for planning, review, validation, orchestration, and specification prompts.
+- Aligned checked-in prompt frontmatter with `execflow/settings.yml` so `npm run validate-package` passes without drift.
+
 ## 1.5.0 - 2026-06-15
 
 - Added `/ef-init` as the canonical project initialization command and retired the legacy `/init-execflow` prompt overlay.
