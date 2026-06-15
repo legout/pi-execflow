@@ -48,7 +48,7 @@ Before closing anything, prove all of these from real artifacts:
 - `git status --short` and `git diff --stat`
 - classification of every dirty path as related, unrelated, or ambiguous
 
-Stage only related paths. Never stage unrelated or ambiguous paths. If any dirty path is ambiguous, or if related changes cannot be isolated, return `REVISE` and leave the item open. If no related files need committing, skip the commit only when that is expected and explain why.
+Stage only related paths. Never stage unrelated or ambiguous paths. Treat `.pi/execflow-autoship-loop-marker.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md` as unrelated autoship workflow state by default; never stage them and do not treat them as ambiguous solely because they are dirty. If any other dirty path is ambiguous, or if related changes cannot be isolated, return `REVISE` and leave the item open. If no related files need committing, skip the commit only when that is expected and explain why.
 
 ## Output
 

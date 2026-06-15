@@ -133,6 +133,7 @@ Requirements and behavior:
 - `--max-retries N` defaults to `2`, meaning one initial attempt plus two retries, or three total attempts per issue in one autoship run.
 - Autoship auto-detects the active tracker from `.execflow/settings.yml` when possible. It reads `br ready --json` for `br` repositories and `tk ready` for `tk` repositories, preserving the tracker ready order.
 - `/ef-autoship` runs the quick ship chain for each selected issue or ticket; `/ef-autoship-tdd` runs the TDD ship chain.
+- Autoship writes a local `.pi/execflow-autoship-loop-marker.json` marker on productive ready-work dispatches so prompt-template convergence continues to the next item; no marker is written on no-ready stop iterations, so the loop converges cleanly.
 - Autoship stops when no ready issues remain or when all ready issues are exhausted for the current run.
 - The MVP is intentionally sequential; parallel autoship is not supported.
 

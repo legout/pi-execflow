@@ -37,7 +37,8 @@ Use **explicit-target mode** for any other `$1` value.
    `node <package-root>/scripts/autoship-state.mjs next --mode ship --max-retries <N>`
 5. Parse the helper JSON conservatively.
 6. If `status` is `dispatch`, select `issueId` as the work-item reference for this chain iteration.
-7. If `status` is `stop`, this chain iteration is the clean loop stop condition. Do not resolve or select any work item.
+7. In next-ready mode only, after a `dispatch` result and before final output, call the `write` tool to write `.pi/execflow-autoship-loop-marker.json` with a small JSON object containing at least `mode`, `issueId`, `attempt`, `maxAttempts`, and `progressPath` from the helper result. This marker is intentionally outside tracker state; it exists only so prompt-template convergence sees a file write on productive dispatch iterations.
+8. If `status` is `stop`, this chain iteration is the clean loop stop condition. Do not resolve or select any work item and do not write the convergence marker.
 
 ## Explicit-target mode
 
@@ -78,6 +79,7 @@ Use exactly one of these statuses.
 - Attempt: N / M, or n/a
 - Progress path: `.execflow/autoship-progress.json`, or n/a
 - Lessons path: `.execflow/lessons-learned.md`, or n/a
+- Convergence marker: `.pi/execflow-autoship-loop-marker.json` written / not written
 
 # Ticket Summary
 
@@ -106,6 +108,7 @@ Downstream chain steps must use `Selected work item` as their target when their 
 - Exhausted issue ids, if any:
 - Progress path: `.execflow/autoship-progress.json`, or n/a
 - Lessons path: `.execflow/lessons-learned.md`, or n/a
+- Convergence marker: not written
 
 # Downstream Instruction
 

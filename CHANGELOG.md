@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1 - 2026-06-15
+
+- Fixed `/ef-ship*` and `/ef-autoship*` ready-work draining so productive next-ready dispatch iterations write a local convergence marker, while no-ready stop iterations remain no-op and converge cleanly.
+- Documented and validated the autoship convergence marker used to bridge prompt-template write/edit-based loop convergence with delegated subagent execution.
+
 ## 1.7.0 - 2026-06-15
 
 - Added the `ef-finalizer` subagent for fresh-context evidence checks, dirty-tree classification, final notes, commits, and safe tracker closure.

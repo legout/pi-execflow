@@ -148,7 +148,10 @@ const agentFiles = existsSync(agentTemplatesDir)
 const agentNames = new Set();
 for (const agentFile of agentFiles) {
 	const agentPath = join(agentTemplatesDir, agentFile);
-	const extracted = extractFrontmatter(readFileSync(agentPath, "utf8"), agentPath);
+	const extracted = extractFrontmatter(
+		readFileSync(agentPath, "utf8"),
+		agentPath,
+	);
 	if (!extracted) continue;
 	const name = getFrontmatterField(extracted.frontmatter, "name");
 	if (name) agentNames.add(name);
@@ -239,7 +242,9 @@ for (const promptFile of promptFiles) {
 
 	const promptSubagent = getFrontmatterField(extracted.frontmatter, "subagent");
 	if (promptSubagent && !agentNames.has(promptSubagent)) {
-		addError(`Prompt ${promptFile} references missing package agent: ${promptSubagent}`);
+		addError(
+			`Prompt ${promptFile} references missing package agent: ${promptSubagent}`,
+		);
 	}
 
 	const promptSkill = getFrontmatterField(extracted.frontmatter, "skill");
@@ -339,6 +344,21 @@ for (const promptFile of promptFiles) {
 					`Prompt ${promptFile} helper invocation at line ${lineNumber} must pass exact --mode ${expectedMode}`,
 				);
 			}
+		}
+		if (!extracted.body.includes(".pi/execflow-autoship-loop-marker.json")) {
+			addError(
+				`Prompt ${promptFile} must write .pi/execflow-autoship-loop-marker.json on next-ready dispatch`,
+			);
+		}
+		if (!/(?:`write`|write) tool/.test(extracted.body)) {
+			addError(
+				`Prompt ${promptFile} must explicitly use the write tool for the autoship convergence marker`,
+			);
+		}
+		if (!/do not write (?:the )?convergence marker/i.test(extracted.body)) {
+			addError(
+				`Prompt ${promptFile} must not write the autoship convergence marker on stop results`,
+			);
 		}
 	}
 }

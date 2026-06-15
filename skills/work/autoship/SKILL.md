@@ -30,6 +30,8 @@ Autoship is implemented as a prompt chain loop, not as a nested `run-prompt` orc
 
 The helper records attempts in `.execflow/autoship-progress.json` and ensures `.execflow/lessons-learned.md` exists. `--max-retries 2` means up to three total attempts per issue in one autoship run: one initial attempt plus two retries.
 
+On next-ready `dispatch`, selector prompts must also write `.pi/execflow-autoship-loop-marker.json` using the `write` tool. This harmless marker is not tracker state; it exists because prompt-template loop convergence currently detects productive iterations through `write`/`edit` tool calls, while delegated subagent and shell mutations may report `changed: false`. Do not write this marker on `stop` results, so the no-work iteration still converges cleanly.
+
 ## Stop behavior
 
 When the selector returns `status: stop`, it must emit a no-work `# Ship Selection` result. Downstream chain steps must treat that as a clean no-op:
@@ -47,7 +49,7 @@ This no-op iteration lets the chain loop converge without relying on nested prom
 - Do not call `run-prompt` from inside autoship.
 - Do not inline a separate `/ef-ship` or `/ef-ship-tdd` command.
 - Do not bypass the normal work/review/finalize chain.
-- Do not mutate tracker state from selector prompts except through the existing progress file created by `autoship-state.mjs`.
+- Do not mutate tracker state from selector prompts except through the existing progress file created by `autoship-state.mjs`; the `.pi/execflow-autoship-loop-marker.json` convergence marker is allowed because it is local prompt-loop state, not tracker state.
 - Do not append routine status updates, raw transcripts, or duplicates to `.execflow/lessons-learned.md`.
 
 ## Lessons learned

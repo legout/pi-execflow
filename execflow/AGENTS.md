@@ -70,6 +70,7 @@ Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inlin
 - Use `/ef-ship-tdd [<issue-ref>|--next] [--max-retries N]` when you want the TDD-oriented ship path; no target or `--next` drains ready `br` issues.
 - Use `/ef-autoship [--max-retries N]` to drain ready `br` issues sequentially through the quick ship chain; defaults to `--max-retries 2`.
 - Use `/ef-autoship-tdd [--max-retries N]` to drain ready `br` issues sequentially through the TDD ship chain; defaults to `--max-retries 2`.
+- Autoship selector prompts write `.pi/execflow-autoship-loop-marker.json` only on next-ready dispatch so chain-loop convergence continues across selected items and stops on no-ready iterations.
 - Use `/ef-review <issue-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up issues for concrete bug findings.
 - Use `/ef-review-with-followups <issue-ref>` when follow-up issue creation should always be enabled.
 - Use `/ef-review <target>` for work-item, ExecPlan delivery, branch, diff, or path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for material findings.
@@ -88,6 +89,7 @@ Keep `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, and `/ef-autoship-tdd` as inlin
 - Use `/ef-ship-tdd [<ticket-ref>|--next] [--max-retries N]` when you want the TDD-oriented ship path; no target or `--next` drains ready `tk` tickets.
 - Use `/ef-autoship [--max-retries N]` to drain ready `tk` tickets sequentially through the quick ship chain; defaults to `--max-retries 2`.
 - Use `/ef-autoship-tdd [--max-retries N]` to drain ready `tk` tickets sequentially through the TDD ship chain; defaults to `--max-retries 2`.
+- Autoship selector prompts write `.pi/execflow-autoship-loop-marker.json` only on next-ready dispatch so chain-loop convergence continues across selected items and stops on no-ready iterations.
 - Use `/ef-review <ticket-ref>` for a fresh focused work-item review. It is read-only by default; add `--create-followups` to create linked follow-up tickets for concrete bug findings.
 - Use `/ef-review-with-followups <ticket-ref>` when follow-up ticket creation should always be enabled.
 - Use `/ef-review <target>` for work-item, ExecPlan delivery, branch, diff, or path reviews. It is read-only by default; add `--create-followups` to create tracker follow-ups for material findings.
