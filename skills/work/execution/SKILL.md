@@ -40,10 +40,14 @@ This is especially important for `.beads/` / `br` workflows, where there may be 
 8. For testable behavior, do not make production implementation changes until RED proof exists in the current work context.
 9. If RED is exempt, ensure the exemption is explicit before implementation and keep the change limited to the exempted scope.
 10. Treat parallel execution and worktree isolation as optional safety tools, never as default automation.
+11. Preserve the active prompt runtime. Do not delete, move, or overwrite `.pi/`, `.pi/prompts/`, `.pi/agents/`, `.execflow/`, or prompt-template runtime files unless the work item explicitly targets pi-execflow scaffolding.
+12. Do not rewrite the active checkout during ship/autoship execution. Avoid `git checkout`, `git switch`, `git reset --hard`, `git clean`, and equivalent commands in the current worktree; these can remove prompt overlays and break the next chain iteration. For branch-ref remediation, prefer ref-only commands such as `git branch -f <branch> <ref>` or `git update-ref`, or use a separate isolated worktree.
 
 ## Worktree and parallel execution discipline
 
 Before using or recommending a separate worktree, detect the current isolation state instead of assuming a normal checkout. Check the current path, branch, and `git worktree list` when available. If the current session is already inside a harness-managed or unknown worktree, preserve it and do not create cleanup steps for it.
+
+For work items about repairing, rebasing, or repointing a branch, do not check out that branch in the active worktree. Prefer ref-only updates (`git branch -f`, `git update-ref`) when they satisfy the work item. If content inspection on the other branch is required, use `git show <branch>:<path>`, `git diff <base>...<branch>`, or a separate worktree. This preserves `.pi/prompts` and other chain runtime overlays for subsequent autoship iterations.
 
 Before starting isolated work, verify a clean baseline with `git status --short` unless the user explicitly instructs you to continue with existing changes. If the baseline is dirty, stop and separate user changes from the work item rather than hiding them inside the implementation.
 

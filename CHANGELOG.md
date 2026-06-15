@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.3 - 2026-06-15
+
+- Hardened `/ef-ship*` and `/ef-autoship*` implementation/validation guardrails so branch-ref work does not rewrite the active checkout or remove `.pi/prompts` overlays between loop iterations.
+
 ## 1.7.2 - 2026-06-15
 
 - Fixed `/ef-ship*` and `/ef-autoship*` chain loops so they do not use prompt-template fresh branch navigation between ready-work iterations, preventing missing-template failures after `/ef-update` or other pre-loop commands.

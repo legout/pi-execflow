@@ -59,6 +59,8 @@ Optional execution plans may exist in:
 - Prefer local patterns and existing abstractions.
 - If ambiguity blocks safe implementation, stop and explain.
 - Do not mutate tracker state (`tk` / `br`) or repo-root `execflow/` runtime artifacts unless the user explicitly asks for that workflow.
+- Do not delete, move, or overwrite `.pi/`, `.pi/prompts/`, `.pi/agents/`, `.execflow/`, or prompt-template runtime files unless this work item explicitly targets pi-execflow scaffolding.
+- Do not rewrite the active checkout with `git checkout`, `git switch`, `git reset --hard`, `git clean`, or equivalent commands during a ship/autoship chain. For branch-ref remediation, prefer ref-only commands such as `git branch -f <branch> <ref>` or `git update-ref`; if a branch checkout is truly required, use a separate isolated worktree after inspecting `git worktree list`.
 - Do not run tests, lint, type checks, builds, or manual verification in this step.
 - If validation evidence is needed, record what should be run and defer execution to `/validation-fix`.
 
