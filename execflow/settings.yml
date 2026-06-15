@@ -56,8 +56,8 @@ prompts:
         model: *fast_model
         thinking: *fast_thinking
     spec:
-        model: *implementation_model
-        thinking: *implementation_thinking
+        model: *plan_model
+        thinking: medium
     implement:
         model: *implementation_model
         thinking: *implementation_thinking
