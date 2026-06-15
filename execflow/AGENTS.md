@@ -48,6 +48,8 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 ### br mode
 
 - Use `br` for issue tracking.
+- `br` is mandatory in this mode. Native `br` agent instructions belong in the project-root `AGENTS.md` and are managed with `br agents --add` / `br agents --update`, not copied into this file.
+- If `bv` is installed, its native agent instructions also belong in the project-root `AGENTS.md` and are managed with `bv --agents-add` / `bv --agents-update`.
 - Use `/ef-tasks <topic>` as the public tracker-neutral command.
 - Keep tracker-specific prompt leaves only when `/ef-tasks` still needs them internally.
 - Use `/ef-work <issue-ref>` as the quick public implementation path for simple work.
@@ -65,6 +67,7 @@ The lower-level prompts are internal implementation leaves, not a legacy public 
 ### tk mode
 
 - Use `tk` for ticket tracking when the repository explicitly chooses it.
+- This project uses a CLI ticket system for task management. Run `tk help` when you need to use it.
 - Use `/ef-tasks <topic>` as the public tracker-neutral command.
 - Keep tracker-specific prompt leaves only when `/ef-tasks` still needs them internally.
 - Use `/ef-work <ticket-ref>` as the quick public implementation path for simple work.

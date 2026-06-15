@@ -6,7 +6,7 @@ thinking: medium
 run: |
   for root in "$PWD" "$PWD/.pi/git/github.com/legout/pi-execflow" "$HOME/.pi/agent/git/github.com/legout/pi-execflow"; do
     if [ -f "$root/scripts/init-execflow.mjs" ]; then
-      node "$root/scripts/init-execflow.mjs"
+      node "$root/scripts/init-execflow.mjs" "$@"
       exit $?
     fi
   done
@@ -43,19 +43,22 @@ Goals:
 2. Scaffold `.execflow/AGENTS.md`, `.execflow/PLANS.md`, and `.execflow/settings.yml` by copying missing files from the canonical `execflow/` source.
 3. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
 4. Initialize the selected tracker tool safely:
-   - `tk` mode → ensure `.tickets/` exists
-   - `br` mode → ensure `.beads/` exists via `br init`
+   - `tk` mode → ensure `tk` is installed and `.tickets/` exists
+   - `br` mode → ensure `br` is installed, recommend `bv`, ensure `.beads/` exists via `br init`, and refresh native root `AGENTS.md` instructions for `br`/`bv`
 5. Run the repository's deterministic model sync so `.pi/prompts/*.md` reflects `.execflow/settings.yml`.
 
 Rules:
 - Do not overwrite user-authored files blindly.
-- The deterministic pre-step already copied **missing** files from the canonical package checkout. Use that as the starting point instead of inlining the full file contents in your response.
+- The deterministic pre-step already checked mandatory tracker binaries for unambiguous tracker modes, then copied **missing** files from the canonical package checkout. Use that as the starting point instead of inlining the full file contents in your response.
 - Determine the selected tracker mode before writing tracker-specific instructions.
 - For the root `AGENTS.md`:
   - If the file does not exist, create it with the block shown below.
   - If the file exists but does **not** contain `<!-- execflow -->`, **append** the block shown below at the end of the file.
   - If the file already contains `<!-- execflow -->`, replace everything between `<!-- execflow -->` and `<!-- /execflow -->` (inclusive) with the updated block.
   - Do not modify any content outside the `<!-- execflow -->` markers.
+  - In `br` mode, after the execflow block exists, let native tools manage their own root `AGENTS.md` blocks: run `br agents --check --json`; if the beads block is missing, run `br agents --add --force`; if it is stale, run `br agents --update --force`.
+  - In `br` mode, if `bv` is installed, run `bv --agents-check`; if its block is missing, run `bv --agents-add --agents-force`; if it is stale, run `bv --agents-update --agents-force`. If `bv` is not installed, recommend installing it but continue.
+  - Do not copy `br` or `bv` generated instructions into `.execflow/AGENTS.md`; their native commands own root `AGENTS.md`.
 - For `.execflow/AGENTS.md`:
   - If the file was created by the deterministic copy step, keep the copied content as the base.
   - If the file already exists and contains `<!-- execflow-generated -->` and `<!-- /execflow-generated -->`, refresh only that generated block using the canonical source file from the resolved installed package root as the base.
@@ -73,7 +76,8 @@ Rules:
   - Leave existing prompt files untouched unless the user explicitly asks to regenerate prompt overlays.
 - For tracker setup:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
-  - In `br` mode, verify `br` is installed. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
+  - In `br` mode, verify `br` is installed. If `br` is missing, stop and print installation instructions for https://github.com/Dicklesworthstone/beads_rust. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
+  - In `br` mode, check whether `bv` is installed. If it is missing, recommend installing `bv` for beads viewing, robot triage, and native agent instructions, but do not fail init.
   - Never delete or reset an existing tracker workspace as part of init.
 - After scaffolding, if `.pi/prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so project-local prompt frontmatter reflects the configured per-prompt model and thinking entries.
 - Do not restate the full copied contents of `.execflow/AGENTS.md`, `.execflow/PLANS.md`, or `.execflow/settings.yml` in the answer unless necessary to explain a targeted edit.
@@ -95,7 +99,7 @@ Insert the following block into the project root `AGENTS.md`:
 ```md
 <!-- execflow -->
 Planning and execution instructions live in `.execflow/AGENTS.md`.
-Read that file before using `pi-execflow`, `tk`, `br`, or ExecPlans in this repository.
+Read that file before using `pi-execflow`, `tk`, `br`, `bv`, or ExecPlans in this repository.
 <!-- /execflow -->
 ```
 
@@ -105,3 +109,4 @@ When finished:
 - report which tracker mode was selected
 - report the copied/scaffolded paths
 - report whether `.pi/prompts/` was synced from `.execflow/settings.yml`
+- in `br` mode, report whether `br` and `bv` root `AGENTS.md` instructions were added, updated, already current, or skipped

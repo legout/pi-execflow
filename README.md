@@ -73,6 +73,8 @@ This scaffolds:
 - `.pi/prompts/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
+In `br` mode, `br` is required. If it is missing, init stops and points to https://github.com/Dicklesworthstone/beads_rust. If `bv` is missing, init recommends installing it but continues. Native `br` and `bv` workflow instructions are managed in the project-root `AGENTS.md` by their own commands; `.execflow/AGENTS.md` stays focused on pi-execflow policy.
+
 ### 2. Plan with an ExecPlan
 
 Recommended public command:
@@ -313,6 +315,7 @@ The package ships these checked-in templates under `execflow/`:
 ## Scope notes
 
 - The supported public workflow is `/ef-plan`, `/ef-tasks`, `/ef-work`, `/ef-work-tdd`, `/ef-review`, `/ef-ship`, `/ef-ship-tdd`, `/ef-autoship`, `/ef-autoship-tdd`, and `/ef-sync` after `/init-execflow`.
+- In `br` mode, root `AGENTS.md` may contain native blocks managed by `br agents --add|--update` and `bv --agents-add|--agents-update`; do not duplicate those generated tool instructions in `.execflow/AGENTS.md`.
 - Legacy prompt names are not retained merely for backward compatibility. If a prompt is not part of the public workflow and no supported wrapper needs it as an internal leaf, it should be removed and added to `scripts/retired-prompts.mjs` so target overlays are cleaned up.
 - Dedicated review-followup prompts are not shipped; review prompts list findings by default and create follow-ups only with `--create-followups`.
 - Optional external delegated `/execflow-queue` execution is not shipped by this package.

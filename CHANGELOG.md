@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0 - 2026-06-15
+
+- Added deterministic tracker-tool preflight to `/init-execflow` so `br` and `tk` modes fail before scaffolding when their required CLI is missing.
+- Added `br`/`bv` agent-instruction guidance so native tool blocks are managed in the project-root `AGENTS.md` instead of being duplicated in `.execflow/AGENTS.md`.
+- Documented `tk help` as the local task-management entrypoint for generated `.execflow/AGENTS.md` files.
+
 ## 1.3.1 - 2026-06-14
 
 - Fixed package validation for autoship prompt guardrails so missing `chain` frontmatter reports validation errors instead of throwing a `TypeError`.
