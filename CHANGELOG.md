@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.4 - 2026-06-17
 
 - Fixed fast work-item selector prompts to prefer Codex mini with Kimi fallback,
   and taught `/ef-update` to migrate projects that still have the old default
