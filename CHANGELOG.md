@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.6 - 2026-06-17
 
 - Added `gpt-5.4-mini` fallback coverage for closure-critical
   orchestration/finalization and validation-fix paths, including
