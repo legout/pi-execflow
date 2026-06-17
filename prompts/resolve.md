@@ -1,7 +1,7 @@
 ---
 description: Resolve a work item from .tickets/ or .beads/ and find the best matching ExecPlan
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5-turbo
+model: openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
 thinking: low
 fresh: true
 skill: resolve

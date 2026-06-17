@@ -8,7 +8,7 @@ models:
     orchestration: &orchestration_model zai/glm-5.2
     implementation: &implementation_model kimi-coding/k2p7, openai-codex/gpt-5.4-mini
     validation_fix: &validation_fix_model zai/glm-5.2
-    fast: &fast_model zai/glm-5-turbo
+    fast: &fast_model openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
     review: &review_model openai-codex/gpt-5.5
 
 thinking:

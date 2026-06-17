@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Fixed fast work-item selector prompts to prefer Codex mini with Kimi fallback,
+  and taught `/ef-update` to migrate projects that still have the old default
+  `fast` model. This prevents `/ef-ship*` and `/ef-autoship*` chains from
+  stalling when the Zai fast endpoint is unavailable.
+
 ## 1.7.3 - 2026-06-15
 
 - Hardened `/ef-ship*` and `/ef-autoship*` implementation/validation guardrails so branch-ref work does not rewrite the active checkout or remove `.pi/prompts` overlays between loop iterations.

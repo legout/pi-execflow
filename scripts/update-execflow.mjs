@@ -185,6 +185,23 @@ function ensureExecflowTemplates(trackerMode) {
 	copyMissingFile(canonicalSettingsPath, execflowSettingsPath);
 }
 
+function migrateKnownDefaultModels() {
+	if (!existsSync(execflowSettingsPath)) return;
+	const current = readFileSync(execflowSettingsPath, "utf8");
+	const fastModelFallback =
+		"openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding";
+	const updated = current.replace(
+		/^(\s*fast:\s*&fast_model\s*)zai\/glm-5-turbo\s*$/m,
+		`$1${fastModelFallback}`,
+	);
+	if (updated !== current) {
+		writeFileSync(execflowSettingsPath, updated);
+		console.log(
+			`migrated ${relative(cwd, execflowSettingsPath)} fast model fallback`,
+		);
+	}
+}
+
 function rootExecflowBlock() {
 	return `<!-- execflow -->\nPlanning and execution instructions live in \`.execflow/AGENTS.md\`.\nRead that file before using \`pi-execflow\`, \`tk\`, \`br\`, \`bv\`, or ExecPlans in this repository.\n<!-- /execflow -->\n`;
 }
@@ -266,6 +283,7 @@ console.log(`ef-update-tracker ${trackerMode ?? "ambiguous"}`);
 copyPromptOverlays();
 refreshAgentOverlays();
 ensureExecflowTemplates(trackerMode);
+migrateKnownDefaultModels();
 updateRootAgentsBlock();
 if (trackerMode === "br") {
 	refreshNativeBrAgents();
