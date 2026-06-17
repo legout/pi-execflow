@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.5 - 2026-06-17
 
 - Fixed model selection so each ship-chain step switches to its configured
   primary model instead of sticking on the fast selector model. The fast
