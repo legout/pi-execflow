@@ -10,3 +10,7 @@ pnpm-debug.log*
 .tickets
 AGENTS.md*
 data/
+graphify-out/
+2026*.jsonl
+*.pid
+.codegraph/

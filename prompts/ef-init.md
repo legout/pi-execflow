@@ -1,7 +1,7 @@
 ---
 description: Initialize pi-execflow planning + tracker scaffolding (.execflow/, .pi/prompts/, AGENTS.md, and optional tk/br tracker setup)
 argument-hint: "[--tk|--br]"
-model: zai/glm-5.2
+model: zai/glm-5.2, openai-codex/gpt-5.4-mini
 thinking: medium
 run: |
   for root in "$PWD" "$PWD/.pi/git/github.com/legout/pi-execflow" "$HOME/.pi/agent/git/github.com/legout/pi-execflow"; do
@@ -44,6 +44,7 @@ Tracker selection rules:
 5. If no flag is present and neither workspace exists, default to `br`.
 
 Goals:
+
 1. Scaffold `.pi/prompts/` and `.pi/agents/` by copying missing prompt and subagent overlays from the canonical package source.
 2. Scaffold `.execflow/AGENTS.md`, `.execflow/PLANS.md`, and `.execflow/settings.yml` by copying missing files from the canonical `execflow/` source.
 3. Create or update the project-root `AGENTS.md` so it references `.execflow/AGENTS.md`.
@@ -53,6 +54,7 @@ Goals:
 5. Run the repository's deterministic model sync so `.pi/prompts/*.md` reflects `.execflow/settings.yml`.
 
 Rules:
+
 - Do not overwrite user-authored files blindly.
 - The deterministic pre-step already checked mandatory tracker binaries for unambiguous tracker modes, then copied **missing** files from the canonical package checkout. Use that as the starting point instead of inlining the full file contents in your response.
 - Determine the selected tracker mode before writing tracker-specific instructions.
@@ -81,7 +83,7 @@ Rules:
   - Leave existing prompt and subagent files untouched unless the user explicitly asks to regenerate overlays.
 - For tracker setup:
   - In `tk` mode, verify `tk` is installed. If `.tickets/` does not exist, create it. If it exists, leave it untouched.
-  - In `br` mode, verify `br` is installed. If `br` is missing, stop and print installation instructions for https://github.com/Dicklesworthstone/beads_rust. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
+  - In `br` mode, verify `br` is installed. If `br` is missing, stop and print installation instructions for <https://github.com/Dicklesworthstone/beads_rust>. If `.beads/` does not exist, run `ACTOR="${BR_ACTOR:-assistant}" && RUST_LOG=error br init --actor "$ACTOR" --json`. If it exists, leave it untouched.
   - In `br` mode, check whether `bv` is installed. If it is missing, recommend installing `bv` for beads viewing, robot triage, and native agent instructions, but do not fail init.
   - Never delete or reset an existing tracker workspace as part of init.
 - After scaffolding, if `.pi/prompts/` exists and `.execflow/settings.yml` exists, run the repository's model-sync step so project-local prompt frontmatter reflects the configured per-prompt model and thinking entries.
@@ -111,6 +113,7 @@ Read that file before using `pi-execflow`, `tk`, `br`, `bv`, or ExecPlans in thi
 The marker-based blocks enable safe, idempotent re-runs of `/ef-init`: only the content between the markers is touched.
 
 When finished:
+
 - report which tracker mode was selected
 - report the copied/scaffolded paths
 - report whether `.pi/prompts/` was synced from `.execflow/settings.yml`

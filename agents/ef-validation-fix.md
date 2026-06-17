@@ -3,11 +3,14 @@ name: ef-validation-fix
 description: pi-execflow fresh-context validation and minimal repair worker
 tools: read, bash, edit, write
 model: zai/glm-5.2
+fallbackModels: openai-codex/gpt-5.4-mini
 thinking: high
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: true
 defaultContext: fresh
+maxExecutionTimeMs: 600000
+maxTokens: 500000
 ---
 
 # ef-validation-fix

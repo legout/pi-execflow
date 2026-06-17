@@ -1,7 +1,7 @@
 ---
 description: Add a final work-item note and close it when validation passes and review is clean or follow-ups capture findings
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5.2
+model: zai/glm-5.2, openai-codex/gpt-5.4-mini
 thinking: medium
 subagent: ef-finalizer
 fresh: true
@@ -50,6 +50,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, any required review evidence is either clean or has captured every material finding as tracker follow-up work, and the git dirty tree can be separated safely.
    - `REVISE` if validation evidence contains `Gate: REVISE`, evidence is partial/stale/ambiguous/missing, review follow-up creation/commenting failed, material review findings remain uncaptured before closure, or unrelated dirty-tree changes cannot be separated from the work item.
    - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized.
+   - For branch-ref remediation or merge-ready branch work, require evidence for the published review target when the ticket mentions publishing, a remote branch, a PR/review branch, or merge readiness. Local-only branch pointer changes with `Pushed: no`, missing `origin/<branch>` checks, or validation that only inspects a local branch are `REVISE` unless the work item explicitly says local refs are sufficient.
 6. **On strict PASS only**: commit the related code changes before closing the tracker item.
    - Run `git status --short` and `git diff --stat` to see what changed.
    - Classify every changed/untracked file as `related`, `unrelated`, or `ambiguous` before staging.

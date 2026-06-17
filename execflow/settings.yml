@@ -5,9 +5,9 @@ tracker:
 
 models:
     plan: &plan_model openai-codex/gpt-5.5, zai/glm-5.2
-    orchestration: &orchestration_model zai/glm-5.2
+    orchestration: &orchestration_model zai/glm-5.2, openai-codex/gpt-5.4-mini
     implementation: &implementation_model kimi-coding/k2p7, zai/glm-5.2
-    validation_fix: &validation_fix_model zai/glm-5.2
+    validation_fix: &validation_fix_model zai/glm-5.2, openai-codex/gpt-5.4-mini
     fast: &fast_model openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
     review: &review_model openai-codex/gpt-5.5
 

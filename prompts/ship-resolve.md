@@ -29,12 +29,17 @@ Use **explicit-target mode** for any other `$1` value.
 
 1. Parse only `--max-retries N`; default to `2`.
 2. Reject non-integer, negative, or values greater than `20`.
-3. Locate the installed `@legout/pi-execflow` package root using this search order:
-   1. `$PWD`
-   2. `$PWD/.pi/git/github.com/legout/pi-execflow`
-   3. `$HOME/.pi/agent/git/github.com/legout/pi-execflow`
-4. Run exactly:
-   `node <package-root>/scripts/autoship-state.mjs next --mode ship --max-retries <N>`
+3. Locate the installed `@legout/pi-execflow` package root by checking only candidates that contain `scripts/autoship-state.mjs`. Run this exact shape, substituting only `<N>` after argument parsing:
+   ```bash
+   for root in "$PWD" "$PWD/.pi/git/github.com/legout/pi-execflow" "$HOME/.pi/agent/git/github.com/legout/pi-execflow"; do
+     if [ -f "$root/scripts/autoship-state.mjs" ]; then
+       node "$root/scripts/autoship-state.mjs" next --mode ship --max-retries <N>
+       exit $?
+     fi
+   done
+   echo "Unable to locate @legout/pi-execflow autoship-state.mjs" >&2
+   exit 1
+   ```
 5. Parse the helper JSON conservatively.
 6. If `status` is `dispatch`, select `issueId` as the work-item reference for this chain iteration.
 7. In next-ready mode only, after a `dispatch` result and before final output, call the `write` tool to write `.pi/execflow-autoship-loop-marker.json` with a small JSON object containing at least `mode`, `issueId`, `attempt`, `maxAttempts`, and `progressPath` from the helper result. This marker is intentionally outside tracker state; it exists only so prompt-template convergence sees a file write on productive dispatch iterations.

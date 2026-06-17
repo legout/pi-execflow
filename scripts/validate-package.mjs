@@ -146,6 +146,7 @@ const agentFiles = existsSync(agentTemplatesDir)
 			.sort()
 	: [];
 const agentNames = new Set();
+const agentFrontmatterByName = new Map();
 for (const agentFile of agentFiles) {
 	const agentPath = join(agentTemplatesDir, agentFile);
 	const extracted = extractFrontmatter(
@@ -154,7 +155,10 @@ for (const agentFile of agentFiles) {
 	);
 	if (!extracted) continue;
 	const name = getFrontmatterField(extracted.frontmatter, "name");
-	if (name) agentNames.add(name);
+	if (name) {
+		agentNames.add(name);
+		agentFrontmatterByName.set(name, extracted.frontmatter);
+	}
 }
 for (const expectedAgent of [
 	"ef-worker",
@@ -165,6 +169,22 @@ for (const expectedAgent of [
 	if (!agentNames.has(expectedAgent)) {
 		addError(`Missing package agent template: ${expectedAgent}`);
 	}
+}
+for (const [agentName, expectedFallback] of [
+	["ef-validation-fix", "openai-codex/gpt-5.4-mini"],
+	["ef-finalizer", "openai-codex/gpt-5.4-mini"],
+]) {
+	const frontmatter = agentFrontmatterByName.get(agentName);
+	if (!frontmatter) continue;
+	if (getFrontmatterField(frontmatter, "fallbackModels") !== expectedFallback) {
+		addError(
+			`Agent ${agentName} must use fallbackModels: ${expectedFallback}`,
+		);
+	}
+}
+const workerFrontmatter = agentFrontmatterByName.get("ef-worker");
+if (workerFrontmatter && getFrontmatterField(workerFrontmatter, "completionGuard") !== "false") {
+	addError("Agent ef-worker must set completionGuard: false for evidence-backed no-op implementations");
 }
 const skillNames = new Set();
 for (const skillPath of skillFiles) {
@@ -325,10 +345,10 @@ for (const promptFile of promptFiles) {
 		const expectedMode = promptFile === "ship-resolve.md" ? "ship" : "ship-tdd";
 		const helperCommandLines = linesContaining(
 			extracted.body,
-			/autoship-state\.mjs\s+next\b/,
+			/autoship-state\.mjs"?\s+next\b/,
 		);
 		const helperModePattern = new RegExp(
-			`autoship-state\\.mjs\\s+next\\s+--mode\\s+${expectedMode}(?=\\s|$)`,
+			`autoship-state\\.mjs"?\\s+next\\s+--mode\\s+${expectedMode}(?=\\s|$)`,
 		);
 		if (promptSkill !== "resolve") {
 			addError(`Prompt ${promptFile} must reference skill: resolve`);
@@ -358,6 +378,11 @@ for (const promptFile of promptFiles) {
 		if (!/do not write (?:the )?convergence marker/i.test(extracted.body)) {
 			addError(
 				`Prompt ${promptFile} must not write the autoship convergence marker on stop results`,
+			);
+		}
+		if (!/\[ -f "\$root\/scripts\/autoship-state\.mjs" \]/.test(extracted.body)) {
+			addError(
+				`Prompt ${promptFile} must validate package-root candidates with [ -f "$root/scripts/autoship-state.mjs" ]`,
 			);
 		}
 	}

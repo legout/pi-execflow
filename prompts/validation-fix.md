@@ -1,7 +1,7 @@
 ---
 description: Validate and apply minimal fixes until acceptance criteria pass or progress stops
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5.2
+model: zai/glm-5.2, openai-codex/gpt-5.4-mini
 thinking: high
 subagent: ef-validation-fix
 loop: 5
@@ -46,6 +46,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - build
    - manual behavior checks where applicable
 5. Map each acceptance criterion to concrete evidence.
+   - For branch-ref remediation or merge-ready branch work, validate the artifact the work item actually asks to publish or review. When the ticket names a branch that may have an `origin/<branch>` counterpart, run `git fetch origin` when a remote exists, inspect `origin/<branch>` as well as the local ref, and compare the requested base against the published ref. Do not report `Gate: PASS` from local-only branch state when the remote/review branch still has the failing diff or has not been checked.
 6. If validation is a full pass:
    - make no code or tracker changes
    - state that the loop should converge because no fix is needed

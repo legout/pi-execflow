@@ -1,12 +1,28 @@
 # Changelog
 
+## Unreleased
+
+- Added `gpt-5.4-mini` fallback coverage for closure-critical
+  orchestration/finalization and validation-fix paths, including
+  `fallbackModels` on the delegated `ef-finalizer` and `ef-validation-fix`
+  agent templates.
+- Hardened ship/autoship reliability: selector prompts now validate the
+  package root with `scripts/autoship-state.mjs`, branch-remediation validation
+  must prove the published remote/review branch when applicable, implementation
+  workers can report evidence-backed no-op passes, and exact-edit failures now
+  require a re-read/retry before giving up.
+- Bounded `ef-worker`, `ef-validation-fix`, `ef-reviewer`, and `ef-finalizer`
+  subagent execution with `maxExecutionTimeMs` / `maxTokens`. Previously an
+  implementation worker could spiral (observed: 57 turns, ~1.9M tokens) and stall
+  the ship chain with no usable result; bounded workers now fail fast instead of
+  burning resources, so the autoship loop exhausts retries and moves on.
+
 ## 1.7.5 - 2026-06-17
 
-- Fixed model selection so each ship-chain step switches to its configured
-  primary model instead of sticking on the fast selector model. The fast
-  selector models (`gpt-5.4-mini`, `kimi-for-coding`) are now exclusive to the
-  fast role, and `/ef-update` migrates `plan`/`implementation` defaults that
-  previously shared them.
+- Fixed model selection so ship-chain plan/implementation steps switch to their
+  configured primary model instead of sticking on the fast selector model.
+  `/ef-update` migrates `plan`/`implementation` defaults that previously shared
+  the fast selector models (`gpt-5.4-mini`, `kimi-for-coding`).
 
 ## 1.7.4 - 2026-06-17
 

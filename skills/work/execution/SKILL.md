@@ -42,6 +42,8 @@ This is especially important for `.beads/` / `br` workflows, where there may be 
 10. Treat parallel execution and worktree isolation as optional safety tools, never as default automation.
 11. Preserve the active prompt runtime. Do not delete, move, or overwrite `.pi/`, `.pi/prompts/`, `.pi/agents/`, `.execflow/`, or prompt-template runtime files unless the work item explicitly targets pi-execflow scaffolding.
 12. Do not rewrite the active checkout during ship/autoship execution. Avoid `git checkout`, `git switch`, `git reset --hard`, `git clean`, and equivalent commands in the current worktree; these can remove prompt overlays and break the next chain iteration. For branch-ref remediation, prefer ref-only commands such as `git branch -f <branch> <ref>` or `git update-ref`, or use a separate isolated worktree.
+13. If the requested implementation is already present from a previous attempt, do not make dummy edits. Report a no-op implementation result with concrete file/command evidence and the validation still required.
+14. Before exact-text edits, re-read or re-check the current target region. If an exact edit fails, re-read and retry once with a smaller current-context replacement; if it still fails, stop with a precise stale-edit explanation instead of broad rewrites.
 
 ## Worktree and parallel execution discipline
 

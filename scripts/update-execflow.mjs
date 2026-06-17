@@ -187,11 +187,12 @@ function ensureExecflowTemplates(trackerMode) {
 
 function migrateKnownDefaultModels() {
 	if (!existsSync(execflowSettingsPath)) return;
-	// Migrate known default model lists that shared the fast selector models
-	// (gpt-5.4-mini, kimi-for-coding) across roles. pi-prompt-template-model
-	// treats the current model as "already active" when it matches ANY model in
-	// a prompt's list, so a shared model lets the cheap selector model trap the
-	// whole chain. The fast models must stay exclusive to the fast role.
+	// Migrate known default model lists. pi-prompt-template-model treats the
+	// current model as "already active" when it matches ANY model in a prompt's
+	// list, so broad sharing of fast selector models can trap the whole chain on
+	// the selector model. Keep fast-only fallbacks out of plan/implementation,
+	// while allowing an explicit gpt-5.4-mini fallback for closure-critical
+	// orchestration and validation roles.
 	const migrations = [
 		{
 			label: "fast model fallback",
@@ -209,6 +210,18 @@ function migrateKnownDefaultModels() {
 			regex:
 				/^(\s*implementation:\s*&implementation_model\s+)kimi-coding\/k2p7,\s*openai-codex\/gpt-5\.4-mini\s*$/m,
 			replacement: "$1kimi-coding/k2p7, zai/glm-5.2",
+		},
+		{
+			label: "orchestration model fallback",
+			regex:
+				/^(\s*orchestration:\s*&orchestration_model\s+)(zai\/glm-5\.(?:2|turbo))\s*$/m,
+			replacement: "$1$2, openai-codex/gpt-5.4-mini",
+		},
+		{
+			label: "validation-fix model fallback",
+			regex:
+				/^(\s*validation_fix:\s*&validation_fix_model\s+)zai\/glm-5\.2\s*$/m,
+			replacement: "$1zai/glm-5.2, openai-codex/gpt-5.4-mini",
 		},
 	];
 	let current = readFileSync(execflowSettingsPath, "utf8");

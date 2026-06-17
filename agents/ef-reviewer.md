@@ -8,6 +8,8 @@ systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: true
 defaultContext: fresh
+maxExecutionTimeMs: 300000
+maxTokens: 300000
 ---
 
 # ef-reviewer

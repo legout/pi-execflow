@@ -55,6 +55,7 @@ Prefer established project commands over custom one-off commands.
 - Distinguish RED proof, GREEN proof, regression validation, and RED exemptions.
 - If validation is partial, say so clearly.
 - If a criterion lacks proof, mark it as a gap.
+- For branch-ref remediation or merge-ready branch work, validate the artifact named by the work item. If the requirement mentions publishing, a remote branch, a PR/review branch, or merge readiness, fetch and inspect `origin/<branch>` when available; local-only branch refs are insufficient for `Gate: PASS` unless the work item explicitly says local validation is enough.
 - Capture exact exit codes and decisive error output when a command fails.
 - After a fix, rerun the most relevant targeted validation first before broadening.
 - Do not modify tests merely to make validation pass unless the evidence shows the test itself is wrong.

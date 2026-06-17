@@ -42,12 +42,13 @@ Do **not** edit source files, tests, docs, prompts, generated files, configs, or
 3. Accept two validation sources:
    - `/validation-fix` evidence from the TDD path.
    - `/ef-work` evidence from the quick path.
-4. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
-5. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
-6. Include only claims supported by actual execution or explicit evidence in context.
-7. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` or `/ef-work-tdd` without a consolidated review verdict.
-8. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
-9. Treat an ambiguous dirty tree as `REVISE`, not as a reason to stage broadly or close without a commit.
+4. For branch-ref remediation or merge-ready branch work, require evidence for the published review target when the ticket mentions publishing, a remote branch, a PR/review branch, or merge readiness. Local-only branch pointer changes with `Pushed: no`, missing `origin/<branch>` checks, or validation that only inspects a local branch are insufficient for closure unless the work item explicitly says local refs are enough.
+5. If evidence is partial, missing, stale, ambiguous, negative, `Gate: REVISE`, or `Gate: BLOCKED`, add a note and leave the ticket open.
+6. Prefer `Gate: PASS`, `Gate: REVISE`, and `Gate: BLOCKED` notes for compatibility with this repository's existing workflow.
+7. Include only claims supported by actual execution or explicit evidence in context.
+8. Do not imply review happened. Use "Review not run" when finalizing from `/ef-work` or `/ef-work-tdd` without a consolidated review verdict.
+9. Never create new follow-up tickets/issues in finalization. Follow-up creation belongs to `/ef-review-with-followups`; if required follow-ups are missing or failed, report `REVISE`.
+10. Treat an ambiguous dirty tree as `REVISE`, not as a reason to stage broadly or close without a commit.
 
 ## Review handoff requirements
 
@@ -63,6 +64,7 @@ For the TDD path, closure requires:
 
 - `Gate: PASS` from `/validation-fix`
 - acceptance-criteria evidence
+- published branch/PR evidence for branch-ref remediation or merge-ready branch work, unless explicitly local-only
 - RED/GREEN proof when required by the spec or ticket, or an explicit RED exemption
 - regression validation status, even if broader validation was not run
 
@@ -124,7 +126,7 @@ On a strict `Gate: PASS` outcome, commit already-existing related changes before
    - `ambiguous`: cannot be proven related or unrelated from the work item/spec/evidence.
 3. Stage only `related` files. Do not stage unrelated or ambiguous changes.
 4. If any dirty path is ambiguous, return `REVISE` and leave the item open.
-5. If there are no related code changes, skip the commit only when this is expected and all remaining dirty paths are clearly unrelated.
+5. If there are no related code changes, skip the commit only when this is expected and all remaining dirty paths are clearly unrelated. For branch-ref remediation, do not treat a local-only branch pointer update as complete when the work item requires a published or merge-ready branch; `Pushed: no` plus missing remote validation is a closure blocker.
 6. Commit with a Conventional Commits message:
    - `<type>(<scope>): <summary>` where summary is ≤ 72 chars, imperative mood, no trailing period.
    - Derive `type` from the work (feat, fix, refactor, test, chore, docs, perf).
@@ -146,6 +148,7 @@ Before finalizing, verify:
 - the note text is concise and truthful
 - close only happens on strict `Gate: PASS`
 - close only happens with valid quick-path evidence or valid TDD validation evidence
+- branch-ref remediation has published target evidence when required, not just local ref evidence
 - when review is part of the chain, review evidence is clean or all material findings were captured as follow-ups with an original-item note/comment
 - review follow-ups are treated as delegated future work, not work to perform during finalization
 - no repository files were modified during finalization

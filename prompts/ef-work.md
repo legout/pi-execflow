@@ -50,6 +50,8 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
 - Do not introduce cosmetic-only churn.
 - Prefer local patterns and existing abstractions.
 - If ambiguity blocks safe implementation, stop and explain.
+- If the requested change is already present from a prior attempt, do not make dummy edits. Report a no-op quick work result with concrete evidence and validation/inspection status.
+- Before exact-text edits, re-read or re-check the current target region. If an exact replacement fails, re-read and retry once with a smaller current-context replacement; if it still fails, stop with a precise stale-edit explanation.
 - If the ticket needs full TDD evidence or a validation/fix loop, stop and recommend `/ef-work-tdd`.
 - Do not claim validation passed unless the command actually passed or the evidence is explicitly inspection-only.
 - Always emit exactly one gate line: `Gate: PASS`, `Gate: REVISE`, or `Gate: BLOCKED`.

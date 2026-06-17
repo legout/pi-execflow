@@ -74,7 +74,7 @@ This scaffolds:
 - `.pi/prompts/*.md` and `.pi/agents/*.md` copied from the resolved installed `@legout/pi-execflow` package root
 - tracker setup for `tk` or `br`
 
-In `br` mode, `br` is required. If it is missing, init stops and points to https://github.com/Dicklesworthstone/beads_rust. If `bv` is missing, init recommends installing it but continues. Native `br` and `bv` workflow instructions are managed in the project-root `AGENTS.md` by their own commands; `.execflow/AGENTS.md` stays focused on pi-execflow policy.
+In `br` mode, `br` is required. If it is missing, init stops and points to <https://github.com/Dicklesworthstone/beads_rust>. If `bv` is missing, init recommends installing it but continues. Native `br` and `bv` workflow instructions are managed in the project-root `AGENTS.md` by their own commands; `.execflow/AGENTS.md` stays focused on pi-execflow policy.
 
 ### 2. Plan with an ExecPlan
 
@@ -298,6 +298,8 @@ Properties of the sync step:
 ### Important frontmatter notes
 
 - **`model` is a string.** For fallback chains, use a single comma-separated string such as `kimi-coding/kimi-for-coding, zai/glm-5-turbo, openai-codex/gpt-5.4-mini`.
+- **Prompt model fallback caveat:** `pi-prompt-template-model` keeps the current model if it matches any candidate in the prompt's model list, even when that candidate is listed as a fallback. Do not broadly share the fast selector models with immediately following chain steps. The default config intentionally keeps fast-selector fallbacks out of plan/implementation while allowing `gpt-5.4-mini` as a closure-critical fallback for validation/finalization.
+- **Subagent fallback models use `fallbackModels`.** Agent templates such as `ef-validation-fix` and `ef-finalizer` keep `model:` as the primary model and use `fallbackModels:` for retryable provider/model failures.
 - **`thinking` is optional and also string-based.** Typical values are `low`, `medium`, and `high`.
 - **Chain prompts do not use wrapper `model` / `thinking` / `skill`.** When a prompt uses `chain:`, the wrapper prompt acts as orchestration only. Put model / thinking choices on the leaf prompts instead.
 - **Chain prompts cannot be nested.** A `chain:` step cannot reference another `chain:` prompt.
