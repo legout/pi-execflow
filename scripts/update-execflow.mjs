@@ -187,17 +187,43 @@ function ensureExecflowTemplates(trackerMode) {
 
 function migrateKnownDefaultModels() {
 	if (!existsSync(execflowSettingsPath)) return;
-	const current = readFileSync(execflowSettingsPath, "utf8");
-	const fastModelFallback =
-		"openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding";
-	const updated = current.replace(
-		/^(\s*fast:\s*&fast_model\s*)zai\/glm-5-turbo\s*$/m,
-		`$1${fastModelFallback}`,
-	);
-	if (updated !== current) {
-		writeFileSync(execflowSettingsPath, updated);
+	// Migrate known default model lists that shared the fast selector models
+	// (gpt-5.4-mini, kimi-for-coding) across roles. pi-prompt-template-model
+	// treats the current model as "already active" when it matches ANY model in
+	// a prompt's list, so a shared model lets the cheap selector model trap the
+	// whole chain. The fast models must stay exclusive to the fast role.
+	const migrations = [
+		{
+			label: "fast model fallback",
+			regex: /^(\s*fast:\s*&fast_model\s+)zai\/glm-5-turbo\s*$/m,
+			replacement: "$1openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding",
+		},
+		{
+			label: "plan model fallback",
+			regex:
+				/^(\s*plan:\s*&plan_model\s+)openai-codex\/gpt-5\.5,\s*openai-codex\/gpt-5\.4-mini,\s*kimi-coding\/kimi-for-coding\s*$/m,
+			replacement: "$1openai-codex/gpt-5.5, zai/glm-5.2",
+		},
+		{
+			label: "implementation model fallback",
+			regex:
+				/^(\s*implementation:\s*&implementation_model\s+)kimi-coding\/k2p7,\s*openai-codex\/gpt-5\.4-mini\s*$/m,
+			replacement: "$1kimi-coding/k2p7, zai/glm-5.2",
+		},
+	];
+	let current = readFileSync(execflowSettingsPath, "utf8");
+	const applied = [];
+	for (const { label, regex, replacement } of migrations) {
+		const updated = current.replace(regex, replacement);
+		if (updated !== current) {
+			current = updated;
+			applied.push(label);
+		}
+	}
+	if (applied.length) {
+		writeFileSync(execflowSettingsPath, current);
 		console.log(
-			`migrated ${relative(cwd, execflowSettingsPath)} fast model fallback`,
+			`migrated ${relative(cwd, execflowSettingsPath)}: ${applied.join(", ")}`,
 		);
 	}
 }

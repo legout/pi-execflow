@@ -1,7 +1,7 @@
 ---
 description: Simplified public command for converting an ExecPlan into tracked work items
 argument-hint: "[--tk|--br] [topic]"
-model: openai-codex/gpt-5.5, openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
+model: openai-codex/gpt-5.5, zai/glm-5.2
 thinking: high
 skill: work-itemize
 restore: true

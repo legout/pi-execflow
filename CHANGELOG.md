@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Fixed model selection so each ship-chain step switches to its configured
+  primary model instead of sticking on the fast selector model. The fast
+  selector models (`gpt-5.4-mini`, `kimi-for-coding`) are now exclusive to the
+  fast role, and `/ef-update` migrates `plan`/`implementation` defaults that
+  previously shared them.
+
 ## 1.7.4 - 2026-06-17
 
 - Fixed fast work-item selector prompts to prefer Codex mini with Kimi fallback,
