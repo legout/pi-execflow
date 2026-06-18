@@ -13,6 +13,8 @@ Reviews are read-only by default. Do not add tracker comments, close/reopen item
 
 When `--create-followups` is absent, list candidate follow-ups only. When it is present, create follow-ups only for concrete, actionable findings after checking for obvious duplicates. For work-item reviews, add a concise note/comment to the original work item summarizing the review findings and the created or duplicate follow-up IDs. Do not close the original work item from the review step; the downstream finalization step closes it when validation evidence is PASS and every material review finding is represented by a follow-up. For `tk`, use `tk add-note <item> "..."`. For `br`, prefer `ACTOR="${BR_ACTOR:-assistant}"` and `RUST_LOG=error br ... --json`, then run `RUST_LOG=error br sync --flush-only` after mutation.
 
+When creating a follow-up for a work-item review, make that follow-up depend on the reviewed original item before reporting it as created. This prevents autoship ready-queue selection from implementing review follow-ups while the original item's uncommitted implementation is still dirty in the checkout. For `tk`, after `tk create ...` returns the new ID, run `tk dep <new-id> <original-id>`. For `br`, after `br create ... --json` returns the new ID, run `RUST_LOG=error br dep add --type blocks <new-id> <original-id> --json`; then run `RUST_LOG=error br sync --flush-only` after all mutations. If dependency creation fails, list that follow-up under incomplete follow-up coverage and set `Original item may close: no`.
+
 Every review must end with a machine-readable `# Finalization Handoff` section. Set `Original item may close: yes` only when the verdict is merge-ready/pass and either there are no material findings or every material finding has a created follow-up or an explicitly identified duplicate plus an original-item note/comment. Set it to `no` for needs-fixes, failed, blocked, missing validation evidence, disabled/incomplete follow-up creation, or failed original-item commenting.
 
 ## Review modes
@@ -110,6 +112,7 @@ Use exactly these sections for all review prompts:
 - Follow-up creation enabled: yes / no
 - Candidate follow-ups listed:
 - Follow-up items created:
+- Follow-up dependencies: not-needed / all-created / incomplete / disabled
 - Duplicates skipped:
 - Notes/comments added:
 - Sync run:

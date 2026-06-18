@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.7 - 2026-06-18
+
+- Fixed `/ef-autoship-tdd` ready-queue ordering for review follow-ups by
+  requiring created follow-up work items to depend on the reviewed original
+  item. This prevents autoship from implementing follow-ups inside a dirty tree
+  before the parent work item has been finalized and committed.
+- Added package validation that enforces review follow-up dependency guidance
+  and the new follow-up dependency status in review output.
+
 ## 1.7.6 - 2026-06-17
 
 - Added `gpt-5.4-mini` fallback coverage for closure-critical

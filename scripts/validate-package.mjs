@@ -177,14 +177,17 @@ for (const [agentName, expectedFallback] of [
 	const frontmatter = agentFrontmatterByName.get(agentName);
 	if (!frontmatter) continue;
 	if (getFrontmatterField(frontmatter, "fallbackModels") !== expectedFallback) {
-		addError(
-			`Agent ${agentName} must use fallbackModels: ${expectedFallback}`,
-		);
+		addError(`Agent ${agentName} must use fallbackModels: ${expectedFallback}`);
 	}
 }
 const workerFrontmatter = agentFrontmatterByName.get("ef-worker");
-if (workerFrontmatter && getFrontmatterField(workerFrontmatter, "completionGuard") !== "false") {
-	addError("Agent ef-worker must set completionGuard: false for evidence-backed no-op implementations");
+if (
+	workerFrontmatter &&
+	getFrontmatterField(workerFrontmatter, "completionGuard") !== "false"
+) {
+	addError(
+		"Agent ef-worker must set completionGuard: false for evidence-backed no-op implementations",
+	);
 }
 const skillNames = new Set();
 for (const skillPath of skillFiles) {
@@ -317,7 +320,9 @@ for (const promptFile of promptFiles) {
 			addError(`Prompt ${promptFile} must use loop: unlimited`);
 		}
 		if (getFrontmatterField(extracted.frontmatter, "fresh") !== "false") {
-			addError(`Prompt ${promptFile} must use fresh: false to avoid branch-navigation failures between autoship iterations`);
+			addError(
+				`Prompt ${promptFile} must use fresh: false to avoid branch-navigation failures between autoship iterations`,
+			);
 		}
 		if (getFrontmatterField(extracted.frontmatter, "converge") !== "true") {
 			addError(`Prompt ${promptFile} must use converge: true`);
@@ -380,7 +385,9 @@ for (const promptFile of promptFiles) {
 				`Prompt ${promptFile} must not write the autoship convergence marker on stop results`,
 			);
 		}
-		if (!/\[ -f "\$root\/scripts\/autoship-state\.mjs" \]/.test(extracted.body)) {
+		if (
+			!/\[ -f "\$root\/scripts\/autoship-state\.mjs" \]/.test(extracted.body)
+		) {
 			addError(
 				`Prompt ${promptFile} must validate package-root candidates with [ -f "$root/scripts/autoship-state.mjs" ]`,
 			);
@@ -427,6 +434,32 @@ if (/pi install npm:|From npm/i.test(readmeText)) {
 	addError(
 		"README.md must not document npm installation; use the GitHub install path instead",
 	);
+}
+
+const reviewSuiteText = readFileSync(
+	join(skillsDir, "work", "review-suite", "SKILL.md"),
+	"utf8",
+);
+if (!/tk dep <new-id> <original-id>/.test(reviewSuiteText)) {
+	addError(
+		"review-suite skill must tell tk follow-ups to depend on the reviewed original item",
+	);
+}
+if (
+	!/br dep add --type blocks <new-id> <original-id> --json/.test(
+		reviewSuiteText,
+	)
+) {
+	addError(
+		"review-suite skill must tell br follow-ups to block on the reviewed original item",
+	);
+}
+if (
+	!/Follow-up dependencies: not-needed \/ all-created \/ incomplete \/ disabled/.test(
+		reviewSuiteText,
+	)
+) {
+	addError("review-suite output must report follow-up dependency status");
 }
 
 const packageJsonText = readFileSync(join(repoRoot, "package.json"), "utf8");
