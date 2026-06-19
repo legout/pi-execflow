@@ -44,6 +44,14 @@ When the selector returns `status: stop`, it must emit a no-work `# Ship Selecti
 
 This no-op iteration lets the chain loop converge without relying on nested prompt dispatch.
 
+## Persisted validation gate
+
+The TDD chain (`ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize`) can re-dispatch a work item whose implementation already exists. When that happens the `/validation-fix` transcript may not carry forward into the fresh-context `/finalize` step, and the finalizer used to return `REVISE` purely for lack of a visible `Gate: PASS` — burning retries and, on the last attempt, aborting.
+
+To make closure resilient, `/validation-fix` persists its gate to `.execflow/validation-gate.json` via `scripts/validation-gate.mjs write` (invoked through `bash`, so prompt-template loop convergence is unaffected), and `/finalize` consults it via `scripts/validation-gate.mjs verify`. A persisted `PASS` gate is only `closable` when both the recorded commit and the source dirty-tree hash still match the current tree — i.e. the code being closed on is byte-identical to the code that was validated. The gate file is gitignored workflow state; never stage or commit it.
+
+Both leaf prompts degrade gracefully: if the helper is missing or errors, they fall back to the in-transcript gate and the normal `REVISE`/`BLOCKED` rules, so the chain is never broken by a persistence failure.
+
 ## What autoship must not do
 
 - Do not call `run-prompt` from inside autoship.

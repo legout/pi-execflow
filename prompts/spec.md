@@ -62,6 +62,7 @@ Execution plans may live in:
 - Prefer exact work-item/plan wording where possible.
 - Separate confirmed requirements from inferred assumptions.
 - If safe implementation is not possible, say so.
+- You produce a specification only. Do not run validation commands, do not consider or emit validation gates, and do not loop or retry. If the work item appears already implemented from a prior attempt, still produce the spec from the ticket and ExecPlan and note `implementation may already exist` under Implementation Go/No-Go. Emit the spec once and stop.
 
 ## Output format
 

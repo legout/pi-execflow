@@ -47,7 +47,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - `/ef-work` in the quick path.
 4. Find the latest review evidence when the current chain or user context includes it. `/ef-ship` runs `/ef-review-with-followups` before this step, so review evidence is required there.
 5. Decide whether the outcome is:
-   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS`, acceptance criteria are met, any required review evidence is either clean or has captured every material finding as tracker follow-up work, and the git dirty tree can be separated safely.
+   - `PASS` only if the latest validation evidence contains the exact line `Gate: PASS` **or** a persisted gate verifies as `closable` for this work item (see "Persisted gate evidence"), acceptance criteria are met, any required review evidence is either clean or has captured every material finding as tracker follow-up work, and the git dirty tree can be separated safely.
    - `REVISE` if validation evidence contains `Gate: REVISE`, evidence is partial/stale/ambiguous/missing, review follow-up creation/commenting failed, material review findings remain uncaptured before closure, or unrelated dirty-tree changes cannot be separated from the work item.
    - `BLOCKED` if evidence contains `Gate: BLOCKED` or the work cannot be safely finalized.
    - For branch-ref remediation or merge-ready branch work, require evidence for the published review target when the ticket mentions publishing, a remote branch, a PR/review branch, or merge readiness. Local-only branch pointer changes with `Pushed: no`, missing `origin/<branch>` checks, or validation that only inspects a local branch are `REVISE` unless the work item explicitly says local refs are sufficient.
@@ -109,9 +109,23 @@ Review evidence is optional only when finalizing after `/ef-work` or `/ef-work-t
 
 Do not close if the latest review is `failed` or `blocked`, required review evidence is missing, follow-up creation/commenting failed, or any material finding remains uncaptured. Do not attempt to resolve those findings here; leave the item open with a concise `REVISE` note.
 
+## Persisted gate evidence
+
+When `/validation-fix` is part of the chain but its transcript is not visible in this fresh context (common on re-dispatched work items whose implementation already exists), consult the persisted gate before concluding the work item lacks validation evidence:
+
+1. Resolve the package root:
+   `root="$PWD"; [ -f "$root/scripts/validation-gate.mjs" ] || root="$PWD/.pi/git/github.com/legout/pi-execflow"; [ -f "$root/scripts/validation-gate.mjs" ] || root="$HOME/.pi/agent/git/github.com/legout/pi-execflow"`
+2. Verify the persisted gate:
+   `node "$root/scripts/validation-gate.mjs" verify --issue <id>`
+
+The helper reports `closable: true` only when the stored gate is `PASS` and **both** the commit (`headCommit`) and the source dirty-tree hash (`treeSha`) still match what was recorded when the gate was written — i.e. the source code now is byte-identical to the code that passed validation. A mismatch means the source changed after the gate was recorded (or the gate is for a different work item); treat that as stale and do not close on it.
+
+A `closable: true` persisted gate is equivalent to an in-transcript `Gate: PASS` for closure, provided acceptance-criteria evidence and the review/dirty-tree policies are also satisfied. State in your evidence summary that closure relied on the persisted gate (with its `gateAt`) when no in-transcript `Gate: PASS` is visible. If the helper is missing, the gate file is absent, `closable` is `false`, or verification errors, fall back to the in-transcript validation evidence and the normal `REVISE`/`BLOCKED` rules.
+
 ## Rules
 
 - Be conservative: do not close unless the latest evidence supports closure.
+- Do not loop, retry, or re-run validation to obtain a missing gate. If no valid `Gate: PASS` is available from either the transcript or the persisted gate, emit exactly one `Outcome: REVISE` with reason `no fresh validation evidence` and stop. Do not re-derive evidence or repeat tool calls to chase a missing gate.
 - Do not edit repository files, run auto-fix commands, or repair review findings. Finalization may inspect files and commit already-existing related changes, but must not create new code/content changes.
 - Do not claim tests passed unless they actually passed or were explicitly evidenced.
 - Do not claim review was clean unless the final review verdict is merge-ready / pass with no unresolved material issues. If review found issues that were converted into follow-ups, say that explicitly instead of calling the review clean.

@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.7.8 - 2026-06-19
+
+- Fixed `/ef-ship-tdd` and `/ef-autoship-tdd` dead-loops that fired spurious
+  `Outcome: REVISE` and could terminate in an `Operation aborted` when a
+  re-dispatched work item's implementation already existed. The
+  `/validation-fix` step was intermittently skipped on such iterations,
+  leaving the fresh-context `/finalize` step with no visible `Gate: PASS` to
+  close on, so retries burned and the final attempt aborted while fixating on
+  the missing evidence.
+- Added a persisted validation gate (`scripts/validation-gate.mjs`) that
+  `/validation-fix` writes every iteration via `bash` and `/finalize` verifies.
+  A persisted `PASS` gate is only `closable` when both the recorded commit and a
+  hash of the source dirty tree still match the current tree, so stale or
+  post-edit gates are rejected. The gate file is gitignored workflow state and
+  is never staged or committed.
+- Hardened `/validation-fix`, `/finalize`, and `/spec` against model-fixation
+  loops with explicit anti-loop rules: emit one gate and stop, never chase a
+  missing artifact. `/spec` is now strictly specification-only.
+- Added package validation that runs the `validation-gate` self-test and
+  requires the `validation-fix` and `finalize` prompts to reference the gate
+  helper.
+
 ## 1.7.7 - 2026-06-18
 
 - Fixed `/ef-autoship-tdd` ready-queue ordering for review follow-ups by

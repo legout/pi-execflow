@@ -21,6 +21,8 @@ The prompt-template loop stops on convergence when an iteration makes no file ch
 - If validation fails but no safe scoped fix is possible, make no edits and report `Gate: BLOCKED`.
 - If validation fails and a safe scoped fix is possible, apply the smallest fix and report `Gate: REVISE`; the file change allows the next loop iteration to revalidate.
 
+A no-change `/implement` (for example on a re-dispatched work item whose implementation already exists) is **not** a reason to skip validation. Always run at least one validation iteration and emit a gate; the `/finalize` step runs in fresh context and may have no other validation evidence to close on.
+
 ## Inputs
 
 - Target work-item reference or path: `$1`
@@ -71,6 +73,22 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
 - Prefer targeted validation first; run broader checks when needed for confidence or repository convention.
 - If a command cannot be run, say exactly why and whether that leaves validation partial.
 - The final validation verdict must include exactly one gate line: `Gate: PASS`, `Gate: REVISE`, or `Gate: BLOCKED`.
+- Do not loop, retry, or re-derive evidence to chase a missing artifact. Run validation once, emit exactly one gate, and persist it as described below.
+
+## Persisting the gate for the finalizer
+
+The `/finalize` step runs in fresh context and often cannot see this iteration's transcript directly — most notably when the chain re-dispatches a work item whose implementation already exists and no fresh gate is emitted in-band. To make closure resilient, persist your gate **every iteration, including `Gate: PASS` with no code edits**.
+
+After you have determined the gate, run exactly this via `bash` (not the `write`/`edit` tools, so this does not affect prompt-template loop convergence):
+
+1. Resolve the package root:
+   `root="$PWD"; [ -f "$root/scripts/validation-gate.mjs" ] || root="$PWD/.pi/git/github.com/legout/pi-execflow"; [ -f "$root/scripts/validation-gate.mjs" ] || root="$HOME/.pi/agent/git/github.com/legout/pi-execflow"`
+2. Persist the gate:
+   `node "$root/scripts/validation-gate.mjs" write --issue <id> --system <tk|br|other> --gate <PASS|REVISE|BLOCKED> --summary "<one-line evidence summary, <=200 chars>"`
+
+Use the selected work item's id for `<id>` and the matching tracker for `<system>`. The helper records the current commit and a hash of the source dirty tree so the finalizer can tell whether the code it is closing on is still the code you validated.
+
+If the helper script cannot be located or errors, skip persistence and continue with the in-transcript `Gate:` line as the primary evidence. Do not fail validation, loop, or retry because the gate file could not be written.
 
 ## Output format
 

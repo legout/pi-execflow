@@ -346,6 +346,23 @@ for (const promptFile of promptFiles) {
 		}
 	}
 
+	if (
+		promptFile === "validation-fix.md" &&
+		!/validation-gate\.mjs/.test(extracted.body)
+	) {
+		addError(
+			"Prompt validation-fix.md must persist its gate via scripts/validation-gate.mjs",
+		);
+	}
+	if (
+		promptFile === "finalize.md" &&
+		!/validation-gate\.mjs/.test(extracted.body)
+	) {
+		addError(
+			"Prompt finalize.md must consult the persisted gate via scripts/validation-gate.mjs",
+		);
+	}
+
 	if (["ship-resolve.md", "ship-tdd-resolve.md"].includes(promptFile)) {
 		const expectedMode = promptFile === "ship-resolve.md" ? "ship" : "ship-tdd";
 		const helperCommandLines = linesContaining(
@@ -560,6 +577,22 @@ if (!existsSync(autoshipStatePath)) {
 		const detail =
 			err.stderr?.toString() || err.stdout?.toString() || err.message;
 		addError(`autoship-state self-test failed:\n${detail}`);
+	}
+}
+
+const validationGatePath = join(scriptsDir, "validation-gate.mjs");
+if (!existsSync(validationGatePath)) {
+	addError("Missing scripts/validation-gate.mjs");
+} else {
+	try {
+		execSync("node scripts/validation-gate.mjs --self-test", {
+			cwd: repoRoot,
+			stdio: "pipe",
+		});
+	} catch (err) {
+		const detail =
+			err.stderr?.toString() || err.stdout?.toString() || err.message;
+		addError(`validation-gate self-test failed:\n${detail}`);
 	}
 }
 
