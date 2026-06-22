@@ -17,9 +17,10 @@ This is the validation/fix loop used by the TDD-oriented `/ef-work-tdd` and `/ef
 
 The prompt-template loop stops on convergence when an iteration makes no file changes. Therefore:
 
-- If validation passes, make no edits and report `Gate: PASS`.
+- If validation passes initially, make no edits and report `Gate: PASS`.
+- If validation fails and a safe scoped fix is possible, apply the smallest fix, rerun the minimal validation needed to classify the final state, and report `Gate: PASS` when the fixed state now passes.
+- Report `Gate: REVISE` only when you applied a fix but concrete validation or acceptance gaps still remain for another iteration.
 - If validation fails but no safe scoped fix is possible, make no edits and report `Gate: BLOCKED`.
-- If validation fails and a safe scoped fix is possible, apply the smallest fix and report `Gate: REVISE`; the file change allows the next loop iteration to revalidate.
 
 A no-change `/implement` (for example on a re-dispatched work item whose implementation already exists) is **not** a reason to skip validation. Always run at least one validation iteration and emit a gate; the `/finalize` step runs in fresh context and may have no other validation evidence to close on.
 
@@ -51,14 +52,18 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
    - For branch-ref remediation or merge-ready branch work, validate the artifact the work item actually asks to publish or review. When the ticket names a branch that may have an `origin/<branch>` counterpart, run `git fetch origin` when a remote exists, inspect `origin/<branch>` as well as the local ref, and compare the requested base against the published ref. Do not report `Gate: PASS` from local-only branch state when the remote/review branch still has the failing diff or has not been checked.
 6. If validation is a full pass:
    - make no code or tracker changes
-   - state that the loop should converge because no fix is needed
+   - report `Gate: PASS`
 7. If validation is partial or failed:
    - identify the smallest safe fix for the highest-priority validation failure or acceptance-criteria gap
    - apply only that fix
    - update tests only when needed to prove the intended behavior or when the existing test is demonstrably wrong
+   - rerun the targeted validation needed to classify the fixed state
+   - report `Gate: PASS` if the fixed state now satisfies validation and acceptance criteria
+   - report `Gate: REVISE` only if another concrete gap remains after the fix
 8. If no safe scoped fix is possible:
    - make no code changes
    - explain the blocker and exact manual follow-up needed
+   - report `Gate: BLOCKED`
 
 ## Rules
 
@@ -73,7 +78,7 @@ When `$1` is empty, `--next`, or an autoship option such as `--max-retries`, use
 - Prefer targeted validation first; run broader checks when needed for confidence or repository convention.
 - If a command cannot be run, say exactly why and whether that leaves validation partial.
 - The final validation verdict must include exactly one gate line: `Gate: PASS`, `Gate: REVISE`, or `Gate: BLOCKED`.
-- Do not loop, retry, or re-derive evidence to chase a missing artifact. Run validation once, emit exactly one gate, and persist it as described below.
+- Do not loop, retry, or re-derive evidence to chase a missing artifact. Run the initial validation once; if you apply a fix, rerun only the minimal validation needed to classify the fixed state. Emit exactly one final gate for the state you are leaving in the worktree and persist it as described below.
 
 ## Persisting the gate for the finalizer
 

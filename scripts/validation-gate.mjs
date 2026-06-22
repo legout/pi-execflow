@@ -10,9 +10,10 @@
 //
 // A gate is only trustworthy if the source code now is byte-identical to the
 // code that was validated. We record headCommit and a hash of the tracked
-// dirty tree; verify recomputes both and reports `fresh`/`closable`. Because
-// .execflow/ and .pi/ are gitignored workflow state, `git diff HEAD` already
-// excludes their churn, so the signature tracks real source edits only.
+// dirty tree; verify recomputes both and reports `fresh`/`closable`. Store the
+// gate under .pi/ so repos that track .execflow/plans do not see the gate as a
+// delivery artifact. Verify still reads the old .execflow path as a conservative
+// compatibility fallback for gates written by pi-execflow <= 1.7.11.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
@@ -27,7 +28,8 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
-const GATE_PATH = ".execflow/validation-gate.json";
+const GATE_PATH = ".pi/execflow-validation-gate.json";
+const LEGACY_GATE_PATH = ".execflow/validation-gate.json";
 const VALID_GATES = ["PASS", "REVISE", "BLOCKED"];
 const VALID_SYSTEMS = ["tk", "br", "other"];
 
@@ -113,15 +115,17 @@ function treeSha(head) {
 		.slice(0, 16);
 }
 
-function loadGate() {
-	if (!existsSync(GATE_PATH)) {
-		return null;
-	}
+function readGateAt(path) {
+	if (!existsSync(path)) return null;
 	try {
-		return JSON.parse(readFileSync(GATE_PATH, "utf8"));
+		return { ...JSON.parse(readFileSync(path, "utf8")), _path: path };
 	} catch (err) {
-		return { _corrupt: true, _error: err.message };
+		return { _corrupt: true, _error: err.message, _path: path };
 	}
+}
+
+function loadGate() {
+	return readGateAt(GATE_PATH) || readGateAt(LEGACY_GATE_PATH);
 }
 
 function writeGate(opts) {
@@ -173,6 +177,7 @@ function verifyGate(issue) {
 	return {
 		issue,
 		stored: true,
+		path: stored._path,
 		storedIssue: stored.issue,
 		gate: stored.gate,
 		gateAt: stored.gateAt,

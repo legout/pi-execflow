@@ -89,7 +89,7 @@ Dirty-tree rules are strict:
 - A dirty tree is not automatically a blocker, but every dirty path must be classified before staging.
 - Related paths are files whose changes directly implement, validate, or document the selected work item.
 - Unrelated paths are files clearly tied to other work and must not be staged.
-- Known autoship workflow-state paths (`.pi/execflow-autoship-loop-marker.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md`) are unrelated workflow state by default; never stage them for a work-item commit and do not treat them as ambiguous solely because they are dirty.
+- Known execflow workflow-state paths (`.pi/execflow-autoship-loop-marker.json`, `.pi/execflow-validation-gate.json`, legacy `.execflow/validation-gate.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md`) are unrelated workflow state by default; never stage them for a work-item commit and do not treat them as ambiguous solely because they are dirty.
 - Ambiguous paths are any files whose relationship cannot be proven from the work item, spec, implementation summary, validation evidence, or review evidence.
 - On `PASS`, stage and commit only related paths. If there are related changes plus ambiguous changes, do not commit or close; return `REVISE`.
 - If there are no related code changes, skip the commit only when this is expected (for example tracker-only work or all related changes were already committed) and the remaining dirty paths are clearly unrelated.

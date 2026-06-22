@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.7.12 - 2026-06-22
+
+- Fixed TDD ship/work chains so `validation-fix` loops inside the chain
+  (`--loop 5`) before review/finalization, and tightened `/validation-fix` so
+  a fix-applying pass emits `Gate: PASS` when the repaired state validates.
+  This prevents a completed repair from leaving only `Gate: REVISE` evidence
+  and immediately falling through to a non-closing finalizer.
+- Moved persisted validation gates to `.pi/execflow-validation-gate.json`, with
+  read fallback for legacy `.execflow/validation-gate.json`, so repos that track
+  `.execflow/plans` do not see the gate as a delivery artifact.
+- Taught review/finalize guidance to treat execflow runtime state files,
+  including validation gates, as unrelated workflow state rather than ambiguous
+  work-item changes.
+- Added package validation to lock the TDD chain declarations to
+  `validation-fix --loop 5`.
+
 ## 1.7.11 - 2026-06-22
 
 - Normalized `scripts/sync-models.mjs` formatting after the dev-repo prompt sync fix.

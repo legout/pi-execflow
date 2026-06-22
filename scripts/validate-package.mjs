@@ -306,7 +306,7 @@ for (const promptFile of promptFiles) {
 		const expectedChain =
 			promptFile === "ef-autoship.md"
 				? "ship-resolve -> ef-work -> ef-review-with-followups -> finalize"
-				: "ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize";
+				: "ship-tdd-resolve -> spec -> implement -> validation-fix --loop 5 -> ef-review-with-followups -> finalize";
 		const expectedResolve =
 			promptFile === "ef-autoship.md" ? "ship-resolve" : "ship-tdd-resolve";
 		const expectedMode = promptFile === "ef-autoship.md" ? "ship" : "ship-tdd";
@@ -343,6 +343,22 @@ for (const promptFile of promptFiles) {
 		}
 		if (/run-prompt/.test(extracted.body)) {
 			addError(`Prompt ${promptFile} must not dispatch through run-prompt`);
+		}
+	}
+
+	if (["ef-work-tdd.md", "ef-ship-tdd.md"].includes(promptFile)) {
+		const expectedChain =
+			promptFile === "ef-work-tdd.md"
+				? "resolve -> spec -> implement -> validation-fix --loop 5 -> finalize"
+				: "ship-tdd-resolve -> spec -> implement -> validation-fix --loop 5 -> ef-review-with-followups -> finalize";
+		const chainValue = getFrontmatterField(extracted.frontmatter, "chain");
+		if (chainValue !== expectedChain) {
+			addError(`Prompt ${promptFile} must use chain: ${expectedChain}`);
+		}
+		if (!/validation-fix --loop 5/.test(chainValue || "")) {
+			addError(
+				`Prompt ${promptFile} must loop validation-fix inside the chain, not only in validation-fix.md frontmatter`,
+			);
 		}
 	}
 

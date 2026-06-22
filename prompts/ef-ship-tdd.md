@@ -1,7 +1,7 @@
 ---
 description: TDD-oriented work-item execution chain with specification, validation loop, review follow-ups, and finalization
 argument-hint: "[<work-item-ref>|--next] [--max-retries N] [context...]"
-chain: ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize
+chain: ship-tdd-resolve -> spec -> implement -> validation-fix --loop 5 -> ef-review-with-followups -> finalize
 chainContext: summary
 loop: unlimited
 fresh: false
@@ -13,7 +13,7 @@ ERROR: This prompt body should never be executed.
 `/ef-ship-tdd` must be handled by `pi-prompt-template-model` as a chain prompt using:
 
 ```text
-ship-tdd-resolve -> spec -> implement -> validation-fix -> ef-review-with-followups -> finalize
+ship-tdd-resolve -> spec -> implement -> validation-fix --loop 5 -> ef-review-with-followups -> finalize
 ```
 
 If you see this message, the project-local `.pi/prompts/ef-ship-tdd.md` overlay is missing, stale, or not being handled by `pi-prompt-template-model`.

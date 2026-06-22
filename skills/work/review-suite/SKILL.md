@@ -23,6 +23,8 @@ Every review must end with a machine-readable `# Finalization Handoff` section. 
 
 Review exactly one implemented work item. Resolve the work item and optional ExecPlan first. Check work-item compliance, ExecPlan compliance, acceptance criteria, validation evidence, accidental scope expansion, missing required behavior, regression risk, and merge readiness. Produce separate judgments for spec compliance, code quality, and validation evidence before giving the overall verdict.
 
+Known execflow workflow-state files such as `.pi/execflow-autoship-loop-marker.json`, `.pi/execflow-validation-gate.json`, legacy `.execflow/validation-gate.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md` are not delivery artifacts by themselves. Do not create review findings just because they are dirty or untracked; treat them as unrelated workflow state unless their contents are the only available validation evidence and that evidence is stale, missing, or contradictory.
+
 ### ExecPlan delivery review
 
 Review whether a whole ExecPlan was delivered coherently across derived issues/tickets. Resolve the plan, find derived work items, inspect status/descriptions/dependencies/comments/validation notes, and sample high-risk changed code only as needed. Focus on milestone coverage, dependency sequencing, plan drift, required docs/architecture updates, and material evidence gaps. Produce separate judgments for spec compliance, code quality, and validation evidence before giving the overall verdict.

@@ -122,7 +122,7 @@ On a strict `Gate: PASS` outcome, commit already-existing related changes before
 2. Classify every dirty path before staging:
    - `related`: directly implements, validates, or documents the selected work item.
    - `unrelated`: clearly belongs to other work and must not be staged.
-   - known autoship workflow-state paths (`.pi/execflow-autoship-loop-marker.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md`) are unrelated by default; never stage them and do not treat them as ambiguous solely because they are dirty.
+   - known execflow workflow-state paths (`.pi/execflow-autoship-loop-marker.json`, `.pi/execflow-validation-gate.json`, legacy `.execflow/validation-gate.json`, `.execflow/autoship-progress.json`, and `.execflow/lessons-learned.md`) are unrelated by default; never stage them and do not treat them as ambiguous solely because they are dirty.
    - `ambiguous`: cannot be proven related or unrelated from the work item/spec/evidence.
 3. Stage only `related` files. Do not stage unrelated or ambiguous changes.
 4. If any dirty path is ambiguous, return `REVISE` and leave the item open.
