@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.7.9 - 2026-06-22
+
+- Swapped the `implementation` and `validation_fix` model roles in
+  `execflow/settings.yml`. Implementation now runs `zai/glm-5.2` at `high`
+  thinking; validation/fix runs `kimi-coding/k2p7` at `medium` thinking with
+  `minimax/MiniMax-M3` and `gpt-5.4-mini` fallbacks.
+- Replaced the unreliable `kimi-coding/kimi-for-coding` fast-selector fallback
+  with `zai/glm-5-turbo`, keeping `gpt-5.4-mini` primary.
+- Added the missing `review` model anchor so `/ef-review` and
+  `/ef-review-with-followups` resolve `openai-codex/gpt-5.5` instead of
+  referencing an undefined alias.
+
 ## 1.7.8 - 2026-06-19
 
 - Fixed `/ef-ship-tdd` and `/ef-autoship-tdd` dead-loops that fired spurious
