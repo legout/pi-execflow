@@ -6,16 +6,16 @@ tracker:
 models:
     plan: &plan_model openai-codex/gpt-5.5, zai/glm-5.2
     orchestration: &orchestration_model zai/glm-5.2, openai-codex/gpt-5.4-mini
-    implementation: &implementation_model kimi-coding/k2p7, zai/glm-5.2
-    validation_fix: &validation_fix_model zai/glm-5.2, openai-codex/gpt-5.4-mini
-    fast: &fast_model openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
+    implementation: &implementation_model zai/glm-5.2, openai-codex/gpt-5.4-mini
+    validation_fix: &validation_fix_model kimi-coding/k2p7, minimax/MiniMax-M3, openai-codex/gpt-5.4-mini
+    fast: &fast_model openai-codex/gpt-5.4-mini, zai/glm-5-turbo
     review: &review_model openai-codex/gpt-5.5
 
 thinking:
     plan: &plan_thinking high
     orchestration: &orchestration_thinking medium
-    implementation: &implementation_thinking medium
-    validation_fix: &validation_fix_thinking high
+    implementation: &implementation_thinking high
+    validation_fix: &validation_fix_thinking medium
     fast: &fast_thinking low
     review: &review_thinking high
 
