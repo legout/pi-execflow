@@ -1,7 +1,7 @@
 ---
 description: Resolve an explicit work item or select the next ready item for /ef-ship
 argument-hint: "[<work-item-ref>|--next] [--max-retries N] [context...]"
-model: openai-codex/gpt-5.4-mini, kimi-coding/kimi-for-coding
+model: openai-codex/gpt-5.4-mini, zai/glm-5-turbo
 thinking: low
 fresh: true
 skill: resolve

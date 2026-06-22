@@ -1,8 +1,8 @@
 ---
 description: Validate and apply minimal fixes until acceptance criteria pass or progress stops
 argument-hint: "<work-item-ref> [context...]"
-model: zai/glm-5.2, openai-codex/gpt-5.4-mini
-thinking: high
+model: kimi-coding/k2p7, minimax/MiniMax-M3, openai-codex/gpt-5.4-mini
+thinking: medium
 subagent: ef-validation-fix
 loop: 5
 converge: true

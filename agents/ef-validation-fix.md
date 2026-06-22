@@ -2,9 +2,9 @@
 name: ef-validation-fix
 description: pi-execflow fresh-context validation and minimal repair worker
 tools: read, bash, edit, write
-model: zai/glm-5.2
+model: kimi-coding/k2p7
 fallbackModels: openai-codex/gpt-5.4-mini
-thinking: high
+thinking: medium
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: true

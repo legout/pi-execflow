@@ -1,8 +1,8 @@
 ---
 name: ef-worker
 description: pi-execflow implementation worker for scoped work-item edits
-model: kimi-coding/k2p7
-thinking: medium
+model: zai/glm-5.2
+thinking: high
 tools: read, bash, edit, write
 systemPromptMode: replace
 inheritProjectContext: true

@@ -176,13 +176,36 @@ function refreshExecflowAgents(trackerMode) {
 	}
 }
 
-function ensureExecflowTemplates(trackerMode) {
+function refreshDevRepoSettings(trackerMode) {
+	// Dev repo (pi-execflow developing itself): mirror the canonical settings so
+	// the dogfooding .execflow/ instance tracks the package under development.
+	// Model/thinking/prompts config comes from canonical; the project's tracker
+	// choice is preserved (the dev repo may dogfood a different tracker than the
+	// package default).
+	let settings = readFileSync(canonicalSettingsPath, "utf8");
+	if (trackerMode) {
+		settings = settings.replace(
+			/^(\s*primary:\s*)(?:tk|br)\s*$/m,
+			`$1${trackerMode}`,
+		);
+	}
+	writeFileSync(execflowSettingsPath, settings);
+	console.log(
+		`refreshed ${relative(cwd, execflowSettingsPath)} from canonical (dev repo)`,
+	);
+}
+
+function ensureExecflowTemplates(trackerMode, isDevRepo) {
 	if (!existsSync(execflowSrcDir))
 		fail(`Canonical execflow source not found: ${execflowSrcDir}`);
 	mkdirSync(execflowDstDir, { recursive: true });
 	refreshExecflowAgents(trackerMode);
 	copyMissingFile(canonicalPlansPath, execflowPlansPath);
-	copyMissingFile(canonicalSettingsPath, execflowSettingsPath);
+	if (isDevRepo) {
+		refreshDevRepoSettings(trackerMode);
+	} else {
+		copyMissingFile(canonicalSettingsPath, execflowSettingsPath);
+	}
 }
 
 function migrateKnownDefaultModels() {
@@ -317,12 +340,17 @@ function runModelSync() {
 }
 
 const trackerMode = detectTrackerMode();
+const isDevRepo = packageRoot === cwd;
 console.log(`ef-update-tracker ${trackerMode ?? "ambiguous"}`);
+if (isDevRepo) console.log("ef-update-dev-repo true");
 
 copyPromptOverlays();
 refreshAgentOverlays();
-ensureExecflowTemplates(trackerMode);
-migrateKnownDefaultModels();
+ensureExecflowTemplates(trackerMode, isDevRepo);
+// migrateKnownDefaultModels evolves consumer .execflow/settings.yml; in the dev
+// repo we just mirrored canonical, so it would be redundant (and risks stale
+// regexes touching the freshly-mirrored file).
+if (!isDevRepo) migrateKnownDefaultModels();
 updateRootAgentsBlock();
 if (trackerMode === "br") {
 	refreshNativeBrAgents();

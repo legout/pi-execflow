@@ -254,23 +254,40 @@ if (!existsSync(settingsPath)) {
   fail(`Missing ${settingsPath}. Run /ef-init first or create the settings file.`);
 }
 
-const promptDir = existsSync(targetSettingsPath)
-  ? projectPromptDir
-  : packagePromptDir;
-
-if (!existsSync(promptDir)) {
-  if (existsSync(targetSettingsPath)) {
-    fail(`Missing ${promptDir}. Run /ef-init first to scaffold .pi/prompts/.`);
-  }
-  fail(`Missing ${promptDir}. Nothing to sync.`);
-}
-
 const settings = parseSimpleYaml(readFileSync(settingsPath, "utf8"));
 const fallbackSettings = existsSync(canonicalSettingsPath) && canonicalSettingsPath !== settingsPath
   ? parseSimpleYaml(readFileSync(canonicalSettingsPath, "utf8"))
   : null;
-const promptFiles = readdirSync(promptDir).filter((name) => name.endsWith(".md")).sort();
-const results = promptFiles.map((promptFile) => syncPromptFile(join(promptDir, promptFile), settings, fallbackSettings));
+
+// Determine which prompt directories to sync. Consumers sync their project
+// .pi/prompts/ only. The dev repo (pi-execflow developing itself) additionally
+// syncs the canonical shipped prompts/ so the package source stays aligned with
+// settings and validate-package remains green. Consumers never have a
+// package-local prompts/ dir, so this is naturally dev-repo-only.
+const isDevRepo = canonicalPackageRoot === repoRoot;
+const promptDirs = [];
+if (existsSync(projectPromptDir)) promptDirs.push(projectPromptDir);
+if (
+  isDevRepo &&
+  existsSync(packagePromptDir) &&
+  !promptDirs.includes(packagePromptDir)
+) {
+  promptDirs.push(packagePromptDir);
+}
+if (promptDirs.length === 0) {
+  if (existsSync(targetSettingsPath)) {
+    fail(`Missing ${projectPromptDir}. Run /ef-init first to scaffold .pi/prompts/.`);
+  }
+  fail(`Missing ${projectPromptDir}. Nothing to sync.`);
+}
+
+const results = [];
+for (const dir of promptDirs) {
+  const files = readdirSync(dir).filter((name) => name.endsWith(".md")).sort();
+  for (const file of files) {
+    results.push(syncPromptFile(join(dir, file), settings, fallbackSettings));
+  }
+}
 
 const changed = results.filter((result) => result.changed);
 const skipped = results.filter((result) => result.skipped);
