@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.10 - 2026-06-22
+
+- Fixed `/ef-update` in the dev repo (pi-execflow developing itself) so it
+  refreshes the gitignored `.execflow/settings.yml` from the canonical
+  `execflow/settings.yml` (preserving the project tracker) instead of syncing
+  `.pi/prompts/` from a stale shadow file. Also syncs the canonical shipped
+  `prompts/` so `validate-package` stays green. Consumer repos are unaffected:
+  their `.execflow/settings.yml` remains the authoritative source of truth.
+- Aligned the `ef-worker` and `ef-validation-fix` agent frontmatter and the
+  affected canonical prompts to the current model roles.
+
 ## 1.7.9 - 2026-06-22
 
 - Swapped the `implementation` and `validation_fix` model roles in
