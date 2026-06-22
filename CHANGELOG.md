@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.11 - 2026-06-22
+
+- Normalized `scripts/sync-models.mjs` formatting after the dev-repo prompt sync fix.
+
 ## 1.7.10 - 2026-06-22
 
 - Fixed `/ef-update` in the dev repo (pi-execflow developing itself) so it

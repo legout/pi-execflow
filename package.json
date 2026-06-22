@@ -1,57 +1,57 @@
 {
-  "name": "@legout/pi-execflow",
-  "version": "1.7.10",
-  "description": "Pi package for brainstorming, ExecPlan authoring, tracker-aware work-item creation, and manual ticket/issue execution.",
-  "keywords": [
-    "pi-package",
-    "pi",
-    "execflow",
-    "execplan",
-    "planning",
-    "tk",
-    "br",
-    "work-items"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/legout/pi-execflow.git"
-  },
-  "homepage": "https://github.com/legout/pi-execflow#readme",
-  "bugs": {
-    "url": "https://github.com/legout/pi-execflow/issues"
-  },
-  "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
-  "scripts": {
-    "setup-models": "node scripts/sync-models.mjs",
-    "validate-package": "node scripts/validate-package.mjs"
-  },
-  "files": [
-    "agents",
-    "execflow",
-    "prompts",
-    "skills",
-    "scripts",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "CONTRIBUTING.md",
-    "package.json"
-  ],
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*",
-    "@sinclair/typebox": "*"
-  },
-  "pi": {
-    "prompts": [
-      "./prompts"
-    ],
-    "skills": [
-      "./skills"
-    ]
-  }
+	"name": "@legout/pi-execflow",
+	"version": "1.7.11",
+	"description": "Pi package for brainstorming, ExecPlan authoring, tracker-aware work-item creation, and manual ticket/issue execution.",
+	"keywords": [
+		"pi-package",
+		"pi",
+		"execflow",
+		"execplan",
+		"planning",
+		"tk",
+		"br",
+		"work-items"
+	],
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/legout/pi-execflow.git"
+	},
+	"homepage": "https://github.com/legout/pi-execflow#readme",
+	"bugs": {
+		"url": "https://github.com/legout/pi-execflow/issues"
+	},
+	"type": "module",
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"setup-models": "node scripts/sync-models.mjs",
+		"validate-package": "node scripts/validate-package.mjs"
+	},
+	"files": [
+		"agents",
+		"execflow",
+		"prompts",
+		"skills",
+		"scripts",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md",
+		"CONTRIBUTING.md",
+		"package.json"
+	],
+	"peerDependencies": {
+		"@mariozechner/pi-coding-agent": "*",
+		"@mariozechner/pi-tui": "*",
+		"@sinclair/typebox": "*"
+	},
+	"pi": {
+		"prompts": [
+			"./prompts"
+		],
+		"skills": [
+			"./skills"
+		]
+	}
 }
